@@ -36,6 +36,7 @@ Please refer to README file in each folder for more specific instructions.
 * `wget https://panorama-starter-kit.s3.amazonaws.com/public/v1/Models/panorama_sdk.zip`
 * `unzip -q panorama_sdk.zip`
 * `sudo rm panorama_sdk.zip`
+* We suggest using `conda_mxnet_latest_p37` kernel for all use cases (Except specified in the individual README)
 * At this point, the set up is done. You can explore the different applications in each of the folders
 * Follow the README in the individual examples for information about the use case
 
