@@ -12,7 +12,7 @@ Please refer to README file in each folder for more specific instructions.
 
 ### How to Run a Sample
 * We recommend using a Sagemaker Jupyter Notebook Instance
-  + Go to your AWS Sagemaker console
+  + Go to your [AWS Sagemaker console](https://aws.amazon.com/sagemaker/)
   + Click  `Notebook Instances -> Create`
   + Choose the instance type (These were built on P2 instances)
   + Choose the Volume size in GB (5 GB should be enough)
