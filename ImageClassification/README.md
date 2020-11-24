@@ -22,7 +22,7 @@ resnet50_v2.tar.gz (Model to Use)
 ### How to use the Notebook
 The included Jupyter Notebook gives a helpful introduction of 
 - Task at hand 
-- Step by step walk thru of the MXNet code
+- Step by step walk thru of the Panorama SDK / MXNet code
 - Understanding the Lambda structure by creating code in the same format
 - Creating a Lambda function by uploading the included Lambda zip file
 - Publishing the Lambda and displaying the version number and the Lambda console link

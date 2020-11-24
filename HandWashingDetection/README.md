@@ -9,7 +9,8 @@ This is an end to end example that shows how to use an action detection model to
 	- HandWashingLambda.zip
 - Notebook(Folder)
 	- HandWash-Panorama-Examples.ipynb
-
+	- classes.py
+    - requirements.txt
 
 washing_hands.mp4 (Video to test)
 resnet101_v1b_kinetics400.tar.gz (Model to Use)
@@ -23,7 +24,7 @@ resnet101_v1b_kinetics400.tar.gz (Model to Use)
 ### How to use the Notebook
 The included Jupyter Notebook gives a helpful introduction of 
 - Task at hand 
-- Step by step walk thru of the MXNet code
+- Step by step walk thru of the MXNet / Panorama SDK code
 - Understanding the Lambda structure by creating code in the same format
 - Creating a Lambda function by uploading the included Lambda zip file
 - Publishing the Lambda and displaying the version number and the Lambda console link
