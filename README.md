@@ -1,4 +1,8 @@
-# AWS Panorama Computer Vision Examples
+# Introduction to AWS Panorama
+
+AWS Panorama is a machine learning appliance and SDK, which enable you to add computer vision (CV) to your on-premises cameras or on new Panorama enabled cameras. AWS Panorama gives you the ability to make real-time decisions to improve your operations, by giving you compute power at the edge.
+
+## AWS Panorama Computer Vision Examples
 
 ### Resources
 
@@ -10,8 +14,8 @@ Please refer to README file in each folder for more specific instructions.
 * We recommend using a Sagemaker Jupyter Notebook Instance
   + Go to your AWS Sagemaker console
   + Click  `Notebook Instances -> Create`
-  + Choose the instance type
-  + Choose the Volume size in GB (1 to 2 GB should be enough)
+  + Choose the instance type (These were built on P2 instances)
+  + Choose the Volume size in GB (5 GB should be enough)
   + Create Notebook Instance 
 * Once your notebook instance is created, click the name of your Notebook instance
   + Go to Permissions and encryption
@@ -42,14 +46,19 @@ Please refer to README file in each folder for more specific instructions.
 
 ### List of Samples
 
-* [People Counter Application](PeopleCounter/) This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**)
- * [Pikachu Detection](PikachuDetection/) This is a sample computer vision application that showcases how to build your own models using Gluoncv, and then deploy them on the AWS Panorama device
- * [Fall Detection](FallDetection/) This is a sample computer vision application that showcases how to build a fall detection computer vision application,and then deploy them on the AWS Panorama device
- * [Hand Washing Detection](HandWashingDetection/) This is a sample computer vision application that showcases how to detect Hand washing using an action detection model. We then show how this can be deployed to the edge, using the AWS Panorama device
- * [Image Classification](ImageClassification/) This is a sample computer vision application that showcases build a simple image classification model using AWS Panorama. We then show how this can be deployed to the edge, using the AWS Panorama device
- * [Semantic Segmentation](SemanticSegmentation/) This is a sample computer vision application that showcases how to use a Gluoncv Segmentation model and build a segmentation use case. We then show how this can be deployed to the edge, using the AWS Panorama device
- * [Smoking Detection](SmokingDetection/) This is a sample computer vision application that showcases how to detect somone Smoking using an action detection model. We then show how this can be deployed to the edge, using the AWS Panorama device
- * [Social Distance Calculation](SocialDistance/) This is an advanced use case where we build a sample computer vision application that uses object detection models and some simple math to detect social distancing infractions. We then show how this can be deployed to the edge, using the AWS Panorama device
+For each of the samples below, we include instructions on how to deploy them to the edge Panorama device inside the notebook. 
+
+
+| Application | README | Description | Framework | Usecase | Complexity
+| ------ | ------ |------ |------ |------ |------ |
+| **People Counter** | [README.md](PeopleCounter/README.md) | This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy
+| **Custom Object Detector** | [README.md](PikachuDetection/README.md) | This is a sample computer vision application that showcases how to build your own models using Gluoncv, and then deploy them on the AWS Panorama device | MXNet | Object Detection | Medium
+| **Fall Detection** | [README.md](FallDetection/README.md) |This is a sample computer vision application that showcases how to build a fall detection computer vision application,and then deploy them on the AWS Panorama device. This also showcases how to use multiple models for a single usecase on the Panorama device | MXNet | Pose Detection & Object Detection | Advanced
+| **Social Distance Calculation** | [README.md](SocialDistance/README.md) | This is an advanced use case where we build a sample computer vision application that uses object detection models and some simple math to detect social distancing infractions | MXNet | Object Detection | Advanced
+| **Handwash Detection** | [README.md](HandWashingDetection/README.md) |This is a sample computer vision application that showcases how to detect Hand washing using an action detection model | MXNet |  Action Detection | Easy
+| **Smoking Detection** | [README.md](SmokingDetection/README.md) | This is a sample computer vision application that showcases how to detect somone Smoking using an action detection model | MXNet |  Action Detection | Easy
+| **Image Classification** | [README.md](ImageClassification/README.md) | This is a sample computer vision application that showcases build a simple image classification model using AWS Panorama | MXNet |  Image Classification | Easy
+| **Semantic Segmentation** | [README.md](SemanticSegmentation/README.md) | This is a sample computer vision application that showcases how to use a Gluoncv Segmentation model and build a segmentation use case | MXNet |  Semantic Segmentation | Medium
 
 ## Getting Help
 We use [AWS Panorama Samples GitHub issues](https://github.com/aws-samples/aws-panorama-samples/issues) for tracking questions, bugs, and feature requests.
