@@ -1,4 +1,4 @@
-# Panorama People Counter Example
+# AWS Panorama People Counter Example
 
 This is an end to end example that shows how to use an Object Detection Model to count people
 

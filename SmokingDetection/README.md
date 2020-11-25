@@ -1,4 +1,4 @@
-# Panorama Smoking Detection Example
+# AWS Panorama Smoking Detection Example
 
 This is an end to end example that shows how to use an action detection model to detect smoking and time it.
 

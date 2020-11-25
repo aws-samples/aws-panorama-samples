@@ -1,4 +1,4 @@
-# Panorama Custom Object Detector Example (Pikachu Detection)
+# AWS Panorama Custom Object Detector Example (Pikachu Detection)
 
 This is an end to end example that shows how to create a custom Object Detector using GluonCV / PanoramaSDK and using it on the Panorama device
 

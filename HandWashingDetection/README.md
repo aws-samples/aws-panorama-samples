@@ -1,4 +1,4 @@
-# Panorama Hand Washing Example
+# AWS Panorama Hand Washing Example
 
 This is an end to end example that shows how to use an action detection model to detect Hand Washing and time it.
 

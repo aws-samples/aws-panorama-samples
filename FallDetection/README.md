@@ -1,4 +1,4 @@
-# Panorama Fall Detection Example
+# AWS Panorama Fall Detection Example
 
 ### Use Case
 Automated **Fall Detection** has been popular in applications like detecting the fall of the elderly , factory workers etc. Several algorithms have been developed based on sensor readings and camera recordings ranging from classical ML based models to Deep Learning based models.

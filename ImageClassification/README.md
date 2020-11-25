@@ -1,4 +1,4 @@
-# Panorama Image Classification Example
+# AWS Panorama Image Classification Example
 
 This is an end to end example that shows how to use an image classification model to classify video frames in the video stream.
 

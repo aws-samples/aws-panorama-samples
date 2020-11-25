@@ -1,4 +1,4 @@
-# Panorama Semantic Segmentation Example
+# AWS Panorama Semantic Segmentation Example
 
 This is an end to end example that shows how to use a semantic segmentation model to segment the image into its respective classes.
 

@@ -1,4 +1,4 @@
-# Panorama Social Distance Calculation Example
+# AWS Panorama Social Distance Calculation Example
 
 This is an end to end example that shows how to use a people detector model to calculate and identify social distance violations in real time
 
