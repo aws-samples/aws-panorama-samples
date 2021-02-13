@@ -1,4 +1,0 @@
-###### Requirements without Version Specifiers ######`
-imutils
-gluoncv
-decord
