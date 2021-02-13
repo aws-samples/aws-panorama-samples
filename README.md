@@ -17,7 +17,7 @@ Please refer to README file in each folder for more specific instructions.
   + Go to your [AWS Sagemaker console](https://aws.amazon.com/sagemaker/)
   + Click  `Notebook Instances -> Create`
   + Choose the instance type (These were built on P2 instances)
-  + Choose the Volume size in GB (5 GB should be enough)
+  + Choose the Volume size in GB (10 GB should be enough)
   + Create Notebook Instance 
 * Once your notebook instance is created, click the name of your Notebook instance
   + Go to Permissions and encryption
@@ -42,7 +42,7 @@ Please refer to README file in each folder for more specific instructions.
 * `sudo rm panorama_sdk.zip`
 * `cd ..`
 * `sudo sh aws-panorama-samples/panorama_sdk/run_after_clone.sh`
-* We suggest using `conda_mxnet_latest_p37` kernel for all use cases (Except specified in the individual README)
+* We suggest using `conda_mxnet_p36` kernel for all use cases (Except specified in the individual README)
 * At this point, the set up is done. You can explore the different applications in each of the folders
 * Follow the README in the individual examples for information about the use case
 
@@ -55,7 +55,6 @@ For each of the samples below, we include instructions on how to deploy them to 
 | ------ | ------ |------ |------ |------ |------ |
 | **People Counter** | [README.md](PeopleCounter/README.md) | This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy
 | **Custom Object Detector** | [README.md](PikachuDetection/README.md) | This is a sample computer vision application that showcases how to build your own models using Gluoncv, and then deploy them on the AWS Panorama device | MXNet | Object Detection | Medium
-| **Fall Detection** | [README.md](FallDetection/README.md) |This is a sample computer vision application that showcases how to build a fall detection computer vision application,and then deploy them on the AWS Panorama device. This also showcases how to use multiple models for a single usecase on the Panorama device | MXNet | Pose Detection & Object Detection | Advanced
 | **Social Distance Calculation** | [README.md](SocialDistance/README.md) | This is an advanced use case where we build a sample computer vision application that uses object detection models and some simple math to detect social distancing infractions | MXNet | Object Detection | Advanced
 | **Handwash Detection** | [README.md](HandWashingDetection/README.md) |This is a sample computer vision application that showcases how to detect Hand washing using an action detection model | MXNet |  Action Detection | Easy
 | **Smoking Detection** | [README.md](SmokingDetection/README.md) | This is a sample computer vision application that showcases how to detect somone Smoking using an action detection model | MXNet |  Action Detection | Easy
