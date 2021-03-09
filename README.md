@@ -17,7 +17,7 @@ Please refer to README file in each folder for more specific instructions.
   + Go to your [AWS Sagemaker console](https://aws.amazon.com/sagemaker/)
   + Click  `Notebook Instances -> Create`
   + Choose the instance type (These were built on P2 instances)
-  + Choose the Volume size in GB (10 GB should be enough)
+  + Choose the Volume size in GB (20 GB should be enough)
   + Create Notebook Instance 
 * Once your notebook instance is created, click the name of your Notebook instance
   + Go to Permissions and encryption
@@ -34,10 +34,10 @@ Please refer to README file in each folder for more specific instructions.
 * Clone the repository 
   `git clone https://github.com/aws-samples/aws-panorama-samples.git`
 * `cd aws-panorama-samples`
-* `wget https://panorama-starter-kit.s3.amazonaws.com/public/v1/Models/Models.zip`
+* `wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/Models.zip`
 * `unzip -q Models.zip`
 * `sudo rm Models.zip`
-* `wget https://panorama-starter-kit.s3.amazonaws.com/public/v1/Models/panorama_sdk.zip`
+* `wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/panorama_sdk.zip`
 * `unzip -q panorama_sdk.zip`
 * `sudo rm panorama_sdk.zip`
 * `cd ..`
@@ -60,6 +60,12 @@ For each of the samples below, we include instructions on how to deploy them to 
 | **Smoking Detection** | [README.md](SmokingDetection/README.md) | This is a sample computer vision application that showcases how to detect somone Smoking using an action detection model | MXNet |  Action Detection | Easy
 | **Image Classification** | [README.md](ImageClassification/README.md) | This is a sample computer vision application that showcases build a simple image classification model using AWS Panorama | MXNet |  Image Classification | Easy
 | **Semantic Segmentation** | [README.md](SemanticSegmentation/README.md) | This is a sample computer vision application that showcases how to use a Gluoncv Segmentation model and build a segmentation use case | MXNet |  Semantic Segmentation | Medium
+| **Fall Detection** | [README.md](FallDetection/README.md) | This is a sample computer vision application that showcases how to use a Gluoncv Pretrained Pose Detection mode and build a Fall Detection use case | MXNet |  Pose Estimation | Advanced
+| **Test a Custom GluonCV Model with this emulator** | [README.md](Using_Custom_GluonCV_OD_Model/README.md) | This is a sample use case showcasing how to bring your own GluonCV model to test with this Panorama SDK Emulator | MXNet | Object Detection | Medium
+| **Test a Custom Tensorflow Model with this emulator** | [README.md](Using_Custom_Tensorflow_OD_Model/README.md) | This is a sample use case showcasing how to bring your own TensorFlow model to test with this Panorama SDK Emulator | Tensorflow | Object Detection | Medium
+
+
+
 
 ## Getting Help
 We use [AWS Panorama Samples GitHub issues](https://github.com/aws-samples/aws-panorama-samples/issues) for tracking questions, bugs, and feature requests.
