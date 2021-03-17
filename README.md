@@ -32,7 +32,7 @@ Please refer to README file in each folder for more specific instructions.
 * Launch a terminal session and do the following
     + `cd SageMaker`
 * Clone the repository 
-  `git clone https://github.com/aws-samples/aws-panorama-samples.git`
+  `git clone https://github.com/aws-samples/aws-panorama-samples.git --recursive`
 * `cd aws-panorama-samples`
 * `wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/Models.zip`
 * `unzip -q Models.zip`
