@@ -1,0 +1,3 @@
+[submodule "Object-Detection-YOLOv5/3rdparty/yolov5"]
+	path = Object-Detection-YOLOv5/3rdparty/yolov5
+	url = https://github.com/ultralytics/yolov5
