@@ -21,7 +21,9 @@ This sample includes a submodule pointing to [YOLOv5 repository](https://github.
 
 ### How to use the Notebook
 
-The included Jupyter Notebook gives a guided tour of deploying a pre-trained YOLOv5 ML model. Follow the step by step instructions in the Notebook to deploy the provided model and Application code to the Panorama appliance. We recommend using SageMaker Notebook Instance to run the Notebook as it will have most of the dependencies pre-installed (including the AWS CLI tool). Select `conda_python3` kernel is using Amazon SageMaker Notebook Instance.
+The included Jupyter Notebook gives a guided tour of deploying a pre-trained YOLOv5 ML model. Follow the step by step instructions in the Notebook to deploy the provided model and Application code to the Panorama appliance. 
+
+We recommend running the notebook using **conda_python3*** kernel on SageMaker Notebook Instance as it comes with most of the dependencies pre-installed (including the AWS CLI tool). 
 
 If the Notebook is not executed on Amazon SageMaker Notebook Instance then you'll have to install and configure AWS CLI tools (see the [Resources](#Resources) section for details) 
 
