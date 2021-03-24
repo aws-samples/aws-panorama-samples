@@ -63,6 +63,7 @@ For each of the samples below, we include instructions on how to deploy them to 
 | **Fall Detection** | [README.md](FallDetection/README.md) | This is a sample computer vision application that showcases how to use a Gluoncv Pretrained Pose Detection mode and build a Fall Detection use case | MXNet |  Pose Estimation | Advanced
 | **Test a Custom GluonCV Model with this emulator** | [README.md](Using_Custom_GluonCV_OD_Model/README.md) | This is a sample use case showcasing how to bring your own GluonCV model to test with this Panorama SDK Emulator | MXNet | Object Detection | Medium
 | **Test a Custom Tensorflow Model with this emulator** | [README.md](Using_Custom_Tensorflow_OD_Model/README.md) | This is a sample use case showcasing how to bring your own TensorFlow model to test with this Panorama SDK Emulator | Tensorflow | Object Detection | Medium
+| **MJPEG Server** | [Readme.md](mjpeg_server/Readme.md) | Sample code to view camera or the inference output on the local network instead of viewing it on the HDMI display | All | All | Medium
 
 
 
