@@ -10,6 +10,7 @@ import boto3
 
 HEIGHT = 512
 WIDTH = 512
+MODEL = 'pikachu'
 
 class PikachuDetection(panoramasdk.base):
 
@@ -18,7 +19,7 @@ class PikachuDetection(panoramasdk.base):
             "parameters":
                 (
                     ("float", "threshold", "Detection threshold", 0.50),
-                    ("model", "pokemon_detection", "Model for detecting pokemon", "pikachu-detection-hyb"),
+                    ("model", "pokemon_detection", "Model for detecting pokemon", MODEL),
                     ("int", "batch_size", "Model batch size", 1),
                     ("float", "pokemon_index", "pokemon index based on dataset used", 0),
                 ),
