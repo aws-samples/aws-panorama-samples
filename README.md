@@ -55,6 +55,7 @@ For each of the samples below, we include instructions on how to deploy them to 
 | ------ | ------ |------ |------ |------ |------ |
 | **People Counter** | [README.md](PeopleCounter/README.md) | This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy
 | **Custom Object Detector** | [README.md](PikachuDetection/README.md) | This is a sample computer vision application that showcases how to build your own models using Gluoncv, and then deploy them on the AWS Panorama device | MXNet | Object Detection | Medium
+| **Custom Object Detector using SageMaker MXNet** | [README.md](PikachuDetection-SageMaker/README.md) | This is a sample computer vision application that showcases how to build your own models using SageMaker MXNet, and then deploy them on the AWS Panorama device | SageMaker MXNet | Object Detection | Medium
 | **Social Distance Calculation** | [README.md](SocialDistance/README.md) | This is an advanced use case where we build a sample computer vision application that uses object detection models and some simple math to detect social distancing infractions | MXNet | Object Detection | Advanced
 | **Handwash Detection** | [README.md](HandWashingDetection/README.md) |This is a sample computer vision application that showcases how to detect Hand washing using an action detection model | MXNet |  Action Detection | Easy
 | **Smoking Detection** | [README.md](SmokingDetection/README.md) | This is a sample computer vision application that showcases how to detect somone Smoking using an action detection model | MXNet |  Action Detection | Easy
@@ -63,9 +64,8 @@ For each of the samples below, we include instructions on how to deploy them to 
 | **Fall Detection** | [README.md](FallDetection/README.md) | This is a sample computer vision application that showcases how to use a Gluoncv Pretrained Pose Detection mode and build a Fall Detection use case | MXNet |  Pose Estimation | Advanced
 | **Test a Custom GluonCV Model with this emulator** | [README.md](Using_Custom_GluonCV_OD_Model/README.md) | This is a sample use case showcasing how to bring your own GluonCV model to test with this Panorama SDK Emulator | MXNet | Object Detection | Medium
 | **Test a Custom Tensorflow Model with this emulator** | [README.md](Using_Custom_Tensorflow_OD_Model/README.md) | This is a sample use case showcasing how to bring your own TensorFlow model to test with this Panorama SDK Emulator | Tensorflow | Object Detection | Medium
-| **MJPEG Server** | [Readme.md](mjpeg_server/Readme.md) | Sample code to view camera or the inference output on the local network instead of viewing it on the HDMI display | All | All | Medium
-
-
+| **Object Detection using YoloV5** | [README.md](Object-Detection-YOLOv5/README.md) | This is a sample use case showcasing the use a YoloV5 PyTorch Model to detect objects using Panorama | PyTorch | Object Detection | Medium
+| **MJPEG Server** | [Readme.md](utilities/mjpeg_server/Readme.md) | Sample code to view camera or the inference output on the local network instead of viewing it on the HDMI display | All | All | Medium
 
 
 ## Getting Help
