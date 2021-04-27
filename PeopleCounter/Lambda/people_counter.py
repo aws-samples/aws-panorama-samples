@@ -47,6 +47,9 @@ class people_counter(panoramasdk.base):
             self.person_index = parameters.person_index
             # Set threshold for model from parameters 
             self.threshold = parameters.threshold
+            # Create stream buffer.
+            self.buffered_media = {}
+            self.buffered_image = {}
 
             # Load model from the specified directory.
             print("loading the model...")
@@ -109,14 +112,23 @@ class people_counter(panoramasdk.base):
         self.frame_num += 1
 
         for i in range(len(inputs.video_in)):
-            stream = inputs.video_in[i]
-            person_image = stream.image
-            
-            x1 = self.preprocess(person_image)
+            media = inputs.video_in[i]
+            stream = media.stream_uri
+            # Set up stream buffer
+            if not self.buffered_media.get(stream):
+                self.buffered_media[stream] = media
+                self.buffered_image[stream] = self.preprocess(media.image)
+                print('Set up frame buffer for stream: {}'.format(stream))
+                print('Stream image size: {}'.format(media.image.shape))
+            output = self.buffered_media[stream]
 
-            # Do inference on the new frame.
-            self.model.batch(0, x1)
+            # Run inference on the buffered image
+            self.model.batch(0, self.buffered_image[stream])
             self.model.flush()
+
+            # While waiting for inference, preprocess the current image
+            self.buffered_image[stream] = self.preprocess(media.image)
+            self.buffered_media[stream] = media
 
             # Get the results.
             resultBatchSet = self.model.get_result()
@@ -150,13 +162,13 @@ class people_counter(panoramasdk.base):
                     right = np.clip(rect_data[index][2] / np.float(HEIGHT), 0, 1)
                     bottom = np.clip(rect_data[index][3] / np.float(WIDTH), 0, 1)
     
-                    stream.add_rect(left, top, right, bottom)
-                    stream.add_label(str(prob_data[index][0]), right, bottom)            
+                    output.add_rect(left, top, right, bottom)
+                    output.add_label(str(prob_data[index][0]), right, bottom)
                 
-            stream.add_label('Number of People : {}'.format(self.number_people), 0.8, 0.05)
+            output.add_label('Number of People : {}'.format(self.number_people), 0.8, 0.05)
             
             self.model.release_result(resultBatchSet)
-            outputs.video_out[i] = stream
+            outputs.video_out[i] = output
 
         return True
 
