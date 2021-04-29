@@ -38,6 +38,8 @@ The output displays the top 5 classes the image may belong to.
 
 The included Lambda function is a zip file that can be directly uploaded to the Lambda console to create a usable Lambda arn. 
 
+The **Model Name** that is created in the console **MUST** match the interface parameters value from the Lambda function; e.g. "Resnet-Classifier"
+
 ### Other resources to use
 
 - [AWS Panorama Documentation](https://docs.aws.amazon.com/panorama/)
