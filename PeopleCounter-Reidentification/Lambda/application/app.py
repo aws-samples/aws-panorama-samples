@@ -316,8 +316,6 @@ class app(panoramasdk.base):
         boxes_xywh[:, 1] = (boxes_xyxy[:, 1] + boxes_xyxy[:, 3]) / 2.
         boxes_xywh[:, 2] = boxes_xyxy[:, 2] - boxes_xyxy[:, 0]
         boxes_xywh[:, 3] = boxes_xyxy[:, 3] - boxes_xyxy[:, 1]
-        for index in range(len(boxes_xywh)):
-            log(f'X:{boxes_xywh[index][0]} Y: {boxes_xywh[index][1]} W: {boxes_xywh[index][2]} H: {boxes_xywh[index][3]}')
         return boxes_xywh
 
 
