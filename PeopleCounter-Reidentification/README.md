@@ -28,6 +28,7 @@ This is an end to end example that demonstrates
     conda install -c conda-forge tar 
     conda install ipywidgets
     conda install boto3
+    conda install tensorflow
     pip install gluoncv mxnet-mkl>=1.4.0 --upgrade
     python setup.py develop
 
