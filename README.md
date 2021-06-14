@@ -54,6 +54,7 @@ For each of the samples below, we include instructions on how to deploy them to 
 | Application | README | Description | Framework | Usecase | Complexity
 | ------ | ------ |------ |------ |------ |------ |
 | **People Counter** | [README.md](PeopleCounter/README.md) | This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy
+| **Object Detection - ReIdentification** | [README.md](PeopleCounter-Reidentification/README.md) | This is a sample computer vision application that can both count and reidentify objects | MXNet | Object Detection | Advanced
 | **Custom Object Detector** | [README.md](PikachuDetection/README.md) | This is a sample computer vision application that showcases how to build your own models using Gluoncv, and then deploy them on the AWS Panorama device | MXNet | Object Detection | Medium
 | **Custom Object Detector using SageMaker MXNet** | [README.md](PikachuDetection-SageMaker/README.md) | This is a sample computer vision application that showcases how to build your own models using SageMaker MXNet, and then deploy them on the AWS Panorama device | SageMaker MXNet | Object Detection | Medium
 | **Social Distance Calculation** | [README.md](SocialDistance/README.md) | This is an advanced use case where we build a sample computer vision application that uses object detection models and some simple math to detect social distancing infractions | MXNet | Object Detection | Advanced
