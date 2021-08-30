@@ -184,7 +184,7 @@ class AwspanoramaSD(panoramasdk.base):
 
     def entry(self, inputs, outputs):
         self.frame_num += 1
-
+        _cam_height = 20
         cam_order = {}
 
         for i in range(len(inputs.video_in)):
@@ -200,7 +200,7 @@ class AwspanoramaSD(panoramasdk.base):
                 redacted_image = person_image.copy()
                 
                 # SD Code 1
-                _frame = person_image.copy()
+                _frame = person_image
                 _image_shape, _size_mask_shape = sdu.get_shapes(_frame)
                            
                 x1 = self.preprocess(person_image)
