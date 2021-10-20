@@ -80,6 +80,11 @@
 
 For more information, check out the documentation for the Panorama DX CLI [here](https://github.com/aws/aws-panorama-cli)
 
+## Section 4: Documentation
+
+* [Developer Guide](https://docs.aws.amazon.com/panorama/latest/dev/panorama-releases.html)
+* [API Guide](https://docs.aws.amazon.com/panorama/latest/api/API_Operations.html)
+* [Dev Guide Github](https://github.com/awsdocs/aws-panorama-developer-guide)
 
 ## Getting Help
 
