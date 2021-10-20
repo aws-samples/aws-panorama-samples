@@ -23,7 +23,7 @@
 
 ### Launching EC2 ARM Instance  
 
-* **Step 1**: Click the Launch Stack Button below. **NOTE** : This process will take about ```45 minutes```  
+* **Step 1**: Click the Launch Stack Button below. **NOTE** : This process will take about ```20 minutes```  
     * **US-EAST-1** :  
  [![Foo](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=arm-ec2-instance&templateURL=https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ec2-instance-panorama.yml)
 
