@@ -1,0 +1,73 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "278046373397::PEOPLE_COUNTER_CODE",
+                "version": "1.0"
+            },
+            {
+                "name": "278046373397::SSD_MODEL",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "code_node",
+                "interface": "278046373397::PEOPLE_COUNTER_CODE.interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "model_node",
+                "interface": "278046373397::SSD_MODEL.interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "output_node",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": true,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "detection_threshold",
+                "interface": "float32",
+                "value": 60.0,
+                "overridable": true,
+                "decorator": {
+                    "title": "Threshold",
+                    "description": "The minimum confidence percentage."
+                }
+            },
+            {
+                "name": "camera_node",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart"
+            }
+        ],
+        "edges": [
+            {
+                "producer": "camera_node.video_out",
+                "consumer": "code_node.video_in"
+            },
+            {
+                "producer": "code_node.video_out",
+                "consumer": "output_node.video_in"
+            },
+            {
+                "producer": "detection_threshold",
+                "consumer": "code_node.threshold"
+            }
+        ]
+    }
+}

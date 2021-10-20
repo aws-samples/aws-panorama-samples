@@ -1,0 +1,32 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "SSD_MODEL",
+        "version": "1.0",
+        "description": "Default description for package call_node_mxnet_ssd",
+        "assets": [
+
+        ],
+        "interfaces": [
+            {
+                "name": "interface",
+                "category": "ml_model",
+                "asset": "model_asset",
+                "inputs": [
+                    {
+                        "description": "Video stream output",
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "description": "Video stream output",
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}

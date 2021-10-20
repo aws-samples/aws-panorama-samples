@@ -1,0 +1,12 @@
+{
+    "mlModelDescriptor": {
+        "envelopeVersion": "2021-01-01",
+        "framework": "MXNET",
+        "inputs": [
+            {
+                "name": "data",
+                "shape": [1, 3, 512, 512]
+            }
+        ]
+    }
+}

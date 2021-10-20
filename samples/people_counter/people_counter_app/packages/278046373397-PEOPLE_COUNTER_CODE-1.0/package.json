@@ -1,0 +1,35 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "PEOPLE_COUNTER_CODE",
+        "version": "1.0",
+        "description": "Code package for app",
+        "assets": [
+            
+        ],
+        "interfaces": [
+            {
+                "name": "interface",
+                "category": "business_logic",
+                "asset": "code_asset",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    },
+                    {
+                        "name": "threshold",
+                        "type": "float32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "description": "Video stream output",
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
