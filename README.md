@@ -9,7 +9,7 @@
 ### Resources    
 
 ## Section 1: Setting Up Samples
-=========================================================================  
+
 ### Pre-Requisites
 * **Step 1**: You need to have an already created PEM key in your aws account and downloaded it to your local computer. [Instructions on how to create a PEM key](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
 
@@ -67,7 +67,6 @@
     ``` 
 
 ## Section 2: List of Samples
-=========================================================================
 
 | Application | Description | Framework | Usecase | Complexity | Model 
 | ------ | ------ |------ |------ |------ |------ |
@@ -76,7 +75,6 @@
 
 
 ## Section 3: Running the Samples
-=========================================================================
 
 **Step 1** : Go to awspanoramasamples/samples and open your choice of project  
 **Step 2** : Open the .ipynb notebook and follow the instructions in the notebook  
