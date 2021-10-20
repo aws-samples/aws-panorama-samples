@@ -3,7 +3,7 @@
 
 ## Introduction
 
-> AWS Panorama is a machine learning appliance and SDK, which enable you to add computer > vision (CV) to your on-premises cameras or on new Panorama enabled cameras. AWS Panorama > gives you the ability to make real-time decisions to improve your operations, by giving you > compute power at the edge.
+> AWS Panorama is a machine learning appliance and SDK, which enables you to add computer vision (CV) to your on-premises cameras or on new Panorama enabled cameras. AWS Panorama gives you the ability to make real-time decisions to improve your operations, by giving you compute power at the edge.
 
 
 ## Section 1: Setting Up Samples
