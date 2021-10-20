@@ -13,7 +13,7 @@ This repository provides some examples to get you kick-started on building appli
 Please refer to README file in each folder for more specific instructions.
 
 ### How to Run a Sample
-* We recommend using a Sagemaker Jupyter Notebook Instance
+* We recommend using an AWS Sagemaker Jupyter Notebook Instance
   + Go to your [AWS Sagemaker console](https://aws.amazon.com/sagemaker/)
   + Click  `Notebook Instances -> Create`
   + Choose the instance type (These were built on P2 instances)
