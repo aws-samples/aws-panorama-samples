@@ -78,18 +78,7 @@
 | **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Advanced | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)
 
 
-## Section 3: Using the EC2 Panorama Test Utility 
-=========================================================================
-* When you launch and set up the EC2 instance, you will get access to the Panorama Test Utility
-* **WHAT CAN YOU DO WITH THE UTILITY**
-    * Go thru the complete workflow of setting up the application to deployment, all programatically
-    * Test the application and models on your own videos
-    * Compile your own models for use in the test utility
-        * [Click Here to learn how to compile a model thru Neo](https://docs.aws.amazon.com/sagemaker/latest/dg/neo-job-compilation.html)
-    * Code in a simulated environment and use this code to deploy on the device
-
-
-## Section 5: Running the Samples
+## Section 3: Running the Samples
 =========================================================================
 
 **Step 1** : Go to awspanoramasamples/samples and open your choice of project  
