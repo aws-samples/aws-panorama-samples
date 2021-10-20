@@ -5,8 +5,6 @@
 
 > AWS Panorama is a machine learning appliance and SDK, which enable you to add computer > vision (CV) to your on-premises cameras or on new Panorama enabled cameras. AWS Panorama > gives you the ability to make real-time decisions to improve your operations, by giving you > compute power at the edge.
 
-## AWS Panorama Computer Vision Examples (SDK2.0)  
-
 
 ### Resources    
 
@@ -88,7 +86,8 @@ For more information, check out the documentation for the Panorama DX CLI [here]
 
 
 ## Getting Help
-We use [panorama-beta](https://amzn-aws.slack.com/archives/C029VBNU03T) channel for tracking questions, bugs, and feature requests.
+
+We use [AWS Panorama Samples GitHub issues](https://github.com/aws-samples/aws-panorama-samples/issues) for tracking questions, bugs, and feature requests.
 
 ## License
 
