@@ -1,6 +1,5 @@
 # AWS Panorama Samples and Test Utility
   
-[![N|Solid](https://img.shields.io/badge/AWS%20Panorama-SDK2.0-green)](https://img.shields.io/badge/AWS%20Panorama-SDK2.0-green)
 
 # Introduction to AWS Panorama
 
