@@ -1,0 +1,12 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "pose_estimation_code",
+        "version": "1.0",
+        "description": "Code package for app",
+        "assets": [
+        ],
+        "interfaces": [
+        ]
+    }
+}
