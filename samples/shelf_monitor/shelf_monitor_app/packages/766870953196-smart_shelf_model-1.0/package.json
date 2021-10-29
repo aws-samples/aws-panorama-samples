@@ -1,0 +1,41 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "smart_shelf_model",
+        "version": "1.0",
+        "description": "Default description for package smart_shelf_model",
+        "assets": [
+            {
+                "name": "callable_yolo3_model",
+                "implementations": [
+                    {
+                        "type": "model",
+                        "assetUri": "d05026eef180fac9c7fc18a61cd0ff6bc24b211e5f070b4962b668f1a47ddd6d.tar.gz",
+                        "descriptorUri": "564e5af8a4f8eefc4043c393f3725ba4245639a291478a7beb35cdcc06203d0c.json"
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "yolo3_interface",
+                "category": "ml_model",
+                "asset": "callable_yolo3_model",
+                "inputs": [
+                    {
+                        "description": "Video stream output",
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "description": "Video stream output",
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}

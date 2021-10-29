@@ -1,0 +1,91 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "766870953196::smart_shelf",
+                "version": "1.0"
+            },
+            {
+                "name": "766870953196::smart_shelf_model",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "IP_Camera",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart",
+                "decorator": {
+                    "title": "Camera IP_Camera",
+                    "description": "Default description for camera IP_Camera"
+                }
+            },
+            {
+                "name": "smart_shelf_container_node",
+                "interface": "766870953196::smart_shelf.smart_shelf_container_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "s3_bucket",
+                "interface": "string",
+                "value": "Please input S3 bucket name",
+                "overridable": true,
+                "decorator": {
+                    "title": "S3 Bucket",
+                    "description": "This parameter can be used to pass S3 bucket name which is provisioned through CFN deployment"
+                }
+            },
+            {
+                "name": "sqs_url",
+                "interface": "string",
+                "value": "Please input SQS URL",
+                "overridable": true,
+                "decorator": {
+                    "title": "SQS URL",
+                    "description": "SQL FIFO URL"
+                }
+            },
+            {
+                "name": "my_screen",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "model_node",
+                "interface": "766870953196::smart_shelf_model.yolo3_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            }
+        ],
+        "edges": [
+            {
+                "producer": "s3_bucket",
+                "consumer": "smart_shelf_container_node.s3_bucket"
+            },
+            {
+                "producer": "sqs_url",
+                "consumer": "smart_shelf_container_node.sqs_url"
+            },
+            {
+                "producer": "IP_Camera.video_out",
+                "consumer": "smart_shelf_container_node.video_in"
+            },
+            {
+                "producer": "smart_shelf_container_node.video_out",
+                "consumer": "my_screen.video_in"
+            }
+        ]
+    }
+}

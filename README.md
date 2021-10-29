@@ -66,10 +66,11 @@
 
 ## Section 2: List of Samples
 
-| Application | Description | Framework | Usecase | Complexity | Model 
-| ------ | ------ |------ |------ |------ |------ |
+| Application | Description | Framework | Usecase | Complexity | Model | Contributors
+| ------ | ------ |------ |------ |------ |------ |------ |
 | **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz)
 | **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Advanced | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)
+| **Shelf Monitoring**| This is a sample computer vision application that can detect and count bottles on a shelf | MXNet| Object Detection | Advanced | [Download](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/models/yolo3_darknet53_coco-09767802.zip) <br /> [Shelf Monitoring Application Demo - Coming Soon]() | Amit Mukherjee, Laith Al-Saadoon, Sourabh Agnihotri
 
 
 ## Section 3: Running the Samples

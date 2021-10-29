@@ -1,0 +1,47 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "smart_shelf",
+        "version": "1.0",
+        "description": "Default description for package smart_shelf",
+        "assets": [
+            {
+                "name": "smart_shelf_container",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": "7a40dd6a4fe5e931988fd74da84cef45c94bfb56ee955da175ac98b7334c0ea5.tar.gz",
+                        "descriptorUri": "2302720e2305247c342e3fd4e556e12d23863086136e19dc80ca30ce87a81165.json"
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "smart_shelf_container_interface",
+                "category": "business_logic",
+                "asset": "smart_shelf_container",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    },
+                    {
+                        "name": "sqs_url",
+                        "type": "string"
+                    },
+                    {
+                        "name": "s3_bucket",
+                        "type": "string"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
