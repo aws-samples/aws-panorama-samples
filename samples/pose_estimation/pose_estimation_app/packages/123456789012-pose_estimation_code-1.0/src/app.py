@@ -278,20 +278,12 @@ class Application:
     # Find a pixel in the heatmap (to find joint position)
     def find_highest( self, heatmap ):
 
-        # FIXME : can I optimize this heavy process?
-
         assert heatmap.shape == (pose_estimation_output_resolution[1],pose_estimation_output_resolution[0])
         
-        highest = None
-
-        for y in range(pose_estimation_output_resolution[1]):
-            for x in range(pose_estimation_output_resolution[0]):
-                if highest==None:
-                    highest = ( x, y, heatmap[y][x] )
-                elif heatmap[y][x] > highest[2]:
-                    highest = ( x, y, heatmap[y][x] )
-
-        return ( highest[0], highest[1], heatmap[y][x].item() )
+        highest_score = np.amax( heatmap )
+        where_result = np.where( heatmap == highest_score )
+        
+        return (where_result[1][0], where_result[0][0], highest_score)
 
     # Trigger one-time profiling on the next frame
     def command_Profile(self):
