@@ -26,11 +26,19 @@ log_p.addHandler(handler)
 plt.rcParams["figure.figsize"] = (20, 20)
 # Imports done
 
+
+# -------
 # Globals
-frames_to_process = 10 ^ 20
+
+frames_to_process = 30
+
+test_utility_dirname = None
+
+# -------
+
 
 # Read Graph
-with open("{}/{}/{}/graphs/{}/graph.json".format(workdir, project_name, app_name, app_name)) as f:
+with open("./{}/graphs/{}/graph.json".format(app_name, app_name)) as f:
     graph = json.load(f)
 account_id = graph['nodeGraph']['packages'][0]['name'].split('::')[0]
 
@@ -288,7 +296,7 @@ class getgraphdata:
 
     def getoutputsfrompackagejson(self):
         # read package.json from main package
-        path = '{}/{}/{}/packages/'.format(workdir, project_name, app_name) + \
+        path = './{}/packages/'.format(app_name) + \
             account_id + '-' + package_name + '-1.0/' + 'package.json'
 
         # Read Graph
@@ -333,6 +341,9 @@ class Video_Array(object):
 
             num = frames_to_process
             frame_num = 0
+            
+            # FIXME : this code is reading all video frames, rather than iteratively.
+            # Should change this to read iteratively.
 
             while (frame_num <= num):
                 _, frame = cap.read()
@@ -388,7 +399,7 @@ class port():
                 if camera_node_name != 'abstract_rtsp_media_source':
 
                     # 'reading in the video / rtsp stream'
-                    path = '{}/{}/{}/packages/'.format(workdir, project_name, app_name) + self.call_node_location.split(
+                    path = './{}/packages/'.format(app_name) + self.call_node_location.split(
                         '.')[0].replace('::', '-') + '-1.0/' + 'package.json'
                     with open(path) as f:
                         package = json.load(f)
@@ -396,14 +407,13 @@ class port():
 
                     # this may be temp or perm dont know yet
                     if rtsp_url.split('.')[-1] in ['avi', 'mp4']:
-                        rtsp_url = '{}/{}/{}/assets/'.format(
-                            workdir,project_name, app_name) + rtsp_url
+                        rtsp_url = './{}/assets/'.format(app_name) + rtsp_url
                     
-                    video_name = '{}/panorama_sdk/videos/{}'.format(workdir,videoname)
+                    video_name = '{}/videos/{}'.format(test_utility_dirname,videoname)
                 
                 elif camera_node_name == 'abstract_rtsp_media_source':
                     log_p.info('{}'.format('Using Abstract Data Source'))
-                    video_name = '{}/panorama_sdk/videos/{}'.format(workdir,videoname)
+                    video_name = '{}/videos/{}'.format(test_utility_dirname,videoname)
                 
                 self.video_frames = (
                     media(x) for x in Video_Array(video_name).get_frames())
@@ -452,9 +462,7 @@ class ModelClass:
 
         # Check if the supplied name is valid or not
         # Step 1: Get the interface for the model_node_name provided
-        model_pkg = '{}/{}/{}/packages/'.format(workdir, project_name,
-                                                app_name) + '/{}-{}'.format(account_id,
-                                                                                model_node_name) + '-1.0/' + 'package.json'
+        model_pkg = './{}/packages/'.format(app_name) + '/{}-{}'.format(account_id, model_node_name) + '-1.0/' + 'package.json'
         with open(model_pkg) as f:
             package = json.load(f)
 
@@ -485,8 +493,7 @@ class ModelClass:
 
         # read package.json from the folder name we got from the interface,
         # which is in the package folder
-        path = '{}/{}/{}/packages/'.format(workdir, project_name,
-                                           app_name) + folder_name + '-1.0/' + 'package.json'
+        path = './{}/packages/'.format(app_name) + folder_name + '-1.0/' + 'package.json'
         with open(path) as f:
             package = json.load(f)
 
@@ -509,7 +516,7 @@ class ModelClass:
             model_name = emulator_model_name
 
             with nullify_output(suppress_stdout=True, suppress_stderr=True):
-                model = dlr.DLRModel('{}/panorama_sdk/models/{}'.format(workdir, model_name))
+                model = dlr.DLRModel('{}/models/{}'.format(test_utility_dirname, model_name))
                 output = model.run(self.input_val1)
 
             if len(output) == 3 and list(
@@ -573,10 +580,6 @@ class OutputClass(object):
 
 ################# CLASS DEFS DONE ##########################
 
-node_dict = getgraphdata().getlistofnodes()
-edge_dict = getgraphdata().getlistofedges()
-
-
 class node(object):
     """
     This class is implemented to mimic Panoroma Node Class.
@@ -590,13 +593,18 @@ class node(object):
     -------
     """
 
-    inputs = AccessWithDot(node_dict)
-    try:
-        output_name = getgraphdata().getoutputsfrompackagejson()
-        outputs = AccessWithDot(
-            {output_name: AccessWithDot({'put': OutputClass})})
-    except Exception as e:
-        raise ValueError(e)
-        log_p.info('{}'.format(e))
+    def __init__(self):
+    
+        node_dict = getgraphdata().getlistofnodes()
+        #edge_dict = getgraphdata().getlistofedges() # FIXME : seems not being used
 
-    call = ModelClass
+        self.inputs = AccessWithDot(node_dict)
+        try:
+            output_name = getgraphdata().getoutputsfrompackagejson()
+            self.outputs = AccessWithDot(
+                {output_name: AccessWithDot({'put': OutputClass})})
+        except Exception as e:
+            raise ValueError(e)
+            log_p.info('{}'.format(e))
+
+        self.call = ModelClass
