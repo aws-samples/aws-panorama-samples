@@ -5,8 +5,12 @@
 
 > AWS Panorama is a machine learning appliance and SDK, which enables you to add computer vision (CV) to your on-premises cameras or on new Panorama enabled cameras. AWS Panorama gives you the ability to make real-time decisions to improve your operations, by giving you compute power at the edge.
 
+### About Test Utility
 
-## Section 1: Setting Up Samples
+To read more about the Test Utility and its current capabilities, please click [Here](panorama_sdk/README.md)
+
+
+## Section 1: Setting Up Samples and Test Utility
 
 ### Pre-Requisites
 * **Step 1**: You need to have an already created PEM key in your aws account and downloaded it to your local computer. [Instructions on how to create a PEM key](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
@@ -16,7 +20,7 @@
 * **Step 3**: An S3 bucket created in the region of your choice that you can use in the Test Utility
 
 
-### Launching EC2 ARM Instance  
+### Launching the Samples  
 
 * **Step 1**: Click the Launch Stack Button below. **NOTE** : This process will take about ```20 minutes```  
     * **US-EAST-1** :  
