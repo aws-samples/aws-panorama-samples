@@ -3,7 +3,7 @@
 
 ## Introduction
 
-> AWS Panorama is a machine learning appliance and SDK, which enables you to add computer vision (CV) to your on-premises cameras or on new Panorama enabled cameras. AWS Panorama gives you the ability to make real-time decisions to improve your operations, by giving you compute power at the edge.
+> AWS Panorama is a machine learning appliance and SDK, which enables you to add computer vision (CV) to your on-premises cameras or on new AWS Panorama enabled cameras. AWS Panorama gives you the ability to make real-time decisions to improve your operations, by giving you compute power at the edge.
 
 ### About Test Utility
 
@@ -82,7 +82,7 @@ To read more about the Test Utility and its current capabilities, please click [
 **Step 2** : Open the .ipynb notebook and follow the instructions in the notebook  
 **Step 3** : To make any changes, change the corresponding node package.json or the graph.json in the application folder  
 
-For more information, check out the documentation for the Panorama DX CLI [here](https://github.com/aws/aws-panorama-cli)
+For more information, check out the documentation for the AWS Panorama DX CLI [here](https://github.com/aws/aws-panorama-cli)
 
 ## Section 4: Documentation
 
