@@ -32,15 +32,22 @@ plt.rcParams["figure.figsize"] = (20, 20)
 
 frames_to_process = 30
 
-test_utility_dirname = None
+_c = None
+_graph = None
 
 # -------
 
 
-# Read Graph
-with open("./{}/graphs/{}/graph.json".format(app_name, app_name)) as f:
-    graph = json.load(f)
-account_id = graph['nodeGraph']['packages'][0]['name'].split('::')[0]
+def _configure( config ):
+    
+    global _c
+    global _graph
+    
+    _c = config
+
+    # Read Graph
+    with open("./{}/graphs/{}/graph.json".format( _c.app_name, _c.app_name )) as f:
+        _graph = json.load(f)
 
 
 @contextmanager
@@ -225,7 +232,7 @@ class AccessWithDot:
             return self.__dict__['_response'][key]
         except KeyError as e:
             log_p.info('Key {} Not Found. Please Check {} package.json'.format(
-                    e, package_name))
+                    e, _c.package_name))
         # If that fails, return default behavior so we don't break Python
         try:
             return self.__dict__[key]
@@ -251,7 +258,7 @@ class getgraphdata:
         # read graph.json
 
         # get nodes into a dict
-        graph_nodes = graph['nodeGraph']['nodes']
+        graph_nodes = _graph['nodeGraph']['nodes']
 
         # create node_dict
         node_dict = {}
@@ -284,7 +291,7 @@ class getgraphdata:
         # read graph.json
 
         # get edges into a dict
-        graph_edges = graph['nodeGraph']['edges']
+        graph_edges = _graph['nodeGraph']['edges']
 
         # create edge_dict
         edge_dict = {}
@@ -296,8 +303,8 @@ class getgraphdata:
 
     def getoutputsfrompackagejson(self):
         # read package.json from main package
-        path = './{}/packages/'.format(app_name) + \
-            account_id + '-' + package_name + '-1.0/' + 'package.json'
+        path = './{}/packages/'.format(_c.app_name) + \
+            _c.account_id + '-' + _c.package_name + '-1.0/' + 'package.json'
 
         # Read Graph
         with open(path) as f:
@@ -394,12 +401,12 @@ class port():
 
             # RTSP Stream Video Frames Creation
             if self.call_node_type == 'call_node_location' and self.call_node_location.split(
-                    '.')[-2].split('::')[1] == camera_node_name:
+                    '.')[-2].split('::')[1] == _c.camera_node_name:
                 
-                if camera_node_name != 'abstract_rtsp_media_source':
+                if _c.camera_node_name != 'abstract_rtsp_media_source':
 
                     # 'reading in the video / rtsp stream'
-                    path = './{}/packages/'.format(app_name) + self.call_node_location.split(
+                    path = './{}/packages/'.format(_c.app_name) + self.call_node_location.split(
                         '.')[0].replace('::', '-') + '-1.0/' + 'package.json'
                     with open(path) as f:
                         package = json.load(f)
@@ -407,13 +414,13 @@ class port():
 
                     # this may be temp or perm dont know yet
                     if rtsp_url.split('.')[-1] in ['avi', 'mp4']:
-                        rtsp_url = './{}/assets/'.format(app_name) + rtsp_url
+                        rtsp_url = './{}/assets/'.format(_c.app_name) + rtsp_url
                     
-                    video_name = '{}/videos/{}'.format(test_utility_dirname,videoname)
+                    video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
                 
-                elif camera_node_name == 'abstract_rtsp_media_source':
+                elif _c.camera_node_name == 'abstract_rtsp_media_source':
                     log_p.info('{}'.format('Using Abstract Data Source'))
-                    video_name = '{}/videos/{}'.format(test_utility_dirname,videoname)
+                    video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
                 
                 self.video_frames = (
                     media(x) for x in Video_Array(video_name).get_frames())
@@ -425,7 +432,7 @@ class port():
         try:
             if self.call_node_type == 'call_node_name':
                 return self.call_node[-1]['value']
-            elif self.call_node_location.split('.')[-2].split('::')[1] == camera_node_name:
+            elif self.call_node_location.split('.')[-2].split('::')[1] == _c.camera_node_name:
                 # video frame generator
                 return [next(self.video_frames)]
 
@@ -462,7 +469,7 @@ class ModelClass:
 
         # Check if the supplied name is valid or not
         # Step 1: Get the interface for the model_node_name provided
-        model_pkg = './{}/packages/'.format(app_name) + '/{}-{}'.format(account_id, model_node_name) + '-1.0/' + 'package.json'
+        model_pkg = './{}/packages/'.format(_c.app_name) + '/{}-{}'.format(_c.account_id, _c.model_node_name) + '-1.0/' + 'package.json'
         with open(model_pkg) as f:
             package = json.load(f)
 
@@ -470,7 +477,7 @@ class ModelClass:
 
         # get nodes from graph and get corresponding interface to the model
         # name in model_name
-        graph_nodes = graph['nodeGraph']['nodes']
+        graph_nodes = _graph['nodeGraph']['nodes']
         interface_name = "not_found_yet"
 
         for dicts in graph_nodes:
@@ -493,7 +500,7 @@ class ModelClass:
 
         # read package.json from the folder name we got from the interface,
         # which is in the package folder
-        path = './{}/packages/'.format(app_name) + folder_name + '-1.0/' + 'package.json'
+        path = './{}/packages/'.format(_c.app_name) + folder_name + '-1.0/' + 'package.json'
         with open(path) as f:
             package = json.load(f)
 
@@ -513,10 +520,10 @@ class ModelClass:
 
         try:
             # get inference
-            model_name = emulator_model_name
+            model_name = _c.emulator_model_name
 
             with nullify_output(suppress_stdout=True, suppress_stderr=True):
-                model = dlr.DLRModel('{}/models/{}'.format(test_utility_dirname, model_name))
+                model = dlr.DLRModel('{}/models/{}'.format(_c.test_utility_dirname, model_name))
                 output = model.run(self.input_val1)
 
             if len(output) == 3 and list(

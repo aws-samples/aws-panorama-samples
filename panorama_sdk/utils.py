@@ -10,14 +10,29 @@ import boto3
 from botocore.exceptions import ClientError
 import sagemaker
 
+import panoramasdk
+
 s3 = boto3.resource('s3')
-client = boto3.client('panorama')
+client = boto3.client('panorama') # FIXME : should rename client -> panorama or panorama_client
 
 # ---
 
-test_utility_dirname = None
+class Config:
+    def __init__( self, **args ):
+        self.__dict__.update(args)
+        self.test_utility_dirname, _ = os.path.split(__file__)
+
+_c = Config()
 
 # ---
+
+
+def configure( config ):
+    
+    global _c
+    _c = config
+        
+    panoramasdk._configure(config)
 
 
 def get_platform_config():
@@ -121,7 +136,7 @@ def default_app_role():
                         "Service": ["panorama.amazonaws.com"]},
                     "Action": "sts:AssumeRole"}]}
 
-        rolename = 'AWSPanoramaSamplesDeploymentRoleTest_{}'.format(app_name)
+        rolename = 'AWSPanoramaSamplesDeploymentRoleTest_{}'.format(_c.app_name)
 
         role = client.create_role(
             RoleName=rolename,
@@ -132,7 +147,7 @@ def default_app_role():
 
     except Exception as e:
         for role in response_roles['Roles']:
-            if role['RoleName'].startswith('AWSPanoramaSamplesDeploymentRoleTest_{}'.format(app_name)):
+            if role['RoleName'].startswith('AWSPanoramaSamplesDeploymentRoleTest_{}'.format(_c.app_name)):
                 print('Resolved App IAM Role to: ' + str(role))
                 return role['Arn']
 
@@ -141,7 +156,7 @@ def download_model( model ):
     url = "https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/" + model + '.tar.gz'
     local_file_path = os.getcwd() + "/" + model + ".tar.gz"
     os.system( f"wget {url}" )
-    os.system( f"mv {local_file_path} {test_utility_dirname}/models/" )
+    os.system( f"mv {local_file_path} {_c.test_utility_dirname}/models/" )
     return
 
 
@@ -237,12 +252,9 @@ def list_app_instances(device):
         MaxResults=25)
 
 
-def deploy_app(device_id, project_name, app_name, role):
+def deploy_app(device_id, app_name, role):
     """Deploy app"""
 
-    global app_status
-    if app_name == "":
-        app_name = project_name
     app_description = ''
 
     with open('./{}/graphs/{}/graph.json'.format(app_name, app_name), 'r') as file_object:
@@ -297,7 +309,7 @@ def remove_application( device_id, application_instance_id ):
                     print(f'app: {app}')
                     app_inst = app['ApplicationInstanceId']
                     print(f'app_inst_id: {app_inst}')
-                    if app['ApplicationInstanceId'] == my_application_instance_idapp_id:
+                    if app['ApplicationInstanceId'] == application_instance_idapp_id:
                         status = app['Status']
                         print(f'Status: {status}')
                         if status == 'REMOVAL_SUCCEEDED':
@@ -313,9 +325,10 @@ def remove_application( device_id, application_instance_id ):
         print('App Not Removed')
 
 
-def update_descriptor(project_name, account_id, package_name, name_of_file):
+def update_descriptor(account_id, package_name, name_of_file):
+
     # update Descriptor
-    descriptor_path = "./{}/packages/{}-{}-1.0/descriptor.json".format(app_name, account_id,package_name)
+    descriptor_path = "./{}/packages/{}-{}-1.0/descriptor.json".format(_c.app_name, account_id, package_name)
 
     with open(descriptor_path, "r") as jsonFile:
         data = json.load(jsonFile)
