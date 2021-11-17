@@ -24,8 +24,6 @@ formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
 handler.setFormatter(formatter)
 log_p.addHandler(handler)
 plt.rcParams["figure.figsize"] = (20, 20)
-# Imports done
-
 
 # -------
 # Globals
@@ -48,7 +46,6 @@ def _configure( config ):
     # Read Graph
     with open("./{}/graphs/{}/graph.json".format( _c.app_name, _c.app_name )) as f:
         _graph = json.load(f)
-
 
 @contextmanager
 def nullify_output(suppress_stdout=True, suppress_stderr=True):
@@ -278,7 +275,7 @@ class getgraphdata:
 
             try:
                 node_name_edge = edge_dict[node_name]
-            except BaseException:
+            except BaseException: # FIXME : should be more specific exception type
                 node_name_edge = node_name
 
             # use the above name in the node dict
@@ -341,28 +338,22 @@ class Video_Array(object):
 
     def get_frames(self):
 
-        try:
+        video_frames = []
+        cap = cv2.VideoCapture(self.input_path)
 
-            video_frames = []
-            cap = cv2.VideoCapture(self.input_path)
+        num = frames_to_process
+        frame_num = 0
 
-            num = frames_to_process
-            frame_num = 0
-            
-            # FIXME : this code is reading all video frames, rather than iteratively.
-            # Should change this to read iteratively.
+        # FIXME : reading all video frames one-shot, rather than iteratively.
+        # Should change this to read iteratively.
 
-            while (frame_num <= num):
-                _, frame = cap.read()
+        while (frame_num <= num):
+            _, frame = cap.read()
 
-                video_frames.append(frame)
-                frame_num += 1
+            video_frames.append(frame)
+            frame_num += 1
 
-            return video_frames
-
-        except Exception as e:
-            raise ValueError(
-                'Exception Class : Video_Array, Exception Method : get_frames, Exception Message : {}'.format(e))
+        return video_frames
 
 
 class port():
@@ -381,63 +372,54 @@ class port():
 
     def __init__(self, call_node):
         
-        try:
-            self.call_node = call_node
-            self.frame_output = []
+        self.call_node = call_node
+        self.frame_output = []
 
-            # classifying call_node
-            self.call_node_type = 'call_node_name'
-            self.call_node_location = None
-            for val in self.call_node[:-1]:
-                if not isinstance(
-                        val, bool) and isinstance(
-                        val, str) and len(
-                        val.split('.')) > 1:
-                    self.call_node_type = 'call_node_location'
-                    self.call_node_location = val
-                    break
-                elif isinstance(val, bool) or type(val) in [int, float]:
-                    continue
+        # classifying call_node
+        self.call_node_type = 'call_node_name'
+        self.call_node_location = None
+        for val in self.call_node[:-1]:
+            if not isinstance(
+                    val, bool) and isinstance(
+                    val, str) and len(
+                    val.split('.')) > 1:
+                self.call_node_type = 'call_node_location'
+                self.call_node_location = val
+                break
+            elif isinstance(val, bool) or type(val) in [int, float]:
+                continue
 
-            # RTSP Stream Video Frames Creation
-            if self.call_node_type == 'call_node_location' and self.call_node_location.split(
-                    '.')[-2].split('::')[1] == _c.camera_node_name:
-                
-                if _c.camera_node_name != 'abstract_rtsp_media_source':
+        # RTSP Stream Video Frames Creation
+        if self.call_node_type == 'call_node_location' and self.call_node_location.split(
+                '.')[-2].split('::')[1] == _c.camera_node_name:
 
-                    # 'reading in the video / rtsp stream'
-                    path = './{}/packages/{}-{}-1.0/package.json'.format( _c.app_name, _c.account_id, self.call_node_location.split('.')[0].split('::')[1] )
-                    with open(path) as f:
-                        package = json.load(f)
-                    rtsp_url = package['nodePackage']['interfaces'][0]['inputs'][-1]['default']
+            if _c.camera_node_name != 'abstract_rtsp_media_source':
 
-                    # this may be temp or perm dont know yet
-                    if rtsp_url.split('.')[-1] in ['avi', 'mp4']:
-                        rtsp_url = './{}/assets/'.format(_c.app_name) + rtsp_url
-                    
-                    video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
-                
-                elif _c.camera_node_name == 'abstract_rtsp_media_source':
-                    log_p.info('{}'.format('Using Abstract Data Source'))
-                    video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
-                
-                self.video_frames = (
-                    media(x) for x in Video_Array(video_name).get_frames())
-        except Exception as e:
-            raise ValueError(
-                'Exception Class : Port, Exception Method : __init__, Exception Message : {}'.format(e))
+                # 'reading in the video / rtsp stream'
+                path = './{}/packages/{}-{}-1.0/package.json'.format( _c.app_name, _c.account_id, self.call_node_location.split('.')[0].split('::')[1] )
+                with open(path) as f:
+                    package = json.load(f)
+                rtsp_url = package['nodePackage']['interfaces'][0]['inputs'][-1]['default']
+
+                # this may be temp or perm dont know yet
+                if rtsp_url.split('.')[-1] in ['avi', 'mp4']:
+                    rtsp_url = './{}/assets/'.format(_c.app_name) + rtsp_url
+
+                video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
+
+            elif _c.camera_node_name == 'abstract_rtsp_media_source':
+                log_p.info('{}'.format('Using Abstract Data Source'))
+                video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
+
+            self.video_frames = (
+                media(x) for x in Video_Array(video_name).get_frames())
 
     def get(self):
-        try:
-            if self.call_node_type == 'call_node_name':
-                return self.call_node[-1]['value']
-            elif self.call_node_location.split('.')[-2].split('::')[1] == _c.camera_node_name:
-                # video frame generator
-                return [next(self.video_frames)]
-
-        except Exception as e:
-            raise ValueError(
-                'Exception Class : Port, Exception Method : get, Exception Message : {}'.format(e))
+        if self.call_node_type == 'call_node_name':
+            return self.call_node[-1]['value']
+        elif self.call_node_location.split('.')[-2].split('::')[1] == _c.camera_node_name:
+            # video frame generator
+            return [next(self.video_frames)]
 
 
 ### MODEL CLASS #############
@@ -460,7 +442,7 @@ class ModelClass:
         self.input_val1 = input_val1
         self.model_name = model_name
 
-    # FIXME : many of processes in this method can be one-time process.
+    # FIXME : most of processes in this method can be one-time process.
     def __iter__(self):
     
         if self.model_name == "":
@@ -473,7 +455,7 @@ class ModelClass:
         with open(model_pkg) as f:
             package = json.load(f)
         
-        # FIXME : assuming package.json contains only one interfaces
+        # FIXME : assuming package.json contains only one interface
         correct_interface = package["nodePackage"]["interfaces"][0]["name"]
         
         # get nodes from graph and get corresponding interface to the model
@@ -500,7 +482,6 @@ class ModelClass:
 
         # read package.json from the folder name we got from the interface,
         # which is in the package folder
-        # FIXME : should be same file as this function read at the beginning
         path = './{}/packages/'.format(_c.app_name) + folder_name + '-1.0/' + 'package.json'
         with open(path) as f:
             package = json.load(f)
@@ -519,41 +500,36 @@ class ModelClass:
             raise ValueError(
                 'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Asset Not Found in package.json interfaces')
 
-        try:
-            # get inference
-            compiled_model_filename = _c.models[ self.model_name ]
+        # get inference
+        compiled_model_filename = _c.models[ self.model_name ]
 
-            with nullify_output(suppress_stdout=True, suppress_stderr=True):
-                model = dlr.DLRModel('{}/models/{}'.format(_c.test_utility_dirname, compiled_model_filename))
-                output = model.run(self.input_val1)
+        with nullify_output(suppress_stdout=True, suppress_stderr=True):
+            model = dlr.DLRModel('{}/models/{}'.format(_c.test_utility_dirname, compiled_model_filename))
+            output = model.run(self.input_val1)
 
-            if len(output) == 3 and list(
-                    self.input_val1.keys())[0] == 'data':  # OD model
-                k = -1
-                class_data = None
-                bbox_data = None
-                conf_data = None
+        if len(output) == 3 and list(
+                self.input_val1.keys())[0] == 'data':  # OD model
+            k = -1
+            class_data = None
+            bbox_data = None
+            conf_data = None
 
-                output_final = []
+            output_final = []
 
-                for data in output:
-                    k += 1
-                    if k == 0:
-                        class_data = data
-                        output_final.append(class_data)
-                    if k == 1:
-                        conf_data = data
-                        output_final.append(conf_data)
-                    if k == 2:
-                        bbox_data = data
-                        output_final.append(bbox_data)
+            for data in output:
+                k += 1
+                if k == 0:
+                    class_data = data
+                    output_final.append(class_data)
+                if k == 1:
+                    conf_data = data
+                    output_final.append(conf_data)
+                if k == 2:
+                    bbox_data = data
+                    output_final.append(bbox_data)
 
-            else:
-                output_final = output
-
-        except Exception as e:
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message {}'.format(e))
+        else:
+            output_final = output
 
         return iter(output_final)
 
@@ -575,15 +551,11 @@ class OutputClass(object):
     """
 
     def __init__(self, initial=None):
-        try:
-            self._list = initial
-            for img in self._list:
-                plt.imshow(img.image)
-                plt.show()
-                clear_output(wait=True)
-        except Exception as e:
-            raise ValueError(
-                'Exception Class : OutputClass, Exception Method : __init__, Exception Message {}'.format(e))
+        self._list = initial
+        for img in self._list:
+            plt.imshow(img.image)
+            plt.show()
+            clear_output(wait=True)
 
 
 ################# CLASS DEFS DONE ##########################
@@ -600,23 +572,28 @@ class node(object):
     Methods
     -------
     """
-
-    def __init__(self):
     
-        # FIXME : __init__() doesn't have to be called on real hardware.
-        # Class initialization can be done as a part of configure().
+    # Add properties and methods to the instance
+    @staticmethod
+    def _initialize(instance):
     
         node_dict = getgraphdata().getlistofnodes()
-        #edge_dict = getgraphdata().getlistofedges() # FIXME : seems not being used
 
-        self.inputs = AccessWithDot(node_dict)
-        try:
-            output_name = getgraphdata().getoutputsfrompackagejson()
-            self.outputs = AccessWithDot(
-                {output_name: AccessWithDot({'put': OutputClass})})
-        except Exception as e:
-            raise ValueError(e)
-            log_p.info('{}'.format(e))
+        instance.inputs = AccessWithDot(node_dict)
+        
+        output_name = getgraphdata().getoutputsfrompackagejson()
+        instance.outputs = AccessWithDot(
+            {output_name: AccessWithDot({'put': OutputClass})})
         
         # FIXME : call() can return tuple. Doesn't have to be custom class.
-        self.call = ModelClass
+        instance.call = ModelClass
+    
+    # Create node instance
+    # This method is automatically called even if it is not called explicitly
+    def __new__(cls, *args, **kwargs):
+
+        instance = super(node,cls).__new__(cls, *args, **kwargs)
+
+        node._initialize( instance )
+
+        return instance
