@@ -232,7 +232,7 @@ class AccessWithDot:
             return self.__dict__['_response'][key]
         except KeyError as e:
             log_p.info('Key {} Not Found. Please Check {} package.json'.format(
-                    e, _c.package_name))
+                    e, _c.code_package_name))
         # If that fails, return default behavior so we don't break Python
         try:
             return self.__dict__[key]
@@ -304,7 +304,7 @@ class getgraphdata:
     def getoutputsfrompackagejson(self):
         # read package.json from main package
         path = './{}/packages/'.format(_c.app_name) + \
-            _c.account_id + '-' + _c.package_name + '-1.0/' + 'package.json'
+            _c.account_id + '-' + _c.code_package_name + '-1.0/' + 'package.json'
 
         # Read Graph
         with open(path) as f:
@@ -406,8 +406,7 @@ class port():
                 if _c.camera_node_name != 'abstract_rtsp_media_source':
 
                     # 'reading in the video / rtsp stream'
-                    path = './{}/packages/'.format(_c.app_name) + self.call_node_location.split(
-                        '.')[0].replace('::', '-') + '-1.0/' + 'package.json'
+                    path = './{}/packages/{}-{}-1.0/package.json'.format( _c.app_name, _c.account_id, self.call_node_location.split('.')[0].split('::')[1] )
                     with open(path) as f:
                         package = json.load(f)
                     rtsp_url = package['nodePackage']['interfaces'][0]['inputs'][-1]['default']
@@ -461,37 +460,38 @@ class ModelClass:
         self.input_val1 = input_val1
         self.model_name = model_name
 
+    # FIXME : many of processes in this method can be one-time process.
     def __iter__(self):
-
+    
         if self.model_name == "":
             raise ValueError(
                 'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Please Provide Model Name')
 
         # Check if the supplied name is valid or not
-        # Step 1: Get the interface for the model_node_name provided
-        model_pkg = './{}/packages/'.format(_c.app_name) + '/{}-{}'.format(_c.account_id, _c.model_node_name) + '-1.0/' + 'package.json'
+        # Step 1: Get the interface for the model_package_name provided
+        model_pkg = './{}/packages/'.format(_c.app_name) + '/{}-{}'.format(_c.account_id, _c.model_package_name) + '-1.0/' + 'package.json'
         with open(model_pkg) as f:
             package = json.load(f)
-
+        
+        # FIXME : assuming package.json contains only one interfaces
         correct_interface = package["nodePackage"]["interfaces"][0]["name"]
-
+        
         # get nodes from graph and get corresponding interface to the model
         # name in model_name
         graph_nodes = _graph['nodeGraph']['nodes']
-        interface_name = "not_found_yet"
+        interface_name = None
 
         for dicts in graph_nodes:
             if dicts["name"] == self.model_name:
                 interface_name = dicts["interface"]
-            if dicts["interface"].split(
-                    "::")[-1].split('.')[-1] == correct_interface:
-                correct_name = dicts["name"]
+                if interface_name.split("::")[-1].split('.')[-1] == correct_interface:
+                    correct_name = dicts["name"]
 
-        if interface_name == "not_found_yet":
+        if interface_name is None:
             raise ValueError(
                 'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Model Not Found in graph.json nodes')
 
-        folder_name = interface_name.split('.')[0].replace('::', '-')
+        folder_name = "{}-{}".format(_c.account_id, interface_name.split('.')[0].split('::')[1])
         name_in_interfaces_pjson = interface_name.split('.')[1]
 
         if name_in_interfaces_pjson != correct_interface:
@@ -500,6 +500,7 @@ class ModelClass:
 
         # read package.json from the folder name we got from the interface,
         # which is in the package folder
+        # FIXME : should be same file as this function read at the beginning
         path = './{}/packages/'.format(_c.app_name) + folder_name + '-1.0/' + 'package.json'
         with open(path) as f:
             package = json.load(f)
@@ -509,21 +510,21 @@ class ModelClass:
 
         # loop thru interfaces to get the asset name of the corresponding
         # interface
-        asset_name = "not_found_yet"
+        asset_name = None
         for dicts in interfaces:
             if dicts["name"] == name_in_interfaces_pjson:
                 asset_name = dicts["asset"]
 
-        if asset_name == "not_found_yet":
+        if asset_name is None:
             raise ValueError(
                 'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Asset Not Found in package.json interfaces')
 
         try:
             # get inference
-            model_name = _c.emulator_model_name
+            compiled_model_filename = _c.models[ self.model_name ]
 
             with nullify_output(suppress_stdout=True, suppress_stderr=True):
-                model = dlr.DLRModel('{}/models/{}'.format(_c.test_utility_dirname, model_name))
+                model = dlr.DLRModel('{}/models/{}'.format(_c.test_utility_dirname, compiled_model_filename))
                 output = model.run(self.input_val1)
 
             if len(output) == 3 and list(
@@ -602,6 +603,9 @@ class node(object):
 
     def __init__(self):
     
+        # FIXME : __init__() doesn't have to be called on real hardware.
+        # Class initialization can be done as a part of configure().
+    
         node_dict = getgraphdata().getlistofnodes()
         #edge_dict = getgraphdata().getlistofedges() # FIXME : seems not being used
 
@@ -613,5 +617,6 @@ class node(object):
         except Exception as e:
             raise ValueError(e)
             log_p.info('{}'.format(e))
-
+        
+        # FIXME : call() can return tuple. Doesn't have to be custom class.
         self.call = ModelClass

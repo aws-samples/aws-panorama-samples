@@ -309,7 +309,7 @@ def remove_application( device_id, application_instance_id ):
                     print(f'app: {app}')
                     app_inst = app['ApplicationInstanceId']
                     print(f'app_inst_id: {app_inst}')
-                    if app['ApplicationInstanceId'] == application_instance_idapp_id:
+                    if app['ApplicationInstanceId'] == application_instance_id:
                         status = app['Status']
                         print(f'Status: {status}')
                         if status == 'REMOVAL_SUCCEEDED':
@@ -325,10 +325,10 @@ def remove_application( device_id, application_instance_id ):
         print('App Not Removed')
 
 
-def update_descriptor(account_id, package_name, name_of_file):
+def update_descriptor(account_id, code_package_name, name_of_file):
 
     # update Descriptor
-    descriptor_path = "./{}/packages/{}-{}-1.0/descriptor.json".format(_c.app_name, account_id, package_name)
+    descriptor_path = "./{}/packages/{}-{}-1.0/descriptor.json".format(_c.app_name, account_id, code_package_name)
 
     with open(descriptor_path, "r") as jsonFile:
         data = json.load(jsonFile)
