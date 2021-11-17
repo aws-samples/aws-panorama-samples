@@ -42,6 +42,7 @@ def get_platform_config():
     
     platform_config = PlatformConfig()
     platform_config.compiled_model_suffix = None
+    platform_config.neo_target_device = None
     platform_config.neo_target_platform = None
 
     os_name = platform.system()
@@ -57,7 +58,9 @@ def get_platform_config():
         else:
             assert False, f"Processor type {processor} not supported"
     elif os_name == "Darwin":
-        assert False, "implement this"
+        assert False, "MacOS is not yet supported"
+        platform_config.compiled_model_suffix = "COREML"
+        platform_config.neo_target_device = "coreml"
     else:
         assert False, f"OS {os_name} not supported"
 
@@ -165,6 +168,7 @@ def compile_model(
         s3_model_location,
         data_shape,
         framework,
+        target_device,
         target_platform,
         s3_output_location,
         role):
@@ -187,22 +191,28 @@ def compile_model(
         time.strftime('%Y-%m-%d_%I-%M-%S-%p').replace('_', '').replace('-', '')
     print(f'Compilation job for {compilation_job_name} started')
 
-    response = sagemaker_client.create_compilation_job(
-        CompilationJobName=compilation_job_name,
-        RoleArn=role,
-        InputConfig={
+    params = {
+        "CompilationJobName" : compilation_job_name,
+        "RoleArn" : role,
+        "InputConfig" : {
             'S3Uri': s3_input_location,
             'DataInputConfig': data_shape,
             'Framework': framework.upper()
         },
-        OutputConfig={
+        "OutputConfig" : {
             'S3OutputLocation': s3_output_location,
-            'TargetPlatform': target_platform,
         },
-        StoppingCondition={
+        "StoppingCondition" : {
             'MaxRuntimeInSeconds': 7200
         }
-    )
+    }
+    
+    if target_device:
+        params["OutputConfig"]["TargetDevice"] = target_device
+    if target_platform:
+        params["OutputConfig"]["TargetPlatform"] = target_platform
+    
+    response = sagemaker_client.create_compilation_job( **params )
 
     # Optional - Poll every 30 sec to check completion status
 
@@ -212,6 +222,7 @@ def compile_model(
         if response['CompilationJobStatus'] == 'COMPLETED':
             break
         elif response['CompilationJobStatus'] == 'FAILED':
+            # FIXME : should include more detailed failure reason in exception
             raise RuntimeError('Compilation failed')
         print('Compiling ...')
         time.sleep(30)
