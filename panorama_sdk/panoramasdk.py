@@ -339,6 +339,10 @@ class Video_Array(object):
     def get_frames(self):
 
         video_frames = []
+        
+        if not os.path.exists(self.input_path):
+            raise FileNotFoundError( self.input_path )
+        
         cap = cv2.VideoCapture(self.input_path)
 
         num = frames_to_process
