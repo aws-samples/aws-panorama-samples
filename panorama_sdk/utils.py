@@ -161,7 +161,7 @@ def default_app_role():
 def download_model( model ):
     url = "https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/" + model + '.tar.gz'
     local_file_path = os.getcwd() + "/" + model + ".tar.gz"
-    os.system( f"wget {url}" )
+    os.system( f"wget --no-verbose {url}" )
     os.system( f"mv {local_file_path} {_c.test_utility_dirname}/models/" )
     return
 
@@ -310,31 +310,25 @@ def remove_application( device_id, application_instance_id ):
     # listApplicationInstances "Status" : "REMOVAL_PENDING","Status" :
     # "REMOVAL_SUCCEEDED",
     if remove_status_code == 200:
-        removed = False
         i=0
         while True:
-            if not removed:
-                print(f'Request: {i + 1}')
-                response = list_app_instances(device_id)
-                app_instances = response['ApplicationInstances']
-                print(f'app_instances: {app_instances}')
-                #logger.info(f'app_instances: {app_instances}')
-                for app in app_instances:
-                    print(f'app: {app}')
-                    app_inst = app['ApplicationInstanceId']
-                    print(f'app_inst_id: {app_inst}')
-                    if app['ApplicationInstanceId'] == application_instance_id:
-                        status = app['Status']
-                        print(f'Status: {status}')
-                        if status == 'REMOVAL_SUCCEEDED':
-                            print('Removed')
-                            removed = True
-                            break
-                i+=1
-                time.sleep(150)
-            else:
-                break
-        assert removed
+            print(f'Request: {i + 1}')
+            response = list_app_instances(device_id)
+            app_instances = response['ApplicationInstances']
+            print(f'app_instances: {app_instances}')
+            #logger.info(f'app_instances: {app_instances}')
+            for app in app_instances:
+                print(f'app: {app}')
+                app_inst = app['ApplicationInstanceId']
+                print(f'app_inst_id: {app_inst}')
+                if app['ApplicationInstanceId'] == application_instance_id:
+                    status = app['Status']
+                    print(f'Status: {status}')
+                    if status == 'REMOVAL_SUCCEEDED':
+                        print('Removed')
+                        return
+            i+=1
+            time.sleep(150)
     else:
         print('App Not Removed')
 
