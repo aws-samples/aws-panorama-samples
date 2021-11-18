@@ -19,7 +19,10 @@ client = boto3.client('panorama') # FIXME : should rename client -> panorama or 
 
 class Config:
     def __init__( self, **args ):
+        
         self.__dict__.update(args)
+        
+        # Use *this* directory (where this python module exists) as the test-utility directory.
         self.test_utility_dirname, _ = os.path.split(__file__)
 
 _c = Config()
