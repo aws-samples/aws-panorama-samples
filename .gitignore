@@ -1,0 +1,7 @@
+__pycache__
+.ipynb_checkpoints
+*.log
+/panorama_sdk/models/*
+/panorama_sdk/videos/*
+/samples/car_tracker/car_tracker_app/assets/*
+/samples/people_counter/people_counter_app/assets/*
