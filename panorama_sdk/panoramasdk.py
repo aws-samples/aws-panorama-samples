@@ -43,7 +43,8 @@ def _configure( config ):
     
     _c = config
 
-    # Read Graph
+    # Read graph.json
+    # FIXME : should move this part into node._initialize(), so that graph.json can be updated without re-running configure()
     with open("./{}/graphs/{}/graph.json".format( _c.app_name, _c.app_name )) as f:
         _graph = json.load(f)
 
@@ -459,30 +460,32 @@ class ModelClass:
         with open(model_pkg) as f:
             package = json.load(f)
         
-        # FIXME : assuming package.json contains only one interface
-        correct_interface = package["nodePackage"]["interfaces"][0]["name"]
+        # gather existing interface names in the package
+        correct_interface_names = set()
+        for interface in package["nodePackage"]["interfaces"]:
+            correct_interface_names.add( interface["name"] )
         
         # get nodes from graph and get corresponding interface to the model
         # name in model_name
         graph_nodes = _graph['nodeGraph']['nodes']
+        
+        # lookup interface name by node name
         interface_name = None
-
         for dicts in graph_nodes:
             if dicts["name"] == self.model_name:
                 interface_name = dicts["interface"]
-                if interface_name.split("::")[-1].split('.')[-1] == correct_interface:
-                    correct_name = dicts["name"]
+                break
 
         if interface_name is None:
             raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Model Not Found in graph.json nodes')
+                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Model node {} not Found in graph.json'.format(self.model_name) )
 
         folder_name = "{}-{}".format(_c.account_id, interface_name.split('.')[0].split('::')[1])
         name_in_interfaces_pjson = interface_name.split('.')[1]
 
-        if name_in_interfaces_pjson != correct_interface:
+        if name_in_interfaces_pjson not in correct_interface_names:
             raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Please Use the correct Model Node Name: {}'.format(correct_name))
+                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Please use the correct Model interface name: {} not in {}'.format( name_in_interfaces_pjson, correct_interface_names ))
 
         # read package.json from the folder name we got from the interface,
         # which is in the package folder
