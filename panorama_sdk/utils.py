@@ -1,14 +1,13 @@
 import sys
 import os
+import re
 import time
 import json
-import shutil
 import tarfile
 import platform
+import urllib
 
 import boto3
-from botocore.exceptions import ClientError
-import sagemaker
 
 import panoramasdk
 
@@ -18,17 +17,45 @@ client = boto3.client('panorama') # FIXME : should rename client -> panorama or 
 # ---
 
 class Config:
+    
     def __init__( self, **args ):
-        
-        self.__dict__.update(args)
         
         # Use *this* directory (where this python module exists) as the test-utility directory.
         self.test_utility_dirname, _ = os.path.split(__file__)
 
+        # Set platform dependent parameters such as Neo compile options
+        self._set_platform_dependent_parameters()
+
+        self.__dict__.update(args)
+
+    def _set_platform_dependent_parameters(self):
+
+        self.compiled_model_suffix = None
+        self.neo_target_device = None
+        self.neo_target_platform = None
+
+        os_name = platform.system()
+        processor = platform.processor()
+        
+        if os_name == "Linux":
+            if processor == "aarch64":
+                self.compiled_model_suffix = "LINUX_ARM64"
+                self.neo_target_platform = { 'Os': 'LINUX', 'Arch': 'ARM64' }
+            elif processor == "x86_64":
+                self.compiled_model_suffix = "LINUX_X86_64"
+                self.neo_target_platform = { 'Os': 'LINUX', 'Arch': 'X86_64' }
+            else:
+                assert False, f"Processor type {processor} not supported"
+        elif os_name == "Darwin":
+            assert False, "MacOS is not yet supported"
+            self.compiled_model_suffix = "COREML"
+            self.neo_target_device = "coreml"
+        else:
+            assert False, f"OS {os_name} not supported"
+
 _c = Config()
 
 # ---
-
 
 def configure( config ):
     
@@ -38,38 +65,26 @@ def configure( config ):
     panoramasdk._configure(config)
 
 
-def get_platform_config():
-    
-    class PlatformConfig:
-        pass
-    
-    platform_config = PlatformConfig()
-    platform_config.compiled_model_suffix = None
-    platform_config.neo_target_device = None
-    platform_config.neo_target_platform = None
-
-    os_name = platform.system()
-    processor = platform.processor()
-    
-    if os_name == "Linux":
-        if processor == "aarch64":
-            platform_config.compiled_model_suffix = "LINUX_ARM64"
-            platform_config.neo_target_platform = { 'Os': 'LINUX', 'Arch': 'ARM64' }
-        elif processor == "x86_64":
-            platform_config.compiled_model_suffix = "LINUX_X86_64"
-            platform_config.neo_target_platform = { 'Os': 'LINUX', 'Arch': 'X86_64' }
+class ProgressDots:
+    def __init__(self):
+        self.previous_status = None
+    def update_status(self,status):
+        if status == self.previous_status:
+            print( ".", end="", flush=True )
         else:
-            assert False, f"Processor type {processor} not supported"
-    elif os_name == "Darwin":
-        assert False, "MacOS is not yet supported"
-        platform_config.compiled_model_suffix = "COREML"
-        platform_config.neo_target_device = "coreml"
-    else:
-        assert False, f"OS {os_name} not supported"
+            if self.previous_status : print("")
+            if status : print( status + " " , end="", flush=True)
+            self.previous_status = status
+            
 
-    return platform_config
+def split_s3_path( s3_path ):
+    re_pattern_s3_path = "s3://([^/]+)/(.*)"
+    re_result = re.match( re_pattern_s3_path, s3_path )
+    bucket = re_result.group(1)
+    key = re_result.group(2)
+    return bucket, key
 
-    
+
 def extract_targz( targz_filename, dst_dirname ):
     with tarfile.open( targz_filename, "r" ) as tar_fd:
         tar_fd.extractall( path = dst_dirname )
@@ -158,12 +173,28 @@ def default_app_role():
                 return role['Arn']
 
 
-def download_model( model ):
-    url = "https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/" + model + '.tar.gz'
-    local_file_path = os.getcwd() + "/" + model + ".tar.gz"
-    os.system( f"wget --no-verbose {url}" )
-    os.system( f"mv {local_file_path} {_c.test_utility_dirname}/models/" )
-    return
+def _http_download( url, dst ):
+    with urllib.request.urlopen( url ) as fd:
+        data = fd.read()
+    with open( dst, "wb" ) as fd:
+        fd.write(data)
+
+
+def download_sample_model( model_name, dst_dirname=None ):
+
+    if dst_dirname is None:
+        dst_dirname = f"{_c.test_utility_dirname}/models"
+
+    src_url = f"https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/{model_name}.tar.gz"
+    dst_path = f"{dst_dirname}/{model_name}.tar.gz"
+
+    os.makedirs( dst_dirname, exist_ok=True )
+
+    print( "Downloading", src_url )
+
+    _http_download( src_url, dst_path )
+
+    print( "Downloaded to", dst_path )
 
 
 def compile_model(
@@ -174,31 +205,20 @@ def compile_model(
         target_device,
         target_platform,
         s3_output_location,
-        role):
-    # https://docs.aws.amazon.com/sagemaker/latest/dg/neo-job-compilation-cli.html
-
-    AWS_REGION = region
-    s3_input_location = s3_model_location
-    data_shape = data_shape
-    framework = framework
-    s3_output_location = s3_output_location
-
-    #role = sagemaker.get_execution_role()
-    role = role
+        compile_job_role):
 
     # Create a SageMaker client so you can submit a compilation job
-    sagemaker_client = boto3.client('sagemaker', region_name=AWS_REGION)
+    sagemaker_client = boto3.client('sagemaker', region_name=region)
 
     # Give your compilation job a name
-    compilation_job_name = 'Comp-Job' + \
-        time.strftime('%Y-%m-%d_%I-%M-%S-%p').replace('_', '').replace('-', '')
-    print(f'Compilation job for {compilation_job_name} started')
+    compilation_job_name = 'Comp-Job' + time.strftime('%Y-%m-%d_%I-%M-%S-%p').replace('_', '').replace('-', '')
 
+    # https://docs.aws.amazon.com/sagemaker/latest/dg/neo-job-compilation-cli.html
     params = {
         "CompilationJobName" : compilation_job_name,
-        "RoleArn" : role,
+        "RoleArn" : compile_job_role,
         "InputConfig" : {
-            'S3Uri': s3_input_location,
+            'S3Uri': s3_model_location,
             'DataInputConfig': data_shape,
             'Framework': framework.upper()
         },
@@ -217,20 +237,95 @@ def compile_model(
     
     response = sagemaker_client.create_compilation_job( **params )
 
-    # Optional - Poll every 30 sec to check completion status
+    print( f'Created compilation job [{compilation_job_name}]' )
 
+    # Poll every 30 sec to check completion status
+    progress_dots = ProgressDots()
     while True:
         response = sagemaker_client.describe_compilation_job(
             CompilationJobName=compilation_job_name)
+
+        progress_dots.update_status( "Compilation job status : " + response['CompilationJobStatus'] )
+
         if response['CompilationJobStatus'] == 'COMPLETED':
             break
         elif response['CompilationJobStatus'] == 'FAILED':
-            # FIXME : should include more detailed failure reason in exception
-            raise RuntimeError('Compilation failed')
-        print('Compiling ...')
+            failure_reason = response["FailureReason"]
+            failure_reason = failure_reason.replace( "\\n", "\n" )
+            failure_reason = failure_reason.replace( "\\'", "'" )
+            raise RuntimeError( 'Model compilation failed \n' + failure_reason )
+
         time.sleep(30)
 
-    print('Done!')
+    progress_dots.update_status("")
+
+
+# Upload raw model data to s3, compile it, download the compilation result, and extract it
+def prepare_model_for_test(
+    region,
+    data_shape,
+    framework,
+    local_model_filepath,
+    s3_model_location,
+    compile_job_role ):
+
+    s3_client = boto3.client('s3')
+
+    local_model_dirname, model_filename = os.path.split(local_model_filepath)
+    s3_bucket, s3_prefix = split_s3_path( s3_model_location )
+    s3_prefix = s3_prefix.rstrip("/")
+
+    model_filename_ext = ".tar.gz"
+    if model_filename.lower().endswith( model_filename_ext ):
+        model_name = model_filename[ : -len(model_filename_ext) ]
+    else:
+        assert False, f"Model filename has to end with [{model_filename_ext}]"
+
+    compiled_model_filename = f"{model_name}-{_c.compiled_model_suffix}.tar.gz"
+
+    # ---
+
+    print( f"Uploading [{model_filename}] to [{s3_model_location}] ..." )
+
+    s3_client.upload_file(
+        f"{local_model_dirname}/{model_filename}",
+        s3_bucket, f"{s3_prefix}/{model_filename}"
+    )
+
+    # ---
+
+    print( f"Compiling [{model_filename}] ..." )
+
+    compile_model(
+        region = region,
+        s3_model_location = f"s3://{s3_bucket}/{s3_prefix}/{model_filename}",
+        data_shape = data_shape,
+        framework = framework,
+        target_device = _c.neo_target_device,
+        target_platform = _c.neo_target_platform,
+        s3_output_location = f"s3://{s3_bucket}/{s3_prefix}/",
+        compile_job_role = compile_job_role
+    )
+
+    # ---
+
+    print( f"Downloading compiled model to [{local_model_dirname}/{compiled_model_filename}] ..." )
+
+    s3_client.download_file(
+        s3_bucket, f"{s3_prefix}/{compiled_model_filename}",
+        f"{local_model_dirname}/{compiled_model_filename}"
+    )
+
+    # ---
+
+    print( f"Extracting compiled model to [{local_model_dirname}/{model_name}-{_c.compiled_model_suffix}] ..." )
+
+    extract_targz( 
+        f"{local_model_dirname}/{compiled_model_filename}", 
+        f"{local_model_dirname}/{model_name}-{_c.compiled_model_suffix}"
+    )
+
+    print( "Done." )
 
 
 def create_app(name, description, manifest, role, device):
@@ -281,22 +376,20 @@ def deploy_app(device_id, app_name, role):
         role,
         device_id)
     assert app_created['ResponseMetadata']['HTTPStatusCode'] == 200
-    my_app_id = app_created['ApplicationInstanceId']
-    print(f'App ID: {my_app_id}')
-    i=0
+    app_id = app_created['ApplicationInstanceId']
+    
+    print( "Application Instance Id :", app_id )
+
+    progress_dots = ProgressDots()
     while True:
-        print(f'Request: #{i + 1}')
-        response = describe_app(my_app_id)
-        app_status = response['Status']
-        print(f'App status #{i + 1}: {app_status}')
+        response = describe_app(app_id)
+        status = response['Status']
+        progress_dots.update_status( f'{status} ({response["StatusDescription"]})' )
         if app_status in ['DEPLOYMENT_SUCCEEDED','DEPLOYMENT_FAILED']:
-            # logger.info(app_status)  # "HealthStatus" : "RUNNING"
-            # ,"NOT_AVAILABLE"
-            print(app_status)
             break
-        i+=1
-        time.sleep(150)
-    assert app_status == 'DEPLOYMENT_SUCCEEDED'
+        time.sleep(60)
+    
+    assert status == 'DEPLOYMENT_SUCCEEDED'
     
     return response
 

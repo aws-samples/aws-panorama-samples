@@ -410,14 +410,11 @@ class port():
                 if rtsp_url.split('.')[-1] in ['avi', 'mp4']:
                     rtsp_url = './{}/assets/'.format(_c.app_name) + rtsp_url
 
-                video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
-
             elif _c.camera_node_name == 'abstract_rtsp_media_source':
                 log_p.info('{}'.format('Using Abstract Data Source'))
-                video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
 
             self.video_frames = (
-                media(x) for x in Video_Array(video_name).get_frames())
+                media(x) for x in Video_Array(_c.videoname).get_frames())
 
     def get(self):
         if self.call_node_type == 'call_node_name':
@@ -508,10 +505,9 @@ class ModelClass:
                 'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Asset Not Found in package.json interfaces')
 
         # get inference
-        compiled_model_filename = _c.models[ self.model_name ]
-
         with nullify_output(suppress_stdout=True, suppress_stderr=True):
-            model = dlr.DLRModel('{}/models/{}'.format(_c.test_utility_dirname, compiled_model_filename))
+            model_path = _c.models[ self.model_name ]  + "-" + _c.compiled_model_suffix
+            model = dlr.DLRModel( model_path )
             output = model.run(self.input_val1)
 
         if len(output) == 3 and list(
