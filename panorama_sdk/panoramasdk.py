@@ -9,7 +9,7 @@ import dlr
 import json
 import cv2
 import numpy as np
-import datetime
+import time
 from IPython.display import clear_output
 import boto3
 import time
@@ -190,9 +190,9 @@ class media(object):
 
     @property
     def time_stamp(self):
-        dateTimeObj = datetime.datetime.now()
-        timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
-        return timestampStr
+        micro = 1000000
+        t = int( time.time() * micro )
+        return ( t // micro, t % micro )
 
     @property
     def stream_uri(self):
