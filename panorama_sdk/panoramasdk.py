@@ -1,20 +1,20 @@
 import sys
-from contextlib import contextmanager
-import matplotlib.pyplot as plt
-from logging.handlers import RotatingFileHandler
-import logging
-import collections
 import os
-import dlr
+import time
 import json
-import cv2
-import numpy as np
-import time
+import logging
+from logging.handlers import RotatingFileHandler
+from contextlib import contextmanager
+
 from IPython.display import clear_output
-import boto3
-import time
-from dlr.counter.phone_home import PhoneHome
-PhoneHome.disable_feature()
+import matplotlib.pyplot as plt
+import cv2
+import dlr
+
+# configure DLR
+dlr.counter.phone_home.PhoneHome.disable_feature()
+
+# configure logging
 logging.basicConfig(filename="SimulatorLog.log")
 log_p = logging.getLogger('panoramasdk')
 log_p.setLevel(logging.DEBUG)
@@ -23,6 +23,8 @@ formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
 handler.setFormatter(formatter)
 log_p.addHandler(handler)
+
+# configure matplotlib
 plt.rcParams["figure.figsize"] = (20, 20)
 
 # -------
@@ -34,7 +36,6 @@ _c = None
 _graph = None
 
 # -------
-
 
 def _configure( config ):
     
