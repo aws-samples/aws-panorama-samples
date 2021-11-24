@@ -11,7 +11,7 @@ import boto3
 
 import panoramasdk
 
-panorama_client = boto3.client('panorama')
+panorama_client = boto3.client('panorama') # FIXME : pass from sample notebook
 
 # ---
 
