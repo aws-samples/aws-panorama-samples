@@ -4,7 +4,6 @@ import time
 import json
 import logging
 from logging.handlers import RotatingFileHandler
-from contextlib import contextmanager
 
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
@@ -48,54 +47,6 @@ def _configure( config ):
     # FIXME : should move this part into node._initialize(), so that graph.json can be updated without re-running configure()
     with open("./{}/graphs/{}/graph.json".format( _c.app_name, _c.app_name )) as f:
         _graph = json.load(f)
-
-@contextmanager
-def nullify_output(suppress_stdout=True, suppress_stderr=True):
-    """
-    Stop DLR from putting out INFO messages
-    Parameters
-    ----------
-    suppress_stdout : bool
-    suppress_stderr : bool
-    """
-
-    stdout = sys.stdout
-    stderr = sys.stderr
-    devnull = open(os.devnull, "w")
-    try:
-        if suppress_stdout:
-            sys.stdout = devnull
-        if suppress_stderr:
-            sys.stderr = devnull
-        yield
-    finally:
-        if suppress_stdout:
-            sys.stdout = stdout
-        if suppress_stderr:
-            sys.stderr = stderr
-
-
-class callable_node:
-    """
-    Mock Callable Inference Node
-
-    Parameters
-    ----------
-    model_name : str
-    """
-
-    def __init__(self):
-        #self.inputs = inputs
-        pass
-
-    def model_name(self):
-        self.model_name = 'test'
-
-        def get():
-            return self.model_name
-
-    def get(self):
-        return self.model_name
 
 
 class media(object):
@@ -425,119 +376,6 @@ class port():
             return [next(self.video_frames)]
 
 
-### MODEL CLASS #############
-
-class ModelClass:
-    """
-    Model Class is a helper function for Node Class
-
-    Parameters
-    ----------
-    None
-
-    Methods
-    -------
-    None
-
-    """
-
-    def __init__(self, input_val1, model_name=""):
-        self.input_val1 = input_val1
-        self.model_name = model_name
-
-    # FIXME : most of processes in this method can be one-time process.
-    def __iter__(self):
-    
-        if self.model_name == "":
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Please Provide Model Name')
-
-        # Check if the supplied name is valid or not
-        # Step 1: Get the interface for the model_package_name provided
-        model_pkg = './{}/packages/'.format(_c.app_name) + '/{}-{}'.format(_c.account_id, _c.model_package_name) + '-1.0/' + 'package.json'
-        with open(model_pkg) as f:
-            package = json.load(f)
-        
-        # gather existing interface names in the package
-        correct_interface_names = set()
-        for interface in package["nodePackage"]["interfaces"]:
-            correct_interface_names.add( interface["name"] )
-        
-        # get nodes from graph and get corresponding interface to the model
-        # name in model_name
-        graph_nodes = _graph['nodeGraph']['nodes']
-        
-        # lookup interface name by node name
-        interface_name = None
-        for dicts in graph_nodes:
-            if dicts["name"] == self.model_name:
-                interface_name = dicts["interface"]
-                break
-
-        if interface_name is None:
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Model node {} not Found in graph.json'.format(self.model_name) )
-
-        folder_name = "{}-{}".format(_c.account_id, interface_name.split('.')[0].split('::')[1])
-        name_in_interfaces_pjson = interface_name.split('.')[1]
-
-        if name_in_interfaces_pjson not in correct_interface_names:
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Please use the correct Model interface name: {} not in {}'.format( name_in_interfaces_pjson, correct_interface_names ))
-
-        # read package.json from the folder name we got from the interface,
-        # which is in the package folder
-        path = './{}/packages/'.format(_c.app_name) + folder_name + '-1.0/' + 'package.json'
-        with open(path) as f:
-            package = json.load(f)
-
-        interfaces = package["nodePackage"]["interfaces"]
-        assets = package["nodePackage"]["assets"]
-
-        # loop thru interfaces to get the asset name of the corresponding
-        # interface
-        asset_name = None
-        for dicts in interfaces:
-            if dicts["name"] == name_in_interfaces_pjson:
-                asset_name = dicts["asset"]
-
-        if asset_name is None:
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Asset Not Found in package.json interfaces')
-
-        # get inference
-        with nullify_output(suppress_stdout=True, suppress_stderr=True):
-            model_path = _c.models[ self.model_name ]  + "-" + _c.compiled_model_suffix
-            model = dlr.DLRModel( model_path )
-            output = model.run(self.input_val1)
-
-        if len(output) == 3 and list(
-                self.input_val1.keys())[0] == 'data':  # OD model
-            k = -1
-            class_data = None
-            bbox_data = None
-            conf_data = None
-
-            output_final = []
-
-            for data in output:
-                k += 1
-                if k == 0:
-                    class_data = data
-                    output_final.append(class_data)
-                if k == 1:
-                    conf_data = data
-                    output_final.append(conf_data)
-                if k == 2:
-                    bbox_data = data
-                    output_final.append(bbox_data)
-
-        else:
-            output_final = output
-
-        return iter(output_final)
-
-
 #### OUTPUT CLASS #######
 
 class OutputClass(object):
@@ -590,7 +428,7 @@ class node(object):
             {output_name: AccessWithDot({'put': OutputClass})})
         
         # FIXME : call() can return tuple. Doesn't have to be custom class.
-        instance.call = ModelClass
+        #instance.call = ModelClass
     
     # Create node instance
     # This method is automatically called even if it is not called explicitly
@@ -600,4 +438,82 @@ class node(object):
 
         node._initialize( instance )
 
+        node._dlr_models = {}
+
         return instance
+
+    # Instantiate DLRModel when it is used for the first time, 
+    # and check if the model node/interface are correctly defined in JSON files
+    def _load_dlr_model( self, name ):
+
+        # Check if the supplied name is valid or not
+        # Step 1: Get the interface for the model_package_name provided
+        model_pkg = './{}/packages/'.format(_c.app_name) + '/{}-{}'.format(_c.account_id, _c.model_package_name) + '-1.0/' + 'package.json'
+        with open(model_pkg) as f:
+            package = json.load(f)
+        
+        # gather existing interface names in the package
+        correct_interface_names = set()
+        for interface in package["nodePackage"]["interfaces"]:
+            correct_interface_names.add( interface["name"] )
+        
+        # get nodes from graph and get corresponding interface to the model
+        # name in model_name
+        graph_nodes = _graph['nodeGraph']['nodes']
+        
+        # lookup interface name by node name
+        interface_name = None
+        for dicts in graph_nodes:
+            if dicts["name"] == name:
+                interface_name = dicts["interface"]
+                break
+
+        if interface_name is None:
+            raise ValueError(
+                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Model node {} not Found in graph.json'.format(name) )
+
+        folder_name = "{}-{}".format(_c.account_id, interface_name.split('.')[0].split('::')[1])
+        name_in_interfaces_pjson = interface_name.split('.')[1]
+
+        if name_in_interfaces_pjson not in correct_interface_names:
+            raise ValueError(
+                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Please use the correct Model interface name: {} not in {}'.format( name_in_interfaces_pjson, correct_interface_names ))
+
+        # read package.json from the folder name we got from the interface,
+        # which is in the package folder
+        path = './{}/packages/'.format(_c.app_name) + folder_name + '-1.0/' + 'package.json'
+        with open(path) as f:
+            package = json.load(f)
+
+        interfaces = package["nodePackage"]["interfaces"]
+        assets = package["nodePackage"]["assets"]
+
+        # loop thru interfaces to get the asset name of the corresponding
+        # interface
+        asset_name = None
+        for dicts in interfaces:
+            if dicts["name"] == name_in_interfaces_pjson:
+                asset_name = dicts["asset"]
+
+        if asset_name is None:
+            raise ValueError(
+                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Asset Not Found in package.json interfaces')
+
+        # Instantiate DLRModel
+        model_path = _c.models[ name ]  + "-" + _c.compiled_model_suffix
+        model = dlr.DLRModel( model_path )
+        self._dlr_models[name] = model
+
+    def call( self, input, name, time_out = None ):
+
+        if name not in self._dlr_models:
+            self._load_dlr_model(name)
+
+        assert name in self._dlr_models
+
+        dlr_model = self._dlr_models[ name ]
+        output = dlr_model.run( input )
+
+        assert isinstance( output, list ), f"Unexpected output type {type(output)}"
+
+        return tuple(output)
