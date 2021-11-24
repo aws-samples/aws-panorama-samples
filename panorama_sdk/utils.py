@@ -11,8 +11,7 @@ import boto3
 
 import panoramasdk
 
-s3 = boto3.resource('s3')
-client = boto3.client('panorama') # FIXME : should rename client -> panorama or panorama_client
+panorama_client = boto3.client('panorama')
 
 # ---
 
@@ -93,8 +92,8 @@ def extract_targz( targz_filename, dst_dirname ):
 def resolve_sm_role():
     my_session = boto3.session.Session()
     my_region = my_session.region_name
-    client = boto3.client('iam', region_name=my_region)
-    response_roles = client.list_roles(
+    iam_client = boto3.client('iam', region_name=my_region)
+    response_roles = iam_client.list_roles(
         PathPrefix='/',
         # Marker='string',
         MaxItems=999
@@ -115,16 +114,16 @@ def resolve_sm_role():
         rolename = 'AWSPanoramaSMRole' + \
             time.strftime('%Y-%m-%d %H:%M:%S').replace('-', '').replace(" ", "").replace(':', "")
 
-        role = client.create_role(
+        role = iam_client.create_role(
             RoleName=rolename,
             AssumeRolePolicyDocument=json.dumps(role_policy_document),
         )
 
-        client.attach_role_policy(
+        iam_client.attach_role_policy(
             RoleName=rolename,
             PolicyArn='arn:aws:iam::aws:policy/AmazonS3FullAccess',
         )
-        client.attach_role_policy(
+        iam_client.attach_role_policy(
             RoleName=rolename,
             PolicyArn="arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
         )
@@ -140,8 +139,8 @@ def resolve_sm_role():
 def default_app_role():
     my_session = boto3.session.Session()
     my_region = my_session.region_name
-    client = boto3.client('iam', region_name=my_region)
-    response_roles = client.list_roles(
+    iam_client = boto3.client('iam', region_name=my_region)
+    response_roles = iam_client.list_roles(
         PathPrefix='/',
         # Marker='string',
         MaxItems=999
@@ -159,7 +158,7 @@ def default_app_role():
 
         rolename = 'AWSPanoramaSamplesDeploymentRoleTest_{}'.format(_c.app_name)
 
-        role = client.create_role(
+        role = iam_client.create_role(
             RoleName=rolename,
             AssumeRolePolicyDocument=json.dumps(role_policy_document),
         )
@@ -331,7 +330,7 @@ def prepare_model_for_test(
 def create_app(name, description, manifest, role, device):
     if role is None:
         role = default_app_role()
-    return client.create_application_instance(
+    return panorama_client.create_application_instance(
         Name=name,
         Description=description,
         ManifestPayload={
@@ -342,23 +341,35 @@ def create_app(name, description, manifest, role, device):
     )
 
 
-def describe_app(app):
-    return client.describe_application_instance(
-        ApplicationInstanceId=app)
-
-
-def remove_app(app):
-    return client.remove_application_instance(
-        ApplicationInstanceId=app)
-
-
-def list_app_instances(device):
+def list_app_instances( device_id = None ):
     
-    # FIXME : should use next-token and get all the result
+    apps = []
     
-    return client.list_application_instances(
-        DeviceId=device,
-        MaxResults=25)
+    next_token = None
+    
+    while True:
+        
+        params = {
+            "MaxResults" : 25,
+        }
+
+        if device_id:
+            params["DeviceId"] = device_id
+        
+        if next_token:
+            params["NextToken"] = next_token
+    
+        response = panorama_client.list_application_instances( **params )
+        
+        apps += response["ApplicationInstances"]
+
+        if "NextToken" in response:
+            next_token = response["NextToken"]
+            continue
+        
+        break
+    
+    return apps
 
 
 def deploy_app(device_id, app_name, role):
@@ -382,14 +393,12 @@ def deploy_app(device_id, app_name, role):
 
     progress_dots = ProgressDots()
     while True:
-        response = describe_app(app_id)
+        response = panorama_client.describe_application_instance( ApplicationInstanceId = app_id )
         status = response['Status']
         progress_dots.update_status( f'{status} ({response["StatusDescription"]})' )
-        if app_status in ['DEPLOYMENT_SUCCEEDED','DEPLOYMENT_FAILED']:
+        if status in ['DEPLOYMENT_SUCCEEDED','DEPLOYMENT_FAILED']:
             break
         time.sleep(60)
-    
-    assert status == 'DEPLOYMENT_SUCCEEDED'
     
     return response
 
@@ -397,36 +406,22 @@ def deploy_app(device_id, app_name, role):
 def remove_application( device_id, application_instance_id ):
     """Remove app"""
 
-    response = remove_app(application_instance_id)
-    print(f'Response: {response}')
-    remove_status_code = response['ResponseMetadata']['HTTPStatusCode']
-    # listApplicationInstances "Status" : "REMOVAL_PENDING","Status" :
-    # "REMOVAL_SUCCEEDED",
-    if remove_status_code == 200:
-        i=0
-        while True:
-            print(f'Request: {i + 1}')
-            response = list_app_instances(device_id)
-            app_instances = response['ApplicationInstances']
-            print(f'app_instances: {app_instances}')
-            #logger.info(f'app_instances: {app_instances}')
-            for app in app_instances:
-                print(f'app: {app}')
-                app_inst = app['ApplicationInstanceId']
-                print(f'app_inst_id: {app_inst}')
-                if app['ApplicationInstanceId'] == application_instance_id:
-                    status = app['Status']
-                    print(f'Status: {status}')
-                    if status == 'REMOVAL_SUCCEEDED':
-                        print('Removed')
-                        return
-            i+=1
-            time.sleep(150)
-    else:
-        print('App Not Removed')
+    response = panorama_client.remove_application_instance( ApplicationInstanceId = application_instance_id )
+    assert response['ResponseMetadata']['HTTPStatusCode'] == 200
+
+    progress_dots = ProgressDots()
+    while True:
+        response = panorama_client.describe_application_instance( ApplicationInstanceId = application_instance_id )
+        status = response['Status']
+        progress_dots.update_status( f'{status} ({response["StatusDescription"]})' )
+        if status in ('REMOVAL_SUCCEEDED', 'REMOVAL_FAILED'):
+            break
+        time.sleep(60)
+
+    return response
 
 
-def update_descriptor(account_id, code_package_name, name_of_file):
+def update_package_descriptor(account_id, code_package_name, name_of_file):
 
     # update Descriptor
     descriptor_path = "./{}/packages/{}-{}-1.0/descriptor.json".format(_c.app_name, account_id, code_package_name)
