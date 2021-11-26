@@ -7,3 +7,4 @@ __pycache__
 /samples/people_counter/people_counter_app/assets/*
 /samples/car_tracker/models/*
 /samples/people_counter/models/*
+/samples/people_counter/screenshots
