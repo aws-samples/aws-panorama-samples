@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 import argparse
 
 import boto3
@@ -8,31 +9,57 @@ import panorama_test_utility
 
 # ---
 
-# FIXME : make these parameters configurable
+argparser = argparse.ArgumentParser( description='Panorama Test-Utility' )
+argparser.add_argument('--region', dest='region', action='store', default=None, help='Region name such as us-east-1')
+argparser.add_argument('--app-name', dest='app_name', action='store', required=True, help='Application name')
+argparser.add_argument('--code-package-name', dest='code_package_name', required=True, action='store', help='Code package name')
+argparser.add_argument('--model-package-name', dest='model_package_name', required=True, action='store', help='Model package name')
+argparser.add_argument('--camera-node-name', dest='camera_node_name', required=True, action='store', help='Camera node name')
+argparser.add_argument('--s3-model-location', dest='s3_model_location', action='store', required=True, help='S3 location for model compilation. e.g. s3://mybucket/myapp/')
+argparser.add_argument('--model-node-name', dest='model_node_names', action='append', required=True, help='Model node name')
+argparser.add_argument('--model-file-basename', dest='model_file_basenames', action='append', required=True, help='Model filename excluding .tar.gz part')
+argparser.add_argument('--model-data-shape', dest='model_data_shapes', action='append', required=True, help='Model input data shape. e.g. {"data":[1,3,512,512]}')
+argparser.add_argument('--model-framework', dest='model_frameworks', action='append', required=True, help='Model framework name. e.g. MXNET')
+argparser.add_argument('--video-file', dest='video_file', action='store', required=True, help='Video filename to simulate camera stream')
+argparser.add_argument('--screenshot-dir', dest='screenshot_dir', action='store', default=None, help="Directory name to save screenshot files. You can use Python's datetime format.")
+argparser.add_argument('--py-file', dest='py_file', action='store', required=True, help='Python source path to execute')
+args = argparser.parse_args()
 
-AWS_REGION = "us-east-1"
-ML_MODEL_FNAME = "ssd_512_resnet50_v1_voc"
-S3_BUCKET = "shimomut-panorama-test-us-east-1"
-APP_NAME = "people_counter_app"
-source_filepath = "./people_counter_app/packages/123456789012-PEOPLE_COUNTER_CODE-1.0/src/app.py"
+if len(args.model_node_names) != len(args.model_file_basenames) or len(args.model_node_names) != len(args.model_data_shapes) or len(args.model_node_names) != len(args.model_frameworks):
+    print( "Error: number of arguments have to be consistent between --model-node-name, --model-file-basenames, --model-data-shape, and --model-framework" )
+    sys.exit(1)
+
+# ---
+
+model_node_and_file = {}
+for model_node_name, model_file_basename, model_data_shape, model_framework in zip( args.model_node_names, args.model_file_basenames, args.model_data_shapes, args.model_frameworks ):
+    model_node_and_file[model_node_name] = model_file_basename
+
+screenshot_dir_dt_resolved = None
+if args.screenshot_dir:
+    screenshot_dir_dt_resolved = datetime.datetime.now().strftime(args.screenshot_dir)
+    if not os.path.exists(screenshot_dir_dt_resolved):
+        os.makedirs( screenshot_dir_dt_resolved, exist_ok=True )
 
 c = panorama_test_utility.Config(
 
     # application name
-    app_name = 'people_counter_app',
+    app_name = args.app_name,
 
     ## package names and node names
-    code_package_name = 'PEOPLE_COUNTER_CODE',
-    model_package_name = 'SSD_MODEL',
-    camera_node_name = 'abstract_rtsp_media_source',
+    code_package_name = args.code_package_name,
+    model_package_name = args.model_package_name,
+    camera_node_name = args.camera_node_name,
 
     # models (model node name : compiled model path without platform dependent suffic)
-    models = {
-        "model_node" : "./models/" + ML_MODEL_FNAME,
-    },
+    models = model_node_and_file,
 
     # video file path to simulate camera stream
-    videoname = '../common/test_utility/videos/TownCentreXVID.avi',
+    videoname = args.video_file,
+    
+    # Suppress rendering output by pyplot, and write screenshots in PNG files
+    render_output_image_with_pyplot = False,
+    screenshot_dir = screenshot_dir_dt_resolved,
 
     # AWS account ID
     account_id = boto3.client("sts").get_caller_identity()["Account"],
@@ -40,10 +67,10 @@ c = panorama_test_utility.Config(
 
 # ---
 
-def compile_model_as_needed( model_name ):
+def compile_model_as_needed( model_node_name, model_file_basename, model_data_shape, model_framework ):
 
-    raw_model_file = f"./models/{model_name}.tar.gz"
-    compiled_model_file = f"./models/{model_name}-LINUX_X86_64.tar.gz" # FIXME : suffix
+    raw_model_file = f"{model_file_basename}.tar.gz"
+    compiled_model_file = f"{model_file_basename}-{c.compiled_model_suffix}.tar.gz"
 
     need_model_compilation = False
 
@@ -66,35 +93,32 @@ def compile_model_as_needed( model_name ):
             print( "Compiled model file is up to date." )
 
     if need_model_compilation:
-
-        # Upload the model to S3, compile it with SageMaker, download the result, and extract it
         panorama_test_utility.prepare_model_for_test(
-            region = AWS_REGION,
-            data_shape = '{"data":[1,3,512,512]}', # FIXME : parameterize
-            framework = 'MXNET',                   # FIXME : parameterize
-            local_model_filepath = f"./models/{model_name}.tar.gz",
-            s3_model_location = f"s3://{S3_BUCKET}/{APP_NAME}/",
-            compile_job_role = None,
+            region = args.region,
+            data_shape = model_data_shape,
+            framework = model_framework,
+            local_model_filepath = raw_model_file,
+            s3_model_location = args.s3_model_location,
+            compile_job_role = panorama_test_utility.resolve_sm_role(),
         )
 
 def run_simulation():
 
-    name = os.path.basename(source_filepath)
+    name = os.path.basename(args.py_file)
 
-    with open( source_filepath ) as fd:
+    with open( args.py_file ) as fd:
         file_image = fd.read()
 
     namespace = {}
     code = compile( file_image, name, 'exec' )
     exec( code, namespace, namespace )
-    
 
 def main():
     
     panorama_test_utility.configure(c)
     
-    # FIXME : support multiple models
-    compile_model_as_needed()
+    for model_node_name, model_file_basename, model_data_shape, model_framework in zip( args.model_node_names, args.model_file_basenames, args.model_data_shapes, args.model_frameworks ):
+        compile_model_as_needed( model_node_name, model_file_basename, model_data_shape, model_framework )
 
     run_simulation()
 
