@@ -21,6 +21,12 @@ class Config:
         
         # Use *this* directory (where this python module exists) as the test-utility directory.
         self.test_utility_dirname, _ = os.path.split(__file__)
+        
+        # By default, render output image on Jupyter notebook. This can be turned off in non-Jupyter environments.
+        self.render_output_image_with_pyplot = True
+        self.screenshot_dir = None
+
+        # FIXME : Should set default values for other parameters as well
 
         # Set platform dependent parameters such as Neo compile options
         self._set_platform_dependent_parameters()

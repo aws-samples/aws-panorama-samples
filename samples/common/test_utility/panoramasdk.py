@@ -391,13 +391,25 @@ class OutputClass(object):
     None
 
     """
+    
+    screenshot_n_frame = 0
 
     def __init__(self, initial=None):
+        
         self._list = initial
-        for img in self._list:
-            plt.imshow(img.image)
-            plt.show()
-            clear_output(wait=True)
+        
+        if _c.screenshot_dir:
+            for i_img, img in enumerate(self._list):
+                filename = f"{_c.screenshot_dir}/screenshot_%d_%04d.png" % ( i_img, OutputClass.screenshot_n_frame )
+                cv2.imwrite( filename, img.image )
+            
+            OutputClass.screenshot_n_frame += 1
+        
+        if _c.render_output_image_with_pyplot:
+            for img in self._list:
+                plt.imshow(img.image)
+                plt.show()
+                clear_output(wait=True)
 
 
 ################# CLASS DEFS DONE ##########################
@@ -426,9 +438,6 @@ class node(object):
         output_name = getgraphdata().getoutputsfrompackagejson()
         instance.outputs = AccessWithDot(
             {output_name: AccessWithDot({'put': OutputClass})})
-        
-        # FIXME : call() can return tuple. Doesn't have to be custom class.
-        #instance.call = ModelClass
     
     # Create node instance
     # This method is automatically called even if it is not called explicitly
