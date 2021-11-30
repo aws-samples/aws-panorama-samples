@@ -33,13 +33,14 @@ if len(args.model_node_names) != len(args.model_file_basenames) or len(args.mode
 
 model_node_and_file = {}
 for model_node_name, model_file_basename, model_data_shape, model_framework in zip( args.model_node_names, args.model_file_basenames, args.model_data_shapes, args.model_frameworks ):
-    model_node_and_file[model_node_name] = model_file_basename
+    model_file_dirname, model_file_basename = os.path.split(model_file_basename)
+    compiled_model_basename = f"{model_file_dirname}/{model_node_name}/{model_file_basename}"
+    model_node_and_file[model_node_name] = compiled_model_basename
 
 screenshot_dir_dt_resolved = None
 if args.screenshot_dir:
     screenshot_dir_dt_resolved = datetime.datetime.now().strftime(args.screenshot_dir)
-    if not os.path.exists(screenshot_dir_dt_resolved):
-        os.makedirs( screenshot_dir_dt_resolved, exist_ok=True )
+    os.makedirs( screenshot_dir_dt_resolved, exist_ok=True )
 
 c = panorama_test_utility.Config(
 
@@ -69,17 +70,22 @@ c = panorama_test_utility.Config(
 
 def compile_model_as_needed( model_node_name, model_file_basename, model_data_shape, model_framework ):
 
-    raw_model_file = f"{model_file_basename}.tar.gz"
-    compiled_model_file = f"{model_file_basename}-{c.compiled_model_suffix}.tar.gz"
+    print( f"Checking [{model_node_name}]" )
+
+    model_file_dirname, model_file_basename = os.path.split(model_file_basename)
+
+    raw_model_file = f"{model_file_dirname}/{model_file_basename}.tar.gz"
+    compiled_model_dir = f"{model_file_dirname}/{model_node_name}"
+    compiled_model_file = f"{compiled_model_dir}/{model_file_basename}-{c.compiled_model_suffix}.tar.gz"
 
     need_model_compilation = False
 
     if not os.path.exists(raw_model_file):
-        print( "Error : Raw model file doesn't exist" )
+        print( f"Error : Raw model file [{raw_model_file}] doesn't exist" )
         return
 
     elif not os.path.exists(compiled_model_file):
-        print( "Compiled model file doesn't exist. Compiling." )
+        print( f"Compiled model file [{compiled_model_file}] doesn't exist. Need compilation." )
         need_model_compilation = True
 
     else:
@@ -87,18 +93,19 @@ def compile_model_as_needed( model_node_name, model_file_basename, model_data_sh
         compiled_model_stat = os.stat( compiled_model_file )
     
         if raw_model_stat.st_mtime > compiled_model_stat.st_mtime:
-            print( "Raw model file has newer timestamp than compiled model file. Recompiling." )
+            print( "Raw model file has newer timestamp than compiled model file. Need compilation." )
             need_model_compilation = True
         else:
-            print( "Compiled model file is up to date." )
+            print( "Compiled model file is up to date. Skipping compilation." )
 
     if need_model_compilation:
         panorama_test_utility.prepare_model_for_test(
             region = args.region,
             data_shape = model_data_shape,
             framework = model_framework,
-            local_model_filepath = raw_model_file,
-            s3_model_location = args.s3_model_location,
+            input_model_filepath = raw_model_file,
+            output_model_dir = compiled_model_dir,
+            s3_model_location = args.s3_model_location + "/" + model_node_name,
             compile_job_role = panorama_test_utility.resolve_sm_role(),
         )
 
@@ -109,6 +116,8 @@ def run_simulation():
     with open( args.py_file ) as fd:
         file_image = fd.read()
 
+    print("---")
+
     namespace = {}
     code = compile( file_image, name, 'exec' )
     exec( code, namespace, namespace )
@@ -117,6 +126,7 @@ def main():
     
     panorama_test_utility.configure(c)
     
+    # TODO : parallelize
     for model_node_name, model_file_basename, model_data_shape, model_framework in zip( args.model_node_names, args.model_file_basenames, args.model_data_shapes, args.model_frameworks ):
         compile_model_as_needed( model_node_name, model_file_basename, model_data_shape, model_framework )
 

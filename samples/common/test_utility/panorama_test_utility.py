@@ -6,6 +6,7 @@ import json
 import tarfile
 import platform
 import urllib
+import subprocess
 
 import boto3
 
@@ -81,6 +82,18 @@ class ProgressDots:
             if status : print( status + " " , end="", flush=True)
             self.previous_status = status
             
+
+def preview_text_file( filename ):
+    print( filename + ":" )
+    print( "---" )
+    try:
+        result = subprocess.run( ["pygmentize", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+        if result.stdout : print( result.stdout.decode("utf-8") )
+        if result.stderr : print( result.stderr.decode("utf-8") )
+    except FileNotFoundError:
+        with open(filename) as fd:
+            print( fd.read() )
+
 
 def split_s3_path( s3_path ):
     re_pattern_s3_path = "s3://([^/]+)/(.*)"
@@ -270,13 +283,14 @@ def prepare_model_for_test(
     region,
     data_shape,
     framework,
-    local_model_filepath,
+    input_model_filepath,
+    output_model_dir,
     s3_model_location,
     compile_job_role ):
 
     s3_client = boto3.client('s3')
 
-    local_model_dirname, model_filename = os.path.split(local_model_filepath)
+    input_model_dirname, model_filename = os.path.split(input_model_filepath)
     s3_bucket, s3_prefix = split_s3_path( s3_model_location )
     s3_prefix = s3_prefix.rstrip("/")
 
@@ -289,11 +303,11 @@ def prepare_model_for_test(
     compiled_model_filename = f"{model_name}-{_c.compiled_model_suffix}.tar.gz"
 
     # ---
-
+    
     print( f"Uploading [{model_filename}] to [{s3_model_location}] ..." )
 
     s3_client.upload_file(
-        f"{local_model_dirname}/{model_filename}",
+        input_model_filepath,
         s3_bucket, f"{s3_prefix}/{model_filename}"
     )
 
@@ -314,20 +328,22 @@ def prepare_model_for_test(
 
     # ---
 
-    print( f"Downloading compiled model to [{local_model_dirname}/{compiled_model_filename}] ..." )
+    print( f"Downloading compiled model to [{output_model_dir}/{compiled_model_filename}] ..." )
+
+    os.makedirs( output_model_dir, exist_ok=True )
 
     s3_client.download_file(
         s3_bucket, f"{s3_prefix}/{compiled_model_filename}",
-        f"{local_model_dirname}/{compiled_model_filename}"
+        f"{output_model_dir}/{compiled_model_filename}"
     )
 
     # ---
 
-    print( f"Extracting compiled model to [{local_model_dirname}/{model_name}-{_c.compiled_model_suffix}] ..." )
+    print( f"Extracting compiled model in [{output_model_dir}/{model_name}-{_c.compiled_model_suffix}] ..." )
 
-    extract_targz( 
-        f"{local_model_dirname}/{compiled_model_filename}", 
-        f"{local_model_dirname}/{model_name}-{_c.compiled_model_suffix}"
+    extract_targz(
+        f"{output_model_dir}/{compiled_model_filename}", 
+        f"{output_model_dir}/{model_name}-{_c.compiled_model_suffix}"
     )
 
     print( "Done." )
@@ -439,3 +455,11 @@ def update_package_descriptor(account_id, code_package_name, name_of_file):
 
     with open(descriptor_path, "w") as jsonFile:
         json.dump(data, jsonFile)
+
+
+# get CloudWatch Logs URL to see application logs
+def get_logs_url( region_name, device_id, application_instance_id ):
+    log_group = f"/aws/panorama/devices/{device_id}/applications/{application_instance_id}"
+    encoded_log_group = log_group.replace( "/", "$252F" )
+    return f"https://console.aws.amazon.com/cloudwatch/home?region={region_name}#logsV2:log-groups/log-group/{encoded_log_group}"
+

@@ -174,7 +174,7 @@ class AccessWithDot:
 
     def __init__(self, response):
         self.__dict__['_response'] = response
-        self.op_name = list(response.keys())[0]
+        self.op_name = list(response.keys())[0] # "op_name" is not used anywhere
 
     def __getattr__(self, key):
         # First, try to return from _response
@@ -191,6 +191,7 @@ class AccessWithDot:
             log_p.info('Attribute Error')
 
 
+# FIXME : data structure has to be reconsidered to represent graph data correctly
 class getgraphdata:
 
     """
@@ -214,6 +215,7 @@ class getgraphdata:
         node_dict = {}
         for d in graph_nodes:
             for key in d.keys():
+                # FIXME : this code is assuming "name" is always the first key
                 if key == 'name':
                     node_name = d[key]
                     node_dict[node_name] = [node_name]  # {}
@@ -260,6 +262,7 @@ class getgraphdata:
         with open(path) as f:
             package_json = json.load(f)
 
+        # FIXME : if interfaces is empty, this line raises IndexError, which is difficult to understand how to solve the issue
         output_name = package_json["nodePackage"]["interfaces"][0]["outputs"][0]["name"]
 
         return output_name
@@ -374,6 +377,9 @@ class port():
         elif self.call_node_location.split('.')[-2].split('::')[1] == _c.camera_node_name:
             # video frame generator
             return [next(self.video_frames)]
+        else:
+            # Shouldn't come here. Raise exception with helpful error message.
+            assert False
 
 
 #### OUTPUT CLASS #######
