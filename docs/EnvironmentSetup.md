@@ -11,37 +11,38 @@ Note: MacOS is currently not supported due to model compilation issues.
 
 ### Setup **ARM64 based EC2** environment
 
-#### Pre-Requisites
-* **Step 1**: You need to have an already created PEM key in your aws account and downloaded it to your local computer. [Instructions on how to create a PEM key](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
+**Pre-Requisites**
+1. You need to have an already created PEM key in your aws account and downloaded it to your local computer. [Instructions on how to create a PEM key](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
 
-* **Step 2**: You need to subscribe to the Ubuntu 18.04 LTS Bionic ARM AMI on AWS Marketplace. Please go to [this link](https://aws.amazon.com/marketplace/pp/prodview-5cjjlmwk54f2o?sr=0-1&ref_=beagle&applicationId=AWSMPContessa) and click "Continue to Subscribe". "Accept Terms" on the next page completes the Subscription
+2. You need to subscribe to the Ubuntu 18.04 LTS Bionic ARM AMI on AWS Marketplace. Please go to [this link](https://aws.amazon.com/marketplace/pp/prodview-5cjjlmwk54f2o?sr=0-1&ref_=beagle&applicationId=AWSMPContessa) and click "Continue to Subscribe". "Accept Terms" on the next page completes the Subscription
 
-* **Step 3**: An S3 bucket created in the region of your choice that you can use in the Test Utility
+3. An S3 bucket created in the region of your choice that you can use in the Test Utility
 
 
-#### Launching the Samples  
+**Launching the Samples**
 
-* **Step 1**: Click the Launch Stack Button below. **NOTE** : This process will take about ```20 minutes```  
+1. Click the Launch Stack Button below. **NOTE** : This process will take about ```20 minutes```  
     * **US-EAST-1** :  
  [![Foo](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template?stackName=arm-ec2-instance&templateURL=https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ec2-instance-panorama.yml)
 
     * **US-WEST-2** :  
  [![Foo](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/template?stackName=arm-ec2-instance&templateURL=https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ec2-instance-panorama.yml)
 
-* **Step 2**: Log into the EC2 Instance (See next section) and wait for the file ```INSTALLATION-COMPLETE.txt``` to appear on your ```/home/ubuntu```. This marks the end of the EC2 instance set up
-* **OPTIONAL STEP** : If you would like to monitor the set up progress, log into the EC2 instance (See Next Section), and type ```tail -f /var/log/cloud-init-output.log``` in a terminal session. 
+2. Log into the EC2 Instance (See next section) and wait for the file ```INSTALLATION-COMPLETE.txt``` to appear on your ```/home/ubuntu```. This marks the end of the EC2 instance set up
 
-#### Logging into the EC2 Instance    
+    **OPTIONAL STEP** : If you would like to monitor the set up progress, log into the EC2 instance (See Next Section), and type ```tail -f /var/log/cloud-init-output.log``` in a terminal session. 
 
-* **Step 1**:  From the AWS EC2 Console, get the **Public IPv4 DNS** for the instance you launched. It should look something like this
+**Logging into the EC2 Instance**
+
+1. From the AWS EC2 Console, get the **Public IPv4 DNS** for the instance you launched. It should look something like this
     ```sh
     ec2-1-234-567-8.compute-1.amazonaws.com
     ```
-* **Step 2**: Make sure the PEM key that was created is in the same folder as you are. At this point, you can do this
+2. Make sure the PEM key that was created is in the same folder as you are. At this point, you can do this
     ```sh
     ssh -i "My_Awesome_Key.pem" ubuntu@ec2-1-234-567-8.compute-1.amazonaws.com
     ```
-* **Step 3**: Launch Jupyter Lab Session from the Ec2 console
+3. Launch Jupyter Lab Session from the Ec2 console
     ```sh
     sudo jupyter-lab --no-browser --allow-root
     ```
@@ -51,18 +52,18 @@ Note: MacOS is currently not supported due to model compilation issues.
     ```
     Note the Port (8888) and the token number
 
-* **Step 4**: Creating a SSH tunnel (May not be necessary).Open an another terminal session on your Computer.  Make sure the port number here is the same as the output from ```Step 3```
+4. Creating a SSH tunnel (May not be necessary).Open an another terminal session on your Computer.  Make sure the port number here is the same as the output from ```Step 3```
     ```sh
     ssh -i My_Awesome_Key.pem -NL 8157:localhost:8888 ubuntu@ec2-1-234-567-8.compute-1.amazonaws.com
     ```
-    
-* **Step 5**: Launch your browser, paste the following address in your browser window
+
+5. Launch your browser, paste the following address in your browser window
     ```sh
     http://localhost:8157/
     ```
     At this point it should ask for the token number, paste it and click Ok. You are inside your EC2 instance Jupyter Lab session  
 
-* **Step 6**: Once logged into Jupyter Lab session, open a terminal session and run ```aws configure```. Fill in the Access Key and Secret key and Region for your account. 
+6. Once logged into Jupyter Lab session, open a terminal session and run ```aws configure```. Fill in the Access Key and Secret key and Region for your account. 
     ```sh
     aws configure
     ``` 
