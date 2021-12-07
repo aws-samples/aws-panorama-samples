@@ -7,7 +7,7 @@
 
 ### About Test Utility
 
-To read more about the Test Utility and its current capabilities, please click [Here](panorama_sdk/README.md)
+To read more about the Test Utility and its current capabilities, please click [Here](samples/common/test_utility/README.md)
 
 
 ## Section 1: Setting Up Samples and Test Utility
