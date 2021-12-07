@@ -77,38 +77,38 @@ Note: MacOS is currently not supported due to model compilation issues.
 
 3. Install additional dependencies
 
-  ```sh
-  sudo pip3 install boto3 sagemaker matplotlib opencv-python --upgrade
-  ```
+    ```sh
+    sudo pip3 install boto3 sagemaker matplotlib opencv-python --upgrade
+    ```
 
 4. Install Jupyter or JupyterLab in Ubuntu
 
-  ```sh
-  sudo pip3 install jupyterlab
-  ```
+    ```sh
+    sudo pip3 install jupyterlab
+    ```
 
 5. Clone the 'aws-panorama-samples' repository in the Ubuntu filesystem.
 
-  ```sh
-  git clone https://github.com/aws-samples/aws-panorama-samples.git
-  ```
+    ```sh
+    git clone https://github.com/aws-samples/aws-panorama-samples.git
+    ```
 
 6. Run jupyter server on Ubuntu
 
-  ```sh
-  jupyter-lab --no-browser --allow-root --port 8888 --notebook-dir ~
-  ```
+    ```sh
+    jupyter-lab --no-browser --allow-root --port 8888 --notebook-dir ~
+    ```
   
-  You will see console output like below:
+    You will see console output like below:
   
-  ```
-  Jupyter Server 1.13.0 is running at:
-  http://localhost:8888/lab?token={token}
-  ```
+    ```
+    Jupyter Server 1.13.0 is running at:
+    http://localhost:8888/lab?token={token}
+    ```
   
-  Copy the token to clipboard.
+    Copy the token to clipboard.
 
 7. Open your browser on Windows, and browse http://localhost:8888/.
 
-  You will be asked to input the token. Please use the token you copied at previous step.
+    You will be asked to input the token. Please use the token you copied at previous step.
 
