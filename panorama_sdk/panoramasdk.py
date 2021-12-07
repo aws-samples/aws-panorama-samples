@@ -330,16 +330,14 @@ class Video_Array(object):
 
     Methods
     -------
-    get_frames
-        returns a list of frames that total the global variable frames_to_process
+    get_frame
+        returns a frame at a time until global variable frames_to_process
     """
 
     def __init__(self, inputpath):
         self.input_path = inputpath
 
-    def get_frames(self):
-
-        video_frames = []
+    def get_frame(self):
         
         if not os.path.exists(self.input_path):
             raise FileNotFoundError( self.input_path )
@@ -349,16 +347,13 @@ class Video_Array(object):
         num = frames_to_process
         frame_num = 0
 
-        # FIXME : reading all video frames one-shot, rather than iteratively.
-        # Should change this to read iteratively.
-
         while (frame_num <= num):
             _, frame = cap.read()
 
-            video_frames.append(frame)
+            # Reading frame one by one to reduce memory space
+            yield frame
             frame_num += 1
 
-        return video_frames
 
 
 class port():
@@ -416,15 +411,17 @@ class port():
                 log_p.info('{}'.format('Using Abstract Data Source'))
                 video_name = '{}/videos/{}'.format(_c.test_utility_dirname,_c.videoname)
 
-            self.video_frames = (
-                media(x) for x in Video_Array(video_name).get_frames())
+            self.video_obj = Video_Array(video_name).get_frame()
 
     def get(self):
         if self.call_node_type == 'call_node_name':
             return self.call_node[-1]['value']
         elif self.call_node_location.split('.')[-2].split('::')[1] == _c.camera_node_name:
-            # video frame generator
-            return [next(self.video_frames)]
+            # video frame invoker
+            try:
+                return [media(next(self.video_obj))]
+            except StopIteration:
+                return []
 
 
 ### MODEL CLASS #############
