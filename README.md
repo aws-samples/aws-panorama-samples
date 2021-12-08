@@ -70,10 +70,11 @@ To read more about the Test Utility and its current capabilities, please click [
 
 ## Section 2: List of Samples
 
-| Application | Description | Framework | Usecase | Complexity | Model 
-| ------ | ------ |------ |------ |------ |------ |
-| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz)
-| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Advanced | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)
+| Application | Description | Framework | Usecase | Complexity | Model | Contributors
+| ------ | ------ |------ |------ |------ |------ |------ |
+| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz) | Surya Kari, Phu Nguyen
+| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Advanced | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)| Surya Kari, Phu Nguyen
+| **Shelf Monitoring**| This is a sample computer vision application that can detect and count bottles on a shelf | MXNet| Object Detection | Advanced | [Download](https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/models/yolo3_darknet53_coco-09767802.zip) <br /> [Shelf Monitoring Application Demo](https://aws.amazon.com/blogs/machine-learning/build-a-shelf-monitoring-application-using-aws-panorama/) | Amit Mukherjee, Laith Al-Saadoon, Sourabh Agnihotri
 
 
 ## Section 3: Running the Samples
