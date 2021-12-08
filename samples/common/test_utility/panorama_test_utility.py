@@ -26,6 +26,8 @@ class Config:
         # By default, render output image on Jupyter notebook. This can be turned off in non-Jupyter environments.
         self.render_output_image_with_pyplot = True
         self.screenshot_dir = None
+        
+        self.video_range = range(0,30,1)
 
         # FIXME : Should set default values for other parameters as well
 

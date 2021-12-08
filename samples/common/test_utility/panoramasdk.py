@@ -29,10 +29,17 @@ plt.rcParams["figure.figsize"] = (20, 20)
 # -------
 # Globals
 
-frames_to_process = 30
-
 _c = None
 _graph = None
+
+# -------
+# Custom exceptions
+
+class TestUtilityBaseError(Exception):
+    pass
+
+class TestUtilityEndOfVideo(TestUtilityBaseError):
+    pass
 
 # -------
 
@@ -286,11 +293,16 @@ class Video_Array(object):
     Methods
     -------
     get_frame
-        returns a frame at a time until global variable frames_to_process
+        returns a frame at a time until it exceeds _c.video_range
     """
 
     def __init__(self, inputpath):
+
         self.input_path = inputpath
+
+        assert _c.video_range.start>0, "Config.video_range.start has to be positive integer."
+        assert _c.video_range.stop>0, "Config.video_range.stpp has to be positive integer."
+        assert _c.video_range.step>0, "Config.video_range.step has to be positive integer."
 
     def get_frame(self):
         
@@ -298,17 +310,31 @@ class Video_Array(object):
             raise FileNotFoundError( self.input_path )
         
         cap = cv2.VideoCapture(self.input_path)
-
-        num = frames_to_process
         frame_num = 0
 
-        while (frame_num <= num):
+        # Skip first frames based on video_range.start
+        for i in range(0,_c.video_range.start):
             _, frame = cap.read()
+            frame_num += 1
+            
+            if frame is None:
+                return
 
-            # Reading frame one by one to reduce memory space
-            yield frame
+        while (frame_num <= _c.video_range.stop):
+            
+            _, frame = cap.read()
             frame_num += 1
 
+            if frame is None:
+                return
+            
+            # Reading frame one by one to reduce memory space
+            yield frame
+
+            # Skip frames based on video_range.step
+            for i in range(1,_c.video_range.step):
+                _, frame = cap.read()
+                frame_num += 1
 
 
 class port():
@@ -363,7 +389,7 @@ class port():
             elif _c.camera_node_name == 'abstract_rtsp_media_source':
                 log_p.info('{}'.format('Using Abstract Data Source'))
 
-            self.video_obj = Video_Array(video_name).get_frame()
+            self.video_obj = Video_Array(_c.videoname).get_frame()
 
     def get(self):
         if self.call_node_type == 'call_node_name':
@@ -373,11 +399,7 @@ class port():
             try:
                 return [media(next(self.video_obj))]
             except StopIteration:
-                # FIXME : need to consider how to tream end-of-video
-                #   option1 : loop
-                #   option2 : keep returning last frame
-                #   option3 : raise StopIteration
-                return []
+                raise TestUtilityEndOfVideo("Reached end of video")
         else:
             # Shouldn't come here. Raise exception with helpful error message.
             assert False

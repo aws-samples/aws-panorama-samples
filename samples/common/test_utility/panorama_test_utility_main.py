@@ -6,6 +6,7 @@ import argparse
 import boto3
 
 import panorama_test_utility
+import panoramasdk
 
 # ---
 
@@ -21,6 +22,9 @@ argparser.add_argument('--model-file-basename', dest='model_file_basenames', act
 argparser.add_argument('--model-data-shape', dest='model_data_shapes', action='append', required=True, help='Model input data shape. e.g. {"data":[1,3,512,512]}')
 argparser.add_argument('--model-framework', dest='model_frameworks', action='append', required=True, help='Model framework name. e.g. MXNET')
 argparser.add_argument('--video-file', dest='video_file', action='store', required=True, help='Video filename to simulate camera stream')
+argparser.add_argument('--video-start', dest='video_start', action='store', default=0, help='Video start frame (default: 0)')
+argparser.add_argument('--video-stop', dest='video_stop', action='store', default=30, help='Video stop frame (default: 30)')
+argparser.add_argument('--video-step', dest='video_step', action='store', default=1, help='Video frame step (default: 1)')
 argparser.add_argument('--screenshot-dir', dest='screenshot_dir', action='store', default=None, help="Directory name to save screenshot files. You can use Python's datetime format.")
 argparser.add_argument('--py-file', dest='py_file', action='store', required=True, help='Python source path to execute')
 args = argparser.parse_args()
@@ -57,6 +61,7 @@ c = panorama_test_utility.Config(
 
     # video file path to simulate camera stream
     videoname = args.video_file,
+    video_range = range( int(args.video_start), int(args.video_stop), int(args.video_step) ),
     
     # Suppress rendering output by pyplot, and write screenshots in PNG files
     render_output_image_with_pyplot = False,
@@ -118,9 +123,12 @@ def run_simulation():
 
     print("---")
 
-    namespace = {}
-    code = compile( file_image, name, 'exec' )
-    exec( code, namespace, namespace )
+    try:
+        namespace = {}
+        code = compile( file_image, name, 'exec' )
+        exec( code, namespace, namespace )
+    except panoramasdk.TestUtilityEndOfVideo:
+        print( "Reached end of video. Stopped simulation." )
 
 def main():
     
