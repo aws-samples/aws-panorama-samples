@@ -46,14 +46,8 @@ class TestUtilityEndOfVideo(TestUtilityBaseError):
 def _configure( config ):
     
     global _c
-    global _graph
     
     _c = config
-
-    # Read graph.json
-    # FIXME : should move this part into node._initialize(), so that graph.json can be updated without re-running configure()
-    with open("./{}/graphs/{}/graph.json".format( _c.app_name, _c.app_name )) as f:
-        _graph = json.load(f)
 
 
 class media(object):
@@ -300,9 +294,9 @@ class Video_Array(object):
 
         self.input_path = inputpath
 
-        assert _c.video_range.start>0, "Config.video_range.start has to be positive integer."
-        assert _c.video_range.stop>0, "Config.video_range.stpp has to be positive integer."
-        assert _c.video_range.step>0, "Config.video_range.step has to be positive integer."
+        assert _c.video_range.start >= 0, "Config.video_range.start has to be >= 0."
+        assert _c.video_range.stop > 0, "Config.video_range.stpp has to be positive integer."
+        assert _c.video_range.step > 0, "Config.video_range.step has to be positive integer."
 
     def get_frame(self):
         
@@ -460,6 +454,12 @@ class node(object):
     @staticmethod
     def _initialize(instance):
     
+        global _graph
+
+        # Read graph.json
+        with open("./{}/graphs/{}/graph.json".format( _c.app_name, _c.app_name )) as f:
+            _graph = json.load(f)
+
         node_dict = getgraphdata().getlistofnodes()
 
         instance.inputs = AccessWithDot(node_dict)
