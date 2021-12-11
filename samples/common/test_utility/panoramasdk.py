@@ -5,7 +5,7 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 
-from IPython.display import clear_output
+import IPython
 import matplotlib.pyplot as plt
 import cv2
 import dlr
@@ -113,8 +113,10 @@ class media(object):
 
         # fontScale
         fontScale = 1
-        # Blue color in BGR
-        color = (255, 0, 0)
+
+        # White in BGR
+        color = (255, 255, 255)
+
         # Line thickness of 2 px
         thickness = 2
 
@@ -127,7 +129,9 @@ class media(object):
         if x1 > 1 or y1 > 1 or x2 > 1 or y2 > 1:
             raise ValueError('Value should be between 0 and 1')
 
-        color = (255, 0, 0)
+        # Red in BGR
+        color = (0, 0, 255)
+
         # Line thickness of 2 px
         thickness = 2
 
@@ -430,9 +434,9 @@ class OutputClass(object):
         
         if _c.render_output_image_with_pyplot:
             for img in self._list:
-                plt.imshow(img.image)
+                IPython.display.clear_output(wait=True)
+                plt.imshow( cv2.cvtColor(img.image,cv2.COLOR_BGR2RGB) )
                 plt.show()
-                clear_output(wait=True)
 
 
 ################# CLASS DEFS DONE ##########################
