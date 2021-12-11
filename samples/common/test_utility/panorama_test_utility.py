@@ -20,9 +20,6 @@ class Config:
     
     def __init__( self, **args ):
         
-        # Use *this* directory (where this python module exists) as the test-utility directory.
-        self.test_utility_dirname, _ = os.path.split(__file__)
-        
         # By default, render output image on Jupyter notebook. This can be turned off in non-Jupyter environments.
         self.render_output_image_with_pyplot = True
         self.screenshot_dir = None
@@ -157,7 +154,7 @@ def resolve_sm_role():
                 return role['Arn']
 
 
-def default_app_role():
+def default_app_role( app_name ):
     my_session = boto3.session.Session()
     my_region = my_session.region_name
     iam_client = boto3.client('iam', region_name=my_region)
@@ -177,7 +174,7 @@ def default_app_role():
                         "Service": ["panorama.amazonaws.com"]},
                     "Action": "sts:AssumeRole"}]}
 
-        rolename = 'AWSPanoramaSamplesDeploymentRoleTest_{}'.format(_c.app_name)
+        rolename = 'AWSPanoramaSamplesDeploymentRoleTest_{}'.format(app_name)
 
         role = iam_client.create_role(
             RoleName=rolename,
@@ -188,7 +185,7 @@ def default_app_role():
 
     except Exception as e:
         for role in response_roles['Roles']:
-            if role['RoleName'].startswith('AWSPanoramaSamplesDeploymentRoleTest_{}'.format(_c.app_name)):
+            if role['RoleName'].startswith('AWSPanoramaSamplesDeploymentRoleTest_{}'.format(app_name)):
                 print('Resolved App IAM Role to: ' + str(role))
                 return role['Arn']
 
@@ -200,10 +197,7 @@ def _http_download( url, dst ):
         fd.write(data)
 
 
-def download_sample_model( model_name, dst_dirname=None ):
-
-    if dst_dirname is None:
-        dst_dirname = f"{_c.test_utility_dirname}/models"
+def download_sample_model( model_name, dst_dirname ):
 
     src_url = f"https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/{model_name}.tar.gz"
     dst_path = f"{dst_dirname}/{model_name}.tar.gz"
@@ -353,7 +347,7 @@ def prepare_model_for_test(
 
 def create_app(name, description, manifest, role, device):
     if role is None:
-        role = default_app_role()
+        role = default_app_role( name )
     return panorama_client.create_application_instance(
         Name=name,
         Description=description,
@@ -445,15 +439,15 @@ def remove_application( device_id, application_instance_id ):
     return response
 
 
-def update_package_descriptor(account_id, code_package_name, name_of_file):
+def update_package_descriptor( app_name, account_id, code_package_name, name_of_py_file ):
 
     # update Descriptor
-    descriptor_path = "./{}/packages/{}-{}-1.0/descriptor.json".format(_c.app_name, account_id, code_package_name)
+    descriptor_path = "./{}/packages/{}-{}-1.0/descriptor.json".format(app_name, account_id, code_package_name)
 
     with open(descriptor_path, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    data["runtimeDescriptor"]["entry"]["name"] = "/panorama/" + name_of_file
+    data["runtimeDescriptor"]["entry"]["name"] = "/panorama/" + name_of_py_file
 
     with open(descriptor_path, "w") as jsonFile:
         json.dump(data, jsonFile)
