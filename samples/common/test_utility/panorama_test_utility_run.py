@@ -92,6 +92,11 @@ def test_utility_run_main():
         if args.output_pyplot:
             sys.stdout = NullStdout()
             sys.stderr = NullStdout()
+            
+        # Tentatively add the directory of the source code into sys.path, so that app can load modules from there.
+        py_dir = os.path.dirname(args.py_file)
+        sys.path.insert( 0, py_dir )
+        print( sys.path )
 
         try:
             namespace = {}
@@ -105,6 +110,7 @@ def test_utility_run_main():
         finally:
             sys.stdout = original_stdout
             sys.stderr = original_stderr
+            sys.path.remove( py_dir )
 
     panorama_test_utility.configure(c)
     run_simulation()
