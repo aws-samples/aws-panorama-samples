@@ -1,2 +1,10 @@
-.ipynb_checkpoints
 __pycache__
+.ipynb_checkpoints
+.vscode
+*.log
+/samples/common/test_utility/videos/*
+/samples/car_tracker/car_tracker_app/assets/*
+/samples/people_counter/people_counter_app/assets/*
+/samples/car_tracker/models/*
+/samples/people_counter/models/*
+/samples/people_counter/screenshots

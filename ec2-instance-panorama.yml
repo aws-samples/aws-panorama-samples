@@ -1,0 +1,225 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EC2 instance
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Default: Surya_Arm64_key
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t4g.2xlarge
+    AllowedValues:
+    - t4g.2xlarge
+    - t4g.micro
+    - t4g.xlarge
+  SSHLocation:
+    Description: The IP address range that can be used to SSH to the EC2 instances
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+Mappings: 
+  RegionMap: 
+    us-east-1:
+      id: ami-01747bf371bd30817
+    us-east-2:
+      id: ami-01747bf371bd30817
+    us-west-2:
+      id: ami-0a8e148ec03558c68
+    eu-central-1:
+      id: ami-01747bf371bd30817
+    eu-west-1:
+      id: ami-01747bf371bd30817
+    ap-northeast-1:
+      id: ami-01747bf371bd30817
+Resources:
+  ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      SecurityGroups: [!Ref 'ec2SecurityGroup']
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap
+        - RegionMap
+        - !Ref AWS::Region
+        - id
+      IamInstanceProfile: !Ref ec2InstanceProfile
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 500
+      UserData:
+        Fn::Base64: !Sub |
+                #!/bin/bash -xe
+
+                HOME=/home/ubuntu
+                echo $HOME > $HOME/user_data.txt
+
+                apt -y update && apt -y upgrade
+                apt-get -y install wget build-essential checkinstall
+                apt-get install -y libreadline-gplv2-dev libncursesw5-dev libssl-dev \
+                    libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+                apt-get install python3-dev python3-pip python3-numpy -y
+                apt-get install -y build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev  libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev protobuf-compiler libgflags-dev libgoogle-glog-dev libblas-dev libhdf5-serial-dev liblmdb-dev libleveldb-dev liblapack-dev libsnappy-dev libprotobuf-dev libopenblas-dev libgtk2.0-dev libboost-dev libboost-all-dev libeigen3-dev libatlas-base-dev libne10-10 libne10-dev
+                
+                echo 'step 4: installing jupyterlab'
+
+                #!/bin/bash
+
+                cd 
+                git clone https://github.com/aws/aws-panorama-cli
+                cd aws-panorama-cli
+                sudo ./install.sh
+
+                cd 
+                apt-get update
+                apt-get install -y python3 python3-distutils build-essential cmake curl ca-certificates
+                curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+                sudo python3 /tmp/get-pip.py
+                rm /tmp/get-pip.py
+                sudo pip3 install -U pip setuptools wheel
+
+
+                pip3 install jupyterlab
+                pip3 install boto3
+                sudo pip3 install matplotlib
+                pip3 install 'attrs==19.1.0' --force-reinstall
+                pip3 install sagemaker
+                pip3 install awscli
+                pip3 install numpy
+
+                jupyter notebook --generate-config
+
+                #!/bin/bash
+
+                pip3 install neon
+                apt-get -y install libneon27-dev
+                apt-get -y install libneon27-gnutls-dev
+                cd ~/
+                pwd
+                apt install -y unzip
+
+                cd
+                wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/awspanoramasamples.zip
+                # aws s3 cp s3://panorama-starter-kit/public/v2/Models/awspanoramasamples.zip .
+                unzip awspanoramasamples
+                rm awspanoramasamples.zip
+                mkdir /opt/aws
+                mkdir /opt/aws/panorama
+                mkdir /opt/aws/panorama/logs
+                mkdir /opt/aws/panorama/storage
+
+                echo 'step 6: installing neo'
+                
+                cd
+                sudo apt-get update
+                sudo apt-get install -y python3 python3-distutils build-essential cmake curl ca-certificates
+                curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+                sudo python3 /tmp/get-pip.py
+                rm /tmp/get-pip.py
+                sudo pip3 install -U pip setuptools wheel
+                
+                cd
+                wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/install-neo.sh
+                #aws s3 cp s3://panorama-starter-kit/public/v2/Models/install-neo.sh .
+                sh ./install-neo.sh
+
+
+                echo 'step 8: Installing MXNet'
+                # wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/install-mxnet.sh
+                # # aws s3 cp s3://panorama-starter-kit/public/v2/Models/install-mxnet.sh .
+                # sh ./install-mxnet.sh
+                # pip3 install --upgrade gluoncv
+                # pip3 install --upgrade ipywidgets
+
+
+                
+                echo 'step 3: installing opencv'
+
+                cd
+                pip3 install opencv-python boto3
+
+                echo 'step 7 : Install Docker'
+
+                apt-get update -y
+
+                apt-get install \
+                apt-transport-https \
+                ca-certificates \
+                curl \
+                gnupg \
+                lsb-release -y 
+
+                apt  install docker.io -y
+                aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 500245141608.dkr.ecr.us-west-2.amazonaws.com
+
+                cd 
+                sudo chown -R ubuntu:ubuntu awspanoramasamples/
+
+                echo "INSTALLATION COMPLETE" > $HOME/INSTALLATION_COMPLETE.txt
+  ec2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+      - IpProtocol: "tcp"
+        CidrIp: "0.0.0.0/0"
+        FromPort: "22"
+        ToPort: "22"
+      - IpProtocol: "tcp"
+        CidrIp: "0.0.0.0/0"
+        FromPort: "8888"
+        ToPort: "8888"
+  ec2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      - arn:aws:iam::aws:policy/CloudWatchAgentAdminPolicy
+      - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+      - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+      - arn:aws:iam::aws:policy/AmazonRekognitionFullAccess
+      - arn:aws:iam::aws:policy/IAMFullAccess
+      - arn:aws:iam::aws:policy/AWSPanoramaFullAccess
+      AssumeRolePolicyDocument: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com",
+                  "s3.amazonaws.com",
+                  "cloudwatch-crossaccount.amazonaws.com",
+                  "cloudformation.amazonaws.com",
+                  "member.org.stacksets.cloudformation.amazonaws.com",
+                  "sagemaker.amazonaws.com",
+                  "rekognition.amazonaws.com",
+                  "iam.amazonaws.com",
+                  "panorama.amazonaws.com"
+                ]
+              }
+            }
+          ]
+        }
+  ec2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref ec2Role
+Outputs:
+  publicName:
+    Description: Public DNSName of the EC2 instance
+    Value: !GetAtt [ec2Instance, PublicDnsName]
+  publicIp:
+    Description: Public IP address of the EC2 instance
+    Value: !GetAtt [ec2Instance, PublicIp]
