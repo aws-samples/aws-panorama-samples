@@ -8,3 +8,4 @@ __pycache__
 /samples/car_tracker/models/*
 /samples/people_counter/models/*
 /samples/people_counter/screenshots
+/samples/pose_estimation/screenshot
