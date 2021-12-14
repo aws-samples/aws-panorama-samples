@@ -96,7 +96,6 @@ def test_utility_run_main():
         # Tentatively add the directory of the source code into sys.path, so that app can load modules from there.
         py_dir = os.path.dirname(args.py_file)
         sys.path.insert( 0, py_dir )
-        print( sys.path )
 
         try:
             namespace = {}
