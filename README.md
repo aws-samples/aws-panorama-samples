@@ -23,8 +23,9 @@ To know **how to use Test Utility**, please refer to [How to use Test Utility](d
 
 | Application | Description | Framework | Usecase | Complexity | Model 
 | ------ | ------ |------ |------ |------ |------ |
-| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz)
-| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Advanced | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)
+| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz)
+| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)
+| **Pose estimation**| This is a sample computer vision application that can detect people and estimate pose of them | MXNet | Pose estimation | Advanced | yolo3_mobilenet1.0_coco, simple_pose_resnet152_v1d
 
 
 ## Running the Samples

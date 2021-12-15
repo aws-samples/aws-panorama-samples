@@ -204,5 +204,5 @@ $ python3 ../common/test_utility/panorama_test_utility_run.py \
     --video-step 10 \
     \
     --screenshot-dir ./screenshot/%Y%m%d-%H%M%S \
-    --py-file ./pose_estimation_app/packages/357984623133-pose_estimation_code-1.0/src/app.py
+    --py-file ./pose_estimation_app/packages/123456789012-pose_estimation_code-1.0/src/app.py
 ```

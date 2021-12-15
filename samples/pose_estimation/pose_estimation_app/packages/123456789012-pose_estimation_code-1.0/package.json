@@ -1,0 +1,39 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "pose_estimation_code",
+        "version": "1.0",
+        "description": "Code package for app",
+        "assets": [
+            {
+                "name": "code",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": "213b61331e91bcd280e8d7b944bea8223de9cac953ba47de0c8604a1d15b302b.tar.gz",
+                        "descriptorUri": "61ad4cdf026f80a6f0b89892651ffbde1cd99482c6c4896691147ff9b3329942.json"
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "code_interface",
+                "category": "business_logic",
+                "asset": "code",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
