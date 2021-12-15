@@ -18,7 +18,6 @@ We recommend developers start using the Test Utility by launching an EC2 test in
 |Validate application graph | 	Yes |	No |	The application graph is metadata that defines how cameras should connect to models and business logic code. The Test Utility can catch some errors in the application graph, but does not guarantee that the app graph will work when deployed to the device. |
 |Check Neo compatibility of the model |	Yes |	Somewhat |	While we expect little to no issues in compiling model to run with the Test Utility vs AWS Panorama appliance, we cannot guarantee the model will run the same due to differences in CPU/GPU available in the EC2 environment vs AWS Panorama appliance.|
 |Process RTSP streams |	Yes	| Coming soon |	The Test Utility cannot consume RTSP camera streams. Developers use static videos to test their application. This has not been an issue as during early development, when the Test Utility is most useful, developers want repeatable tests.|
-|Use multiple models |	Yes	|Coming soon |	The Test Utility does not support multiple models or multiple applications to run simultaneously,  while the AWS Panorama appliance does. The Test Utility maintainers are looking at this as a roadmap item and will prioritize based on customer feedback.|
 |Use mutiple data sources|	Yes	|Coming soon|	The Test Utility does not support multiple data sources feeding into an application simultaneously.|
 
 
