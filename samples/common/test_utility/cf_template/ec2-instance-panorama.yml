@@ -104,7 +104,8 @@ Resources:
                 sudo su - ubuntu -c "git clone https://github.com/aws-samples/aws-panorama-samples.git"                
                 wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/sample-videos.zip
                 sudo su - ubuntu -c "unzip sample-videos.zip"
-                mv videos ./aws-panorama-samples/samples/common/test_utility/videos
+                mv videos/* ./aws-panorama-samples/samples/common/test_utility/videos/
+                rmdir videos
                 rm sample-videos.zip
 
                 
