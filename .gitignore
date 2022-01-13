@@ -5,7 +5,9 @@ __pycache__
 /samples/common/test_utility/videos/*
 /samples/car_tracker/car_tracker_app/assets/*
 /samples/people_counter/people_counter_app/assets/*
+/samples/pose_estimation/pose_estimation_app/assets/*
 /samples/car_tracker/models/*
 /samples/people_counter/models/*
+/samples/pose_estimation/models/*
 /samples/people_counter/screenshots
 /samples/pose_estimation/screenshot
