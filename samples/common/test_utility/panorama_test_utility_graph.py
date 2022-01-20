@@ -430,14 +430,18 @@ class Graph:
 
         package = JsonPackage( package_filepath )
         #package.dump()
+        
+        # name fied in package.json is optional. check if it is same as graph.json if exists.
+        if "name" in package.d["nodePackage"]:
+            package_name_in_package = package.d["nodePackage"]["name"]
+            if package_name_in_package != package_name:
+                raise ValueError( f"Package name doesn't match : {package_name} != {package_name_in_package}" )
 
-        package_name_in_package = package.d["nodePackage"]["name"]
-        if package_name_in_package != package_name:
-            raise ValueError( f"Package name doesn't match : {package_name} != {package_name_in_package}" )
-
-        package_version_in_package = package.d["nodePackage"]["version"]
-        if package_version_in_package != package_version:
-            raise ValueError( f"Package version doesn't match : {package_version} != {package_version_in_package}" )
+        # version fied in package.json is optional. check if it is same as graph.json if exists.
+        if "version" in package.d["nodePackage"]:
+            package_version_in_package = package.d["nodePackage"]["version"]
+            if package_version_in_package != package_version:
+                raise ValueError( f"Package version doesn't match : {package_version} != {package_version_in_package}" )
 
         self.packages[package_name] = package
 
