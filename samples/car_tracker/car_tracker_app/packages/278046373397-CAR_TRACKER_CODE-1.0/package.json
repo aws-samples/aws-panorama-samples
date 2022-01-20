@@ -1,9 +1,9 @@
 {
     "nodePackage": {
         "envelopeVersion": "2021-01-01",
-        "name": "ssd_tf_latest",
+        "name": "CAR_TRACKER_CODE",
         "version": "1.0",
-        "description": "Default description for package ssd_tf_latest",
+        "description": "Default description for package CAR_TRACKER_CODE",
         "assets": [
  
         ],
