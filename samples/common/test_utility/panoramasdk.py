@@ -242,7 +242,7 @@ class ParameterPort(PortImpl):
         return self.producer_node.node_elm["value"]
 
     
-class HdmiDataSinkNode(PortImpl):
+class HdmiDataSinkPort(PortImpl):
 
     def __init__(self):
         self.screenshot_n_frame = 0
@@ -284,7 +284,7 @@ class port:
         
         else:
             if isinstance( self.consumer_node, panorama_test_utility_graph.HdmiDataSinkNode):
-                self.impl = HdmiDataSinkNode()
+                self.impl = HdmiDataSinkPort()
             else:
                 raise ValueError( "Unsupported consumer node type", type(self.consumer_node) )
     
