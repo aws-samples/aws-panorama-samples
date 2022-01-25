@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 import cv2
 import dlr
 
+import panorama_test_utility_graph
+
+# -------
+
 # configure DLR
 dlr.counter.phone_home.PhoneHome.disable_feature()
 
@@ -30,7 +34,6 @@ plt.rcParams["figure.figsize"] = (20, 20)
 # Globals
 
 _c = None
-_graph = None
 
 # -------
 # Custom exceptions
@@ -158,123 +161,6 @@ class media(object):
         return 'cam1'
 
 
-class AccessWithDot:
-
-    """
-    This class is implemented so we can mimic accessing dictionary keys with a .
-
-    ...
-
-    Attributes
-    ----------
-    response : dictionary
-        Input is a dictionary object
-
-
-    Methods
-    -------
-    __getattr__(key)
-        First, try to return from _response
-    """
-
-    def __init__(self, response):
-        self.__dict__['_response'] = response
-        self.op_name = list(response.keys())[0] # "op_name" is not used anywhere
-
-    def __getattr__(self, key):
-        # First, try to return from _response
-        try:
-            return self.__dict__['_response'][key]
-        except KeyError as e:
-            log_p.info('Key {} Not Found. Please Check {} package.json'.format(
-                    e, _c.code_package_name))
-        # If that fails, return default behavior so we don't break Python
-        try:
-            return self.__dict__[key]
-        except KeyError:
-            raise AttributeError
-            log_p.info('Attribute Error')
-
-
-# FIXME : data structure has to be reconsidered to represent graph data correctly
-class getgraphdata:
-
-    """
-    Helper Class to Collect List of Nodes and Edges from the Graph.json
-
-    Parameters
-    ----------
-    None
-    """
-
-    def __init__(self):
-        pass
-
-    def getlistofnodes(self):
-        # read graph.json
-
-        # get nodes into a dict
-        graph_nodes = _graph['nodeGraph']['nodes']
-
-        # create node_dict
-        node_dict = {}
-        for d in graph_nodes:
-            for key in d.keys():
-                # FIXME : this code is assuming "name" is always the first key
-                if key == 'name':
-                    node_name = d[key]
-                    node_dict[node_name] = [node_name]  # {}
-                elif key != 'name':
-                    node_dict[node_name].append(d[key])
-            
-            node_dict[node_name].append(d)
-            
-
-            # get edge name from edge dict from Node name
-            edge_dict = self.getlistofedges()
-
-            try:
-                node_name_edge = edge_dict[node_name]
-            except BaseException: # FIXME : should be more specific exception type
-                node_name_edge = node_name
-
-            # use the above name in the node dict
-            node_dict[node_name_edge] = port(node_dict[node_name])
-
-        return node_dict
-
-    def getlistofedges(self):
-
-        # read graph.json
-
-        # get edges into a dict
-        graph_edges = _graph['nodeGraph']['edges']
-
-        # create edge_dict
-        edge_dict = {}
-        for d in graph_edges:
-            edge_dict[d['producer'].split(
-                '.')[0]] = d['consumer'].split('.')[1]
-
-        return edge_dict
-
-    def getoutputsfrompackagejson(self):
-        # read package.json from main package
-        path = './{}/packages/'.format(_c.app_name) + \
-            _c.account_id + '-' + _c.code_package_name + '-1.0/' + 'package.json'
-
-        # Read Graph
-        with open(path) as f:
-            package_json = json.load(f)
-
-        # FIXME : if interfaces is empty, this line raises IndexError, which is difficult to understand how to solve the issue
-        output_name = package_json["nodePackage"]["interfaces"][0]["outputs"][0]["name"]
-
-        return output_name
-
-
-###### Video array CLASS #####
-
 class Video_Array(object):
 
     """
@@ -335,111 +221,87 @@ class Video_Array(object):
                 frame_num += 1
 
 
-class port():
+class PortImpl:
+    pass
 
-    """
-    Port Class Mock on the Device Panorama SDK
-
-    Parameters
-    ----------
-    call_node : Dict
-
-    Methods
-    -------
-    get : Gets the next frame from the video provided as a generator object
-    """
-
-    def __init__(self, call_node):
-        
-        self.call_node = call_node
-        self.frame_output = []
-
-        # classifying call_node
-        self.call_node_type = 'call_node_name'
-        self.call_node_location = None
-        for val in self.call_node[:-1]:
-            if not isinstance(
-                    val, bool) and isinstance(
-                    val, str) and len(
-                    val.split('.')) > 1:
-                self.call_node_type = 'call_node_location'
-                self.call_node_location = val
-                break
-            elif isinstance(val, bool) or type(val) in [int, float]:
-                continue
-
-        # RTSP Stream Video Frames Creation
-        if self.call_node_type == 'call_node_location' and self.call_node_location.split(
-                '.')[-2].split('::')[1] == _c.camera_node_name:
-
-            if _c.camera_node_name != 'abstract_rtsp_media_source':
-
-                # 'reading in the video / rtsp stream'
-                path = './{}/packages/{}-{}-1.0/package.json'.format( _c.app_name, _c.account_id, self.call_node_location.split('.')[0].split('::')[1] )
-                with open(path) as f:
-                    package = json.load(f)
-                rtsp_url = package['nodePackage']['interfaces'][0]['inputs'][-1]['default']
-
-                # this may be temp or perm dont know yet
-                if rtsp_url.split('.')[-1] in ['avi', 'mp4']:
-                    rtsp_url = './{}/assets/'.format(_c.app_name) + rtsp_url
-
-            elif _c.camera_node_name == 'abstract_rtsp_media_source':
-                log_p.info('{}'.format('Using Abstract Data Source'))
-
-            self.video_obj = Video_Array(_c.videoname).get_frame()
+class MediaSourceRtspCameraPort(PortImpl):
+    def __init__(self):
+        self.video_obj = Video_Array(_c.videoname).get_frame()
 
     def get(self):
-        if self.call_node_type == 'call_node_name':
-            return self.call_node[-1]['value']
-        elif self.call_node_location.split('.')[-2].split('::')[1] == _c.camera_node_name:
-            # video frame invoker
-            try:
-                return [media(next(self.video_obj))]
-            except StopIteration:
-                raise TestUtilityEndOfVideo("Reached end of video")
-        else:
-            # Shouldn't come here. Raise exception with helpful error message.
-            assert False
-
-
-#### OUTPUT CLASS #######
-
-class OutputClass(object):
-    """
-    Output Class is a helper function for Port Class
-
-    Parameters
-    ----------
-    initial : Frame Object to be displayed
-
-    Methods
-    -------
-    None
-
-    """
+        try:
+            return [media(next(self.video_obj))]
+        except StopIteration:
+            raise TestUtilityEndOfVideo("Reached end of video")
     
-    screenshot_n_frame = 0
+class ParameterPort(PortImpl):
+    def __init__( self, producer_node ):
+        self.producer_node = producer_node
 
-    def __init__(self, initial=None):
-        
-        self._list = initial
-        
+    def get(self):
+        return self.producer_node.node_elm["value"]
+
+    
+class HdmiDataSinkPort(PortImpl):
+
+    def __init__(self):
+        self.screenshot_n_frame = 0
+
+    def put( self, data ):
+    
+        media_list = data
+
         if _c.screenshot_dir:
-            for i_img, img in enumerate(self._list):
-                filename = f"{_c.screenshot_dir}/screenshot_%d_%04d.png" % ( i_img, OutputClass.screenshot_n_frame )
-                cv2.imwrite( filename, img.image )
+            for i_media, media_obj in enumerate(media_list):
+                filename = f"{_c.screenshot_dir}/screenshot_%d_%04d.png" % ( i_media, self.screenshot_n_frame )
+                cv2.imwrite( filename, media_obj.image )
             
-            OutputClass.screenshot_n_frame += 1
+            self.screenshot_n_frame += 1
         
         if _c.render_output_image_with_pyplot:
-            for img in self._list:
+            for media_obj in media_list:
                 IPython.display.clear_output(wait=True)
-                plt.imshow( cv2.cvtColor(img.image,cv2.COLOR_BGR2RGB) )
+                plt.imshow( cv2.cvtColor(media_obj.image,cv2.COLOR_BGR2RGB) )
                 plt.show()
+    
+class port:
+    
+    def __init__( self, producer_node=None, consumer_node=None ):
+    
+        assert producer_node or consumer_node
+        assert producer_node is None or consumer_node is None
+    
+        self.producer_node = producer_node
+        self.consumer_node = consumer_node
+    
+        if self.producer_node:
+            if isinstance( self.producer_node, panorama_test_utility_graph.MediaSourceRtspCameraNode ):
+                self.impl = MediaSourceRtspCameraPort()
+            elif isinstance( self.producer_node, panorama_test_utility_graph.ParameterNode ):
+                self.impl = ParameterPort( self.producer_node )
+            else:
+                raise ValueError( "Unsupported producer node type", type(self.producer_node) )
+        
+        else:
+            if isinstance( self.consumer_node, panorama_test_utility_graph.HdmiDataSinkNode):
+                self.impl = HdmiDataSinkPort()
+            else:
+                raise ValueError( "Unsupported consumer node type", type(self.consumer_node) )
+    
+    def get(self):
+        
+        if not self.producer_node:
+            raise ValueError( "port.get is supported only by input ports" )
+            
+        return self.impl.get()
 
+    def put( self, data ):
 
-################# CLASS DEFS DONE ##########################
+        if not self.consumer_node:
+            raise ValueError( "port.put is supported only by output ports" )
+        
+        return self.impl.put(data)
+    
 
 class node(object):
     """
@@ -457,21 +319,27 @@ class node(object):
     # Add properties and methods to the instance
     @staticmethod
     def _initialize(instance):
-    
-        global _graph
-
-        # Read graph.json
-        with open("./{}/graphs/{}/graph.json".format( _c.app_name, _c.app_name )) as f:
-            _graph = json.load(f)
-
-        node_dict = getgraphdata().getlistofnodes()
-
-        instance.inputs = AccessWithDot(node_dict)
         
-        output_name = getgraphdata().getoutputsfrompackagejson()
-        instance.outputs = AccessWithDot(
-            {output_name: AccessWithDot({'put': OutputClass})})
-    
+        graph = panorama_test_utility_graph.Graph()
+        graph.load(
+            app_dir_top = f"./{_c.app_name}",
+            app_name = _c.app_name,
+        )
+        
+        class Ports:
+            pass
+
+        instance.inputs = Ports()
+        for name, producer_node in graph.business_logic_node.inputs.items():
+            print( "Initializing input port", name, producer_node )
+            setattr( instance.inputs, name, port(producer_node = producer_node) )
+        
+        instance.outputs = Ports()
+        for name, consumer_node in graph.business_logic_node.outputs.items():
+            print( "Initializing output port", name, consumer_node )
+            setattr( instance.outputs, name, port(consumer_node = consumer_node) )
+
+
     # Create node instance
     # This method is automatically called even if it is not called explicitly
     def __new__(cls, *args, **kwargs):
@@ -487,60 +355,7 @@ class node(object):
     # Instantiate DLRModel when it is used for the first time, 
     # and check if the model node/interface are correctly defined in JSON files
     def _load_dlr_model( self, name ):
-
-        # Check if the supplied name is valid or not
-        # Step 1: Get the interface for the model_package_name provided
-        model_pkg = './{}/packages/'.format(_c.app_name) + '/{}-{}'.format(_c.account_id, _c.model_package_name) + '-1.0/' + 'package.json'
-        with open(model_pkg) as f:
-            package = json.load(f)
         
-        # gather existing interface names in the package
-        correct_interface_names = set()
-        for interface in package["nodePackage"]["interfaces"]:
-            correct_interface_names.add( interface["name"] )
-        
-        # get nodes from graph and get corresponding interface to the model
-        # name in model_name
-        graph_nodes = _graph['nodeGraph']['nodes']
-        
-        # lookup interface name by node name
-        interface_name = None
-        for dicts in graph_nodes:
-            if dicts["name"] == name:
-                interface_name = dicts["interface"]
-                break
-
-        if interface_name is None:
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Model node {} not Found in graph.json'.format(name) )
-
-        folder_name = "{}-{}".format(_c.account_id, interface_name.split('.')[0].split('::')[1])
-        name_in_interfaces_pjson = interface_name.split('.')[1]
-
-        if name_in_interfaces_pjson not in correct_interface_names:
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Please use the correct Model interface name: {} not in {}'.format( name_in_interfaces_pjson, correct_interface_names ))
-
-        # read package.json from the folder name we got from the interface,
-        # which is in the package folder
-        path = './{}/packages/'.format(_c.app_name) + folder_name + '-1.0/' + 'package.json'
-        with open(path) as f:
-            package = json.load(f)
-
-        interfaces = package["nodePackage"]["interfaces"]
-        assets = package["nodePackage"]["assets"]
-
-        # loop thru interfaces to get the asset name of the corresponding
-        # interface
-        asset_name = None
-        for dicts in interfaces:
-            if dicts["name"] == name_in_interfaces_pjson:
-                asset_name = dicts["asset"]
-
-        if asset_name is None:
-            raise ValueError(
-                'Exception Class : ModelClass, Exception Method : __iter__, Exception Message : Asset Not Found in package.json interfaces')
-
         # Instantiate DLRModel
         model_path = _c.models[ name ]  + "-" + _c.compiled_model_suffix
         model = dlr.DLRModel( model_path )
@@ -559,3 +374,4 @@ class node(object):
         assert isinstance( output, list ), f"Unexpected output type {type(output)}"
 
         return tuple(output)
+

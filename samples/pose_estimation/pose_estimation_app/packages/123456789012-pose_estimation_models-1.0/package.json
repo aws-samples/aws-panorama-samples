@@ -1,7 +1,7 @@
 {
     "nodePackage": {
         "envelopeVersion": "2021-01-01",
-        "name": "pose_estimation_model1",
+        "name": "pose_estimation_models",
         "version": "1.0",
         "description": "package containing people detection and pose estimation models",
         "assets": [
