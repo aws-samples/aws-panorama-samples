@@ -10,7 +10,7 @@ import panorama_test_utility
 # ---
 
 # Enclose all variables locally in this function, to avoid contaminating Jupyter notebook namespace when %run is used.
-def test_utility_run_main():
+def test_utility_run_main( argv = None ):
 
     argparser = argparse.ArgumentParser( description='Panorama Test-Utility' )
     argparser.add_argument('--region', dest='region', action='store', default=None, help='Region name such as us-east-1')
@@ -27,7 +27,7 @@ def test_utility_run_main():
     argparser.add_argument('--output-pyplot', dest='output_pyplot', action='store_true', default=False, help="Simulate HDMI output by rendering on Jupyter notebook with pyplot.")
     argparser.add_argument('--output-screenshots', dest='output_screenshots', action='store', default=None, help="Simulate HDMI output by generating sequentially numbered PNG files. Directory name has to be specified. You can use Python's datetime format.")
     argparser.add_argument('--py-file', dest='py_file', action='store', required=True, help='Python source path to execute')
-    args = argparser.parse_args()
+    args = argparser.parse_args( argv )
 
     if len(args.model_node_names) != len(args.model_file_basenames):
         print( "Error: number of arguments have to be consistent between --model-node-name and --model-file-basenames" )
@@ -114,5 +114,6 @@ def test_utility_run_main():
     panorama_test_utility.configure(c)
     run_simulation()
 
-test_utility_run_main()
+if __name__ == '__main__':
+    test_utility_run_main()
 
