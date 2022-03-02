@@ -242,38 +242,38 @@ class Application:
                 joint_pos_in_camera_space.append( np.array([ int(x_in_camera_image), int(y_in_camera_image) ]) )
 
             # shoulders
-            cv2.line( stream.image, joint_pos_in_camera_space[5], joint_pos_in_camera_space[6], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[5]), tuple(joint_pos_in_camera_space[6]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # shoulders - elbows
-            cv2.line( stream.image, joint_pos_in_camera_space[5], joint_pos_in_camera_space[7], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
-            cv2.line( stream.image, joint_pos_in_camera_space[6], joint_pos_in_camera_space[8], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[5]), tuple(joint_pos_in_camera_space[7]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[6]), tuple(joint_pos_in_camera_space[8]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # elbows - wrists
-            cv2.line( stream.image, joint_pos_in_camera_space[7], joint_pos_in_camera_space[9], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
-            cv2.line( stream.image, joint_pos_in_camera_space[8], joint_pos_in_camera_space[10], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[7]), tuple(joint_pos_in_camera_space[9]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[8]), tuple(joint_pos_in_camera_space[10]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # waist
-            cv2.line( stream.image, joint_pos_in_camera_space[11], joint_pos_in_camera_space[12], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[11]), tuple(joint_pos_in_camera_space[12]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # waist - knees
-            cv2.line( stream.image, joint_pos_in_camera_space[11], joint_pos_in_camera_space[13], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
-            cv2.line( stream.image, joint_pos_in_camera_space[12], joint_pos_in_camera_space[14], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[11]), tuple(joint_pos_in_camera_space[13]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[12]), tuple(joint_pos_in_camera_space[14]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # knees - ankles
-            cv2.line( stream.image, joint_pos_in_camera_space[13], joint_pos_in_camera_space[15], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
-            cv2.line( stream.image, joint_pos_in_camera_space[14], joint_pos_in_camera_space[16], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[13]), tuple(joint_pos_in_camera_space[15]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(joint_pos_in_camera_space[14]), tuple(joint_pos_in_camera_space[16]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # center of sholders - waist
             center_of_sholders = (joint_pos_in_camera_space[5] + joint_pos_in_camera_space[6]) // 2
             center_of_waist = (joint_pos_in_camera_space[11] + joint_pos_in_camera_space[12]) // 2
-            cv2.line( stream.image, center_of_sholders, center_of_waist, color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(center_of_sholders), tuple(center_of_waist), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # center of sholders - nose
-            cv2.line( stream.image, center_of_sholders, joint_pos_in_camera_space[0], color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
+            cv2.line( stream.image, tuple(center_of_sholders), tuple(joint_pos_in_camera_space[0]), color=line_color, thickness=line_thickness, lineType=cv2.LINE_8 )
 
             # dots on all joints
             for p in joint_pos_in_camera_space:
-                cv2.rectangle( stream.image, p-dot_size, p+dot_size, color=dot_color, thickness=-1 )
+                cv2.rectangle( stream.image, tuple(p-dot_size), tuple(p+dot_size), color=dot_color, thickness=-1 )
 
     # Find a pixel in the heatmap (to find joint position)
     def find_highest( self, heatmap ):
