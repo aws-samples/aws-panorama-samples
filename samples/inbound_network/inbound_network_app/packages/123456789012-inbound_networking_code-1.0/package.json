@@ -1,0 +1,29 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "lab1_code",
+        "version": "1.0",
+        "description": "Default description for package lab1_code",
+        "assets": [
+        ],
+        "interfaces": [
+            {
+                "name": "code_interface",
+                "category": "business_logic",
+                "asset": "code",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
