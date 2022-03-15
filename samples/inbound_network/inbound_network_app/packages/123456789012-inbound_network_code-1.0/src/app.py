@@ -18,12 +18,13 @@ class Application(panoramasdk.node):
         while True:
             
             # get video frames from camera inputs 
-            media_list = self.inputs.video_in.get()
+            #media_list = self.inputs.video_in.get()
             
-            # TODO : implement here            
+            # TODO : implement here
+            print("run", self.frame_count, flush=True )
 
             # put video output to HDMI
-            self.outputs.video_out.put(media_list)
+            #self.outputs.video_out.put(media_list)
             
             self.frame_count += 1
 

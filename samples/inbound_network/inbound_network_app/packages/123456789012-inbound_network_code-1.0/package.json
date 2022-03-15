@@ -1,9 +1,9 @@
 {
     "nodePackage": {
         "envelopeVersion": "2021-01-01",
-        "name": "lab1_code",
+        "name": "inbound_network_code",
         "version": "1.0",
-        "description": "Default description for package lab1_code",
+        "description": "Default description for package inbound_network_code",
         "assets": [
         ],
         "interfaces": [
