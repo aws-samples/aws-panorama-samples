@@ -22,7 +22,15 @@
                         "name": "video_out",
                         "type": "media"
                     }
-                ]
+                ],
+                "network": {
+                    "inboundPorts": [
+                        {
+                            "port": 8080,
+                            "description": "http"
+                        }
+                    ]
+                }
             }
         ]
     }

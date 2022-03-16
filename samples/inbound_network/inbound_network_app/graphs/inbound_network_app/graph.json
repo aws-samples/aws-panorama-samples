@@ -15,7 +15,17 @@
                 "launch": "onAppStart"
             }
         ],
-        "edges": [
+        "edges": [],
+        "networkRoutingRules": [
+            {
+                "node": "code_node",
+                "containerPort": 8080,
+                "hostPort": 8081,
+                "decorator": {
+                    "title": "Http port for test",
+                    "description": "Http port description for test"
+                }
+            }
         ]
     }
 }
