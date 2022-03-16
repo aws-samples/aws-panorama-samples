@@ -6,6 +6,7 @@ __pycache__
 /samples/car_tracker/car_tracker_app/assets/*
 /samples/people_counter/people_counter_app/assets/*
 /samples/pose_estimation/pose_estimation_app/assets/*
+/samples/inbound_network/inbound_network_app/assets/*
 /samples/car_tracker/models/*
 /samples/people_counter/models/*
 /samples/pose_estimation/models/*
