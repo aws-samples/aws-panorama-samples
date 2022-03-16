@@ -14,14 +14,9 @@ def get_py_object_stat():
     stat = {}
 
     for obj in objs:
-
         str_type = str(type(obj))
-        if str_type.find("'instance'")>=0:
-            str_type += " " + str(obj.__class__)
-
         if str_type not in stat:
             stat[str_type] = 0
-
         stat[str_type] += 1
 
     keys = list( stat.keys() )
