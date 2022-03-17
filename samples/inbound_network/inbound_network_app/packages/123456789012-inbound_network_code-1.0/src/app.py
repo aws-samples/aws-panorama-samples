@@ -112,8 +112,7 @@ class IntrospectionHttpServerThread(threading.Thread):
         self.canceled = True
 
 # application class
-#class Application(panoramasdk.node):
-class Application:
+class Application(panoramasdk.node):
     
     # initialize application
     def __init__(self):
