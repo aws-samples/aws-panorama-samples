@@ -16,7 +16,7 @@ For **more about the Test Utility and its current capabilities**, please refer t
 
 To **set up your environment** for Test Utility, please refer to [Test Utility environment setup](docs/EnvironmentSetup.md).
 
-To know **how to use Test Utility**, please refer to [How to use Test Utility](docs/HowToUseTestUtility.md).
+To understand **how to use Test Utility**, please refer to [How to use Test Utility](docs/HowToUseTestUtility.md).
 
 
 ## List of Samples
