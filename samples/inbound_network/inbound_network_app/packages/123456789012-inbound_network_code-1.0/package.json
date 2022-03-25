@@ -1,0 +1,37 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "inbound_network_code",
+        "version": "1.0",
+        "description": "Default description for package inbound_network_code",
+        "assets": [
+        ],
+        "interfaces": [
+            {
+                "name": "code_interface",
+                "category": "business_logic",
+                "asset": "code",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ],
+                "network": {
+                    "inboundPorts": [
+                        {
+                            "port": 8080,
+                            "description": "http"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

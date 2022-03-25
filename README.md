@@ -29,6 +29,7 @@ To know **how to use Test Utility**, please refer to [How to use Test Utility](d
 | **Object Detection Tensorflow SSD**| This example shows how to run a TF SSD Mobilenet Model using Tensorflow | Tensorflow (Open GPU) | Object Detection (BYO Container) | Advanced | 
 | **Object Detection PyTorch Yolov5s**| This example shows how to run your own YoloV5s model using PyTorch | PyTorch (Open GPU) | Object Detection (BYO Container) | Advanced | 
 | **Object Detection ONNX Runtime Yolov5s**| This example shows how to run your own YoloV5s model using ONNX Runtime | ONNX Runtime (Open GPU) | Object Detection (BYO Container) | Advanced |
+| **Inbound networking**| This sample explains how to enable inbound networking port on Panorama device, and how to run a simple HTTP server wihtin a Panorama application. | N/A | Network | Easy | N/A
 
 
 ## Running the Samples
