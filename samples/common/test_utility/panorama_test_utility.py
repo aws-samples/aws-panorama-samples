@@ -12,7 +12,8 @@ import boto3
 
 import panoramasdk
 
-panorama_client = boto3.client('panorama') # FIXME : pass from sample notebook
+panorama_client = boto3.client('panorama', region_name = 'us-west-2') # FIXME : pass from sample notebook
+
 
 # ---
 
@@ -126,7 +127,8 @@ def resolve_sm_role():
                     "Principal": {
                         "Service": [
                             "sagemaker.amazonaws.com",
-                            "s3.amazonaws.com"]},
+                            "s3.amazonaws.com",
+                            "cloudwatch.amazonaws.com"]},
                     "Action": "sts:AssumeRole"}]}
 
         rolename = 'AWSPanoramaSMRole' + \
@@ -144,6 +146,10 @@ def resolve_sm_role():
         iam_client.attach_role_policy(
             RoleName=rolename,
             PolicyArn="arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
+        )
+        iam_client.attach_role_policy(
+            RoleName=rolename,
+            PolicyArn="arn:aws:iam::aws:policy/CloudWatchFullAccess"
         )
         return role['Role']['Arn']
 
@@ -209,6 +215,49 @@ def download_sample_model( model_name, dst_dirname ):
     _http_download( src_url, dst_path )
 
     print( "Downloaded to", dst_path )
+    
+    
+def download_artifacts_gpu_sample(sample, account_id):
+    if sample.upper() == 'ONNX':
+        print('Downloading Source Code')
+        os.system("wget -P ./onnx_37_app/packages/{}-onnx_37_app-1.0/ https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/ONNX_Sample/src.zip".format(str(account_id)))
+        os.system("unzip -o ./onnx_37_app/packages/{}-onnx_37_app-1.0/src.zip -d ./onnx_37_app/packages/{}-onnx_37_app-1.0".format(str(account_id), str(account_id)))
+        os.system("rm ./onnx_37_app/packages/{}-onnx_37_app-1.0/src.zip".format(str(account_id)))
+        
+        print('Downloading Dependencies')
+        os.system("wget -P . https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/ONNX_Sample/dependencies.zip")
+        os.system("unzip -o dependencies.zip -d . ")
+        os.system("rm dependencies.zip")
+        
+    elif sample.upper() == 'PYTORCH':
+        print('Downloading Source Code')
+        os.system("wget -P ./yolov5s_37_2_app/packages/{}-yolov5s_37_2_app-1.0/ https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/src.zip".format(str(account_id)))
+        os.system("unzip -o ./yolov5s_37_2_app/packages/{}-yolov5s_37_2_app-1.0/src.zip -d ./yolov5s_37_2_app/packages/{}-yolov5s_37_2_app-1.0".format(str(account_id), str(account_id)))
+        os.system("rm ./yolov5s_37_2_app/packages/{}-yolov5s_37_2_app-1.0/src.zip".format(str(account_id)))
+        
+        print('Downloading Dependencies')
+        os.system("wget -P . https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/dependencies.zip")
+        os.system("unzip -o dependencies.zip -d . ")
+        os.system("rm dependencies.zip")
+        
+    elif sample.upper() == 'TENSORFLOW':
+        print('Downloading Source Code')
+        os.system("wget -P ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0/ https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TF_Sample/src.zip".format(str(account_id)))
+        os.system("unzip -o ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0/src.zip -d ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0".format(str(account_id), str(account_id)))
+        os.system("rm ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0/src.zip".format(str(account_id)))
+        
+        print('Downloading Model')
+        os.system("wget -P ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0/ https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TF_Sample/saved_model_trt_fp16.zip".format(str(account_id)))
+        os.system("unzip -o ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0/saved_model_trt_fp16.zip -d ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0".format(str(account_id), str(account_id)))
+        os.system("rm ./tf2_4_trt_app/packages/{}-tf2_4_trt_app-1.0/saved_model_trt_fp16.zip".format(str(account_id)))
+        
+        print('Downloading Dependencies')
+        os.system("wget -P . https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TF_Sample/dependencies.zip")
+        os.system("unzip -o dependencies.zip -d . ")
+        os.system("rm dependencies.zip")
+
+        
+        
 
 
 def compile_model(

@@ -1,0 +1,11 @@
+{
+    "runtimeDescriptor":
+    {
+        "envelopeVersion": "2021-01-01",
+        "entry":
+        {
+            "path": "python3.7",
+            "name": "/panorama/yolov5/app.py"
+        }
+    }
+}

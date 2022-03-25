@@ -1,0 +1,29 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "tf2_4_trt_app",
+        "version": "1.0",
+        "description": "Default description for package tf2_4_trt_app",
+        "assets": [
+        ],
+        "interfaces": [
+            {
+                "name": "tf24_trt_app_interface",
+                "category": "business_logic",
+                "asset": "tf24_trt_app",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
