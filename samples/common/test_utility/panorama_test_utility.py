@@ -12,7 +12,7 @@ import boto3
 
 import panoramasdk
 
-panorama_client = boto3.client('panorama', region_name = 'us-west-2') # FIXME : pass from sample notebook
+panorama_client = boto3.client('panorama') # FIXME : pass from sample notebook
 
 
 # ---
@@ -256,6 +256,16 @@ def download_artifacts_gpu_sample(sample, account_id):
         os.system("unzip -o dependencies.zip -d . ")
         os.system("rm dependencies.zip")
 
+    elif sample.upper() == 'TENSORRT':
+        print('Downloading Source Code')
+        os.system("wget -P ./trtpt_36_2_app/packages/{}-trtpt_36_2_app-1.0/ https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/src.zip".format(str(account_id)))
+        os.system("unzip -o ./trtpt_36_2_app/packages/{}-trtpt_36_2_app-1.0/src.zip -d ./trtpt_36_2_app/packages/{}-trtpt_36_2_app-1.0".format(str(account_id), str(account_id)))
+        os.system("rm ./trtpt_36_2_app/packages/{}-trtpt_36_2_app-1.0/src.zip".format(str(account_id)))
+        
+        print('Downloading Dependencies')
+        os.system("wget -P . https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/dependencies.zip")
+        os.system("unzip -o dependencies.zip -d . ")
+        os.system("rm dependencies.zip")
         
         
 
