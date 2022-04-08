@@ -7,6 +7,8 @@ import traceback
 import http.server
 import socketserver
 
+import panoramasdk
+
 # return numbers of python objects for each type in a string
 def get_py_object_stat():
 
