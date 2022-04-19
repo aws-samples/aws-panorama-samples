@@ -1,0 +1,20 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "123456789012::inbound_network_code",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "code_node",
+                "interface": "123456789012::inbound_network_code.code_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            }
+        ],
+        "edges": []
+    }
+}

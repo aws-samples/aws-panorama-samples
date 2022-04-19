@@ -1,0 +1,30 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "onnx_37_app",
+        "version": "1.0",
+        "description": "Default description for package onnx_37_app",
+        "assets": [
+
+        ],
+        "interfaces": [
+            {
+                "name": "onnx_37_app_interface",
+                "category": "business_logic",
+                "asset": "onnx_37_app",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
