@@ -1,0 +1,16 @@
+{
+    "nodeGraphOverrides":{
+        "envelopeVersion":"2021-01-01",
+        "packages": [
+        ],
+        "nodes": [
+        ],
+        "networkRoutingRules":[
+            {
+                "node": "code_node",
+                "containerPort": 8080,
+                "hostPort": 8081
+            }
+        ]
+    }
+}

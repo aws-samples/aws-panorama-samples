@@ -16,11 +16,11 @@ def test_utility_run_main():
     argparser.add_argument('--region', dest='region', action='store', default=None, help='Region name such as us-east-1')
     argparser.add_argument('--app-name', dest='app_name', action='store', required=True, help='Application name')
     argparser.add_argument('--code-package-name', dest='code_package_name', required=True, action='store', help='Code package name')
-    argparser.add_argument('--model-package-name', dest='model_package_name', required=True, action='store', help='Model package name')
-    argparser.add_argument('--camera-node-name', dest='camera_node_name', required=True, action='store', help='Camera node name')
-    argparser.add_argument('--model-node-name', dest='model_node_names', action='append', required=True, help='Model node name')
-    argparser.add_argument('--model-file-basename', dest='model_file_basenames', action='append', required=True, help='Model filename excluding .tar.gz part')
-    argparser.add_argument('--video-file', dest='video_file', action='store', required=True, help='Video filename to simulate camera stream')
+    argparser.add_argument('--model-package-name', dest='model_package_name', required=False, default=[], action='store', help='Model package name')
+    argparser.add_argument('--camera-node-name', dest='camera_node_name', required=False, action='store', help='Camera node name')
+    argparser.add_argument('--model-node-name', dest='model_node_names', action='append', required=False, default=[], help='Model node name')
+    argparser.add_argument('--model-file-basename', dest='model_file_basenames', action='append', required=False, default=[], help='Model filename excluding .tar.gz part')
+    argparser.add_argument('--video-file', dest='video_file', action='store', required=False, help='Video filename to simulate camera stream')
     argparser.add_argument('--video-start', dest='video_start', action='store', default=0, help='Video start frame (default: 0)')
     argparser.add_argument('--video-stop', dest='video_stop', action='store', default=30, help='Video stop frame (default: 30)')
     argparser.add_argument('--video-step', dest='video_step', action='store', default=1, help='Video frame step (default: 1)')
@@ -28,7 +28,7 @@ def test_utility_run_main():
     argparser.add_argument('--output-screenshots', dest='output_screenshots', action='store', default=None, help="Simulate HDMI output by generating sequentially numbered PNG files. Directory name has to be specified. You can use Python's datetime format.")
     argparser.add_argument('--py-file', dest='py_file', action='store', required=True, help='Python source path to execute')
     args = argparser.parse_args()
-
+    
     if len(args.model_node_names) != len(args.model_file_basenames):
         print( "Error: number of arguments have to be consistent between --model-node-name and --model-file-basenames" )
         sys.exit(1)
