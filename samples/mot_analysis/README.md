@@ -83,15 +83,15 @@ In this document, the region is where the location of storing data which can be 
     * SecretsManagerReadWrite
     * AmazonKinesisVideoStreamsFullAccess
     * AmazonKinesisFirehoseFullAccess
-1. Open ./mot_analysis_app/graphs/mot_analysis_app/graph.json
-2. Modify following config values by your environment
+2. Open ./mot_analysis_app/graphs/mot_analysis_app/graph.json
+3. Modify following config values by your environment
     * source_fps: Source camera FPS, sample video inside simulator is 25 FPS
     * gstreamer_encoder: Set empty string if you don't need KVS feature
     * service_region: aws region to host data
     * bucket_name: mot-analysis-{accountid}
-3. (Optional) Refer to ./mot_analysis_app/packages/{accountid}-MOT_ANALYSIS_CODE-1.0/Dockerfile and install necessary packages(OpenCV, gstreamer, kvssink and pytorch) to simulator for testing sample before deploy. Graviton instance only.
-4. Open mot_analysis.ipynb to test and deploy this sample
-5. Open S3 bucket and Kinesis Video preview to check presence of data. You'll need at least 5 minutes to get data from Kinesis Firehose to S3.
+4. (Optional) Refer to ./mot_analysis_app/packages/{accountid}-MOT_ANALYSIS_CODE-1.0/Dockerfile and install necessary packages(OpenCV, gstreamer, kvssink and pytorch) to simulator for testing sample before deploy. Graviton instance only.
+5. Open mot_analysis.ipynb to test and deploy this sample
+6. Open S3 bucket and Kinesis Video preview to check presence of data. You'll need at least 5 minutes to get data from Kinesis Firehose to S3.
 ```
 
 ### 3. Deploy dashboard on local machine(or EC2) for visualization and analysis
