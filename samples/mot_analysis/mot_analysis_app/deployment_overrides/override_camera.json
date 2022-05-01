@@ -1,0 +1,1 @@
+{"nodeGraphOverrides": {"envelopeVersion": "2021-01-01", "packages": [{"name": "157978720707::StreetSample", "version": "1.0"}], "nodes": [{"name": "StreetSample", "interface": "157978720707::StreetSample.StreetSample", "overridable": true, "overrideMandatory": false, "launch": "onAppStart"}], "nodeOverrides": [{"replace": "camera_node", "with": [{"name": "StreetSample"}]}]}}

@@ -159,7 +159,18 @@ class media(object):
         """Hardcoded Value for Now"""
 
         return 'cam1'
+    
+    @property
+    def stream_id(self):
+        """Hardcoded Value for Now"""
 
+        return 'cam1_id'
+    
+    @property
+    def is_cached(self):
+        """Hardcoded Value for Now"""
+
+        return True
 
 class Video_Array(object):
 
