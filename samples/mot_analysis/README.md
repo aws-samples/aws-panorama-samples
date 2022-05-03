@@ -1,5 +1,5 @@
 # Multi Object Tracking using YOLOX + BYTE-TRACK and data analysis
-<div align="center"><img src="doc/Sample_KVS.png" width="max"></div>
+<video src='doc/Showcase.mp4' width='100%' autoplay muted loop></video>
 <div align="center"><img src="doc/Sample_Tracking.png" width="max"></div>
 
 ## Brief 
