@@ -67,7 +67,8 @@ class Application(panoramasdk.node):
                     'match_thresh': round(self.inputs.match_thresh.get(), 2), #0.9
                     'min_box_area': self.inputs.min_box_area.get(), #100 w*h
                     'mot20': False})
-            self.tracker = BYTETracker(self.args, frame_rate=self.TARGET_FPS)
+            
+            self.trackers = [BYTETracker(self.args, frame_rate=self.TARGET_FPS) for _ in range(len(streams))]
             
             gst_out = self.inputs.gstreamer_encoder.get()
             if len(gst_out) > 0:
@@ -90,12 +91,12 @@ class Application(panoramasdk.node):
         
     def resetstate(self):
         streams = self.inputs.video_in.get()
-        for stream in streams:
+        for stream, tracker in zip(streams, self.trackers):
             image = cv2.imencode('.png', stream.image)[1].tostring()
             self.s3.put_object(Body=image, Bucket=self.bucket_name, 
                           Key=f"dailycapture/{stream.stream_id}/{self.today}.png", ContentType='image/PNG')
-        #Refresh byte_track
-        self.tracker.reset()
+            #Refresh byte_track
+            tracker.reset()
 
     def process_streams(self):
         """Processes one frame of video from one or more video streams."""
@@ -120,8 +121,8 @@ class Application(panoramasdk.node):
 
         # Loop through attached video streams
         streams = self.inputs.video_in.get()
-        for stream in streams:
-            self.process_media(stream)
+        for stream, tracker in zip(streams, self.trackers):
+            self.process_media(stream, tracker)
 
         #TODO: Currently send only stream 0 to KVS, additional implemendation required to switch stream id by using iot channel
         if self.VIDEO_RECORDING == True:
@@ -147,7 +148,7 @@ class Application(panoramasdk.node):
         padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
         return padded_img, r
     
-    def process_media(self, stream):
+    def process_media(self, stream, tracker):
         """Runs inference on a frame of video."""
         image_data, ratio = self.preproc(stream.image, self.MODEL_INPUT)
 
@@ -156,11 +157,11 @@ class Application(panoramasdk.node):
         # Process results (object deteciton)
         num_people = 0
         if len(inference_results) > 0:
-            num_people = self.process_results(inference_results, stream, ratio)            
+            num_people = self.process_results(inference_results, stream, tracker, ratio)            
         
         add_label(stream.image, f"{stream.stream_id} / # People {num_people} / {datetime.utcnow().strftime('%H:%M:%S.%f')[:-5]}", 30, 50)
     
-    def process_results(self, inference_results, stream, ratio):
+    def process_results(self, inference_results, stream, tracker, ratio):
         boxes, scores, class_indices = self.postprocess(inference_results, self.MODEL_INPUT, ratio)        
         if boxes is None:
             return 0
@@ -184,7 +185,7 @@ class Application(panoramasdk.node):
         if num_people == 0:
             return 0
         
-        online_targets = self.tracker.update(self.target_fnum, torch.tensor(candidates))
+        online_targets = tracker.update(self.target_fnum, torch.tensor(candidates))
         jsonlist = []
         ts = stream.time_stamp
         for t in online_targets:
@@ -266,7 +267,7 @@ def main():
         
         #TODO: What about the failover?
         break
-        time.sleep(10)
+        #time.sleep(10)
 
 logger = get_logger(level=logging.INFO)
 main()
