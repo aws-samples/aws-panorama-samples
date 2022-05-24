@@ -89,7 +89,7 @@ In this document, the region is where the location of storing data which can be 
     * gstreamer_encoder: Set empty string if you don't need KVS feature
     * service_region: aws region to host data
     * bucket_name: mot-analysis-{accountid}
-4. (Optional) Refer to ./mot_analysis_app/packages/{accountid}-MOT_ANALYSIS_CODE-1.0/Dockerfile and install necessary packages(OpenCV, gstreamer, kvssink and pytorch) to simulator for testing sample before deploy. Graviton instance only.
+4. (Optional) Run simulator_setup.sh inside the simulator to install required packages for testing sample before deploy.
 5. Open mot_analysis.ipynb to test and deploy this sample
 6. Open S3 bucket and Kinesis Video preview to check presence of data. You'll need at least 5 minutes to get data from Kinesis Firehose to S3.
 ```
