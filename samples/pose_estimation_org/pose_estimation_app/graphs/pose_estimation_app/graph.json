@@ -1,0 +1,87 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "123456789012::pose_estimation_code",
+                "version": "1.0"
+            },
+            {
+                "name": "123456789012::pose_estimation_models",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "code_node",
+                "interface": "123456789012::pose_estimation_code.code_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "output_node",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": true,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "people_detection_model",
+                "interface": "123456789012::pose_estimation_models.people_detection_model_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "pose_estimation_model_1",
+                "interface": "123456789012::pose_estimation_models.pose_estimation_model_1_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "pose_estimation_model_2",
+                "interface": "123456789012::pose_estimation_models.pose_estimation_model_2_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "pose_estimation_model_3",
+                "interface": "123456789012::pose_estimation_models.pose_estimation_model_3_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "pose_estimation_model_4",
+                "interface": "123456789012::pose_estimation_models.pose_estimation_model_4_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "camera_node",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart",
+                "decorator": {
+                    "title": "IP camera",
+                    "description": "Choose a camera stream."
+                }
+            }
+        ],
+        "edges": [
+            {
+                "producer": "camera_node.video_out",
+                "consumer": "code_node.video_in"
+            },
+            {
+                "producer": "code_node.video_out",
+                "consumer": "output_node.video_in"
+            }
+        ]
+    }
+}

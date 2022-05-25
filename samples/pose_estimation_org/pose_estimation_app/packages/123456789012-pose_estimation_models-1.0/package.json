@@ -1,0 +1,147 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "pose_estimation_models",
+        "version": "1.0",
+        "description": "package containing people detection and pose estimation models",
+        "assets": [
+            {
+                "name": "pose_estimation_model_4",
+                "implementations": [
+                    {
+                        "type": "model",
+                        "assetUri": "4f9dbcf931bf8f54c21fc14e955e8945608bbd0e9ef4616f3a0334e9ed856b1b.tar.gz",
+                        "descriptorUri": "142cdc781ec799e7b6d7046bf21afef4563d79dcc381f810e260996b307d62af.json"
+                    }
+                ]
+            },
+            {
+                "name": "pose_estimation_model_3",
+                "implementations": [
+                    {
+                        "type": "model",
+                        "assetUri": "4f9dbcf931bf8f54c21fc14e955e8945608bbd0e9ef4616f3a0334e9ed856b1b.tar.gz",
+                        "descriptorUri": "cdf2cf8b95c1d3d0a826ed274fe533cd386c1c92bc8241232c566adaf4d93a70.json"
+                    }
+                ]
+            },
+            {
+                "name": "pose_estimation_model_2",
+                "implementations": [
+                    {
+                        "type": "model",
+                        "assetUri": "4f9dbcf931bf8f54c21fc14e955e8945608bbd0e9ef4616f3a0334e9ed856b1b.tar.gz",
+                        "descriptorUri": "903fc3e48e38d198bf1fcc14188f66a38a954a937962a2213360a187cafbd792.json"
+                    }
+                ]
+            },
+            {
+                "name": "pose_estimation_model_1",
+                "implementations": [
+                    {
+                        "type": "model",
+                        "assetUri": "4f9dbcf931bf8f54c21fc14e955e8945608bbd0e9ef4616f3a0334e9ed856b1b.tar.gz",
+                        "descriptorUri": "51005f5b8d04d951913b6e745df7320703dbd48fe40546a33a43391d048c8905.json"
+                    }
+                ]
+            },
+            {
+                "name": "people_detection_model",
+                "implementations": [
+                    {
+                        "type": "model",
+                        "assetUri": "700ef5dd8f34d8871ecd5eef633525fdaaea61ffa3a01f736db65247d4996505.tar.gz",
+                        "descriptorUri": "9befd292476bf99b37e7509e3da5def48558792f6cf6aac7ea8c5951c4362a12.json"
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "people_detection_model_interface",
+                "category": "ml_model",
+                "asset": "people_detection_model",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            },
+            {
+                "name": "pose_estimation_model_1_interface",
+                "category": "ml_model",
+                "asset": "pose_estimation_model_1",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            },
+            {
+                "name": "pose_estimation_model_2_interface",
+                "category": "ml_model",
+                "asset": "pose_estimation_model_2",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            },
+            {
+                "name": "pose_estimation_model_3_interface",
+                "category": "ml_model",
+                "asset": "pose_estimation_model_3",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            },
+            {
+                "name": "pose_estimation_model_4_interface",
+                "category": "ml_model",
+                "asset": "pose_estimation_model_4",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
