@@ -102,14 +102,15 @@ In this document, the region is where the location of storing data which can be 
     * Data store: S3
     * Include path: s3://mot-analysis-{accountid}/heatmap
     * Create an IAM role if you don't have proper one
-    * Schedule Frequency: Custom, Cron expression: 05 0/1 * * ? *
+    * Schedule Frequency: Custom(Runs every 5 min past the hour), Cron expression: 05 0/1 * * ? *
     * Output Database: default
     * Check option 'Update all new and existing partitions with metadata from the table'
 3. Download files in ./dashboard to local machine or EC2 to host dashboard.
     * (Optional)'aws configure' to set proper credential (S3 read/list, KVS read, Athena read required)
-    * RUN 'pip install boto3 awswrangler streamlit streamlit-autorefresh streamlit_img_label matplotlib numpy pandas' to install required packages while running dashboard
+    * RUN 'pip install boto3 awswrangler streamlit streamlit-autorefresh streamlit_img_label matplotlib numpy pandas pascal_voc_writer scikit-image' to install required packages while running dashboard
     * Open mot_analysis.py and set proper value of BUCKET_NAME to mot-analysis-{accountid}
     * RUN 'streamlit run mot_analysis.py' to launch dashboard
+    * Newly created S3 folder partitions(eg, hourly, new camera and so on) between crawler schedules will not visible via athena until next schedule. Run crawler job manually if you are one of the situation or wait till next schedule.
 ```
 
 ### Appendix

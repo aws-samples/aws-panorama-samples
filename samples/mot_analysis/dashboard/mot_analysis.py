@@ -18,8 +18,14 @@ import PIL
 from PIL import ImageDraw
 from heatmap import Heatmapper
 
+import matplotlib.pyplot as plt
+from scipy import ndimage
+import skimage.transform
+
 #from streamlit_player import st_player
 import streamlit.components.v1 as components
+
+import io
 
 st.set_page_config(page_title=None, 
                     page_icon=None, 
@@ -35,62 +41,15 @@ matplotlib.rc('figure', titlesize=20)
 matplotlib.rc('font', size=15)
 
 def CheckTime(): return datetime.datetime.now()
-
-session = boto3.Session()
-
-s3 = session.client('s3')
-response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix ='dailycapture/', MaxKeys=100)
-cameras = []
-for object in response['Contents']:
-    name = object['Key'].split('/')[1]
-    if name != '':
-        cameras.append(name)
-
-cameras = list(set(cameras))
-
+def replacelist(lst): return str(lst).replace('[', '(').replace(']', ')')
 @st.experimental_singleton
 def get_data(query):
     return wr.athena.read_sql_query(sql=query, database="default", boto3_session=session)
 
-#Fix me: Fix partition when first loading
-#if st_autorefresh(interval=60000, key="refresh") == 0:
-#    wr.athena.read_sql_query(sql=f"MSCK REPAIR TABLE `heatmap`;", database="default", boto3_session=session)
-
-camera_id = st.sidebar.selectbox('Select camera', cameras)
-st.sidebar.text("\n")
-today = datetime.datetime.now(datetime.timezone.utc)
-dt = st.sidebar.date_input("Pick a day to render", today)
-st.sidebar.text("\n")
-start_time, end_time = map(int, st.sidebar.select_slider('Select a range of time in hour',
-     options=[v for v in range(0,25)],
-     value=(0, 24)))
-st.sidebar.text("\n")
-query = f"SELECT distinct \"cid\" FROM heatmap where \"camera\"='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' order by \"cid\""
-cid = list(get_data(query)['cid'])
-cococategory = np.array(['Person', 'Bicycle', 'Car', 'Motorcycle', 'Airplane', 'Bus', 'Train', 'Truck', 'Boat'])
-tclist = st.sidebar.multiselect('Tracking category', list(cococategory[cid]), list(cococategory[cid]) if len(cid) > 0 else None)
-if len(tclist) > 0:
-    cid = [i for i,l in enumerate(cococategory) if l in tclist]
-    query = f"SELECT \"tid\", count(\"tid\") as \"fcount\" FROM heatmap where \"camera\"='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {tuple(cid)} group by \"tid\" order by \"fcount\" desc limit 10"
-    tclist = tuple(list(get_data(query)['tid']))
-else:
-    tclist = []
-st.sidebar.text("\n")
-tidlist = st.sidebar.multiselect('Tracking history', tclist)
-if len(tidlist) > 0:
-    query = f"SELECT \"tid\", \"ts\", \"fnum\", (\"left\" + \"w\"/2) as x, (\"top\" + \"h\") as y FROM heatmap where \"camera\"='{camera_id}' and tid in {tuple(tidlist + [0])} and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {tuple(cid)} order by \"fnum\""
-    tid_df = get_data(query)
-st.write(f'Rendering {camera_id}/{dt.year}-{dt.month}-{dt.day}, hour {start_time} to {end_time}')
-
-import io
 @st.experimental_singleton
 def get_cameraimage(bucket, key):
     file_byte_string = s3.get_object(Bucket=bucket, Key=key)['Body'].read()
     return PIL.Image.open(io.BytesIO(file_byte_string))
-
-import matplotlib.pyplot as plt
-from scipy import ndimage
-import skimage.transform
 
 @st.experimental_singleton
 def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
@@ -124,6 +83,44 @@ def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
     return PIL.Image.open(buf)
 
 try:
+    session = boto3.Session()
+
+    s3 = session.client('s3')
+    response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix ='dailycapture/', MaxKeys=100)
+    cameras = []
+    for object in response['Contents']:
+        name = object['Key'].split('/')[1]
+        if name != '':
+            cameras.append(name)
+
+    cameras = list(set(cameras))
+
+    camera_id = st.sidebar.selectbox('Select camera', cameras)
+    st.sidebar.text("\n")
+    today = datetime.datetime.now(datetime.timezone.utc)
+    dt = st.sidebar.date_input("Pick a day to render", today)
+    st.sidebar.text("\n")
+    start_time, end_time = map(int, st.sidebar.select_slider('Select a range of time in hour',
+        options=[v for v in range(0,25)],
+        value=(0, 24)))
+    st.sidebar.text("\n")
+    query = f"SELECT distinct \"cid\" FROM heatmap where \"camera\"='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' order by \"cid\""
+    cid = list(get_data(query)['cid'])
+    cococategory = np.array(['Person', 'Bicycle', 'Car', 'Motorcycle', 'Airplane', 'Bus', 'Train', 'Truck', 'Boat'])
+    tclist = st.sidebar.multiselect('Tracking category', list(cococategory[cid]), list(cococategory[cid]) if len(cid) > 0 else None)
+    if len(tclist) > 0:
+        cid = [i for i,l in enumerate(cococategory) if l in tclist]
+        query = f"SELECT \"tid\", count(\"tid\") as \"fcount\" FROM heatmap where \"camera\"='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {replacelist(cid)} group by \"tid\" order by \"fcount\" desc limit 10"
+        tclist = list(get_data(query)['tid'])
+    else:
+        tclist = []
+    st.sidebar.text("\n")
+    tidlist = st.sidebar.multiselect('Tracking history', tclist)
+    if len(tidlist) > 0:
+        query = f"SELECT \"tid\", \"ts\", \"fnum\", (\"left\" + \"w\"/2) as x, (\"top\" + \"h\") as y FROM heatmap where \"camera\"='{camera_id}' and tid in {replacelist(tidlist)} and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {replacelist(cid)} order by \"fnum\""
+        tid_df = get_data(query)
+    st.write(f'Rendering {camera_id}/{dt.year}-{dt.month}-{dt.day}, hour {start_time} to {end_time}')
+
     try:
         kvs = session.client("kinesisvideo")
         # Grab the endpoint from GetDataEndpoint
@@ -152,7 +149,7 @@ try:
     image_name = f'{dt.year}-{str(dt.month).zfill(2)}-{str(dt.day).zfill(2)}.png'
     camera = get_cameraimage(BUCKET_NAME, f'dailycapture/{camera_id}/{image_name}')
     #query = f"SELECT count, cast(hour as int) + 9 as hour, (\"top\" + \"h\") as x, (\"left\"+\"w\")/2 as y FROM heatmap where sid='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time+TIME_LOCALE).zfill(2)}' and '{str(end_time+TIME_LOCALE).zfill(2)}'"
-    query = f"SELECT (\"left\" + \"w\"/2) as x, (\"top\" + \"h\") as y FROM heatmap where camera='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {tuple(cid)}"
+    query = f"SELECT (\"left\" + \"w\"/2) as x, (\"top\" + \"h\") as y FROM heatmap where camera='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {replacelist(cid)}"
     pos_df = get_data(query)
     pos_df = pos_df[(pos_df['x'] <= 1) & (pos_df['x'] >= 0) & (pos_df['y'] <= 1) & (pos_df['y'] >= 0)]
     heatImage = get_renderedheatmap(camera, pos_df).copy()
@@ -200,7 +197,7 @@ try:
         annotation.output_xml(f'{image_name}', heatImage, rects)
     
     #For getting maximum object in a single shot
-    query = f"SELECT cast(hour as int) as hour, max(ocount) as Crowd FROM (SELECT hour, count(fnum) as ocount FROM heatmap where camera='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {tuple(cid)} group by hour, fnum) group by hour order by hour"
+    query = f"SELECT cast(hour as int) as hour, max(ocount) as Crowd FROM (SELECT hour, count(fnum) as ocount FROM heatmap where camera='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {replacelist(cid)} group by hour, fnum) group by hour order by hour"
     crowd_df = get_data(query).set_index('hour').reindex(list(range(start_time, end_time+1, 1)), fill_value=0)
     st.write(f'Busy hours')
     st.line_chart(crowd_df)
