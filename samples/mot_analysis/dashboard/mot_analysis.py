@@ -40,6 +40,8 @@ matplotlib.rc('axes', titlesize=15, labelsize=15)   #For setting chart title
 matplotlib.rc('figure', titlesize=20)
 matplotlib.rc('font', size=15)
 
+session = boto3.Session()
+
 def CheckTime(): return datetime.datetime.now()
 def replacelist(lst): return str(lst).replace('[', '(').replace(']', ')')
 @st.experimental_singleton
@@ -83,7 +85,9 @@ def get_renderedheatmap(_camera, df, alpha=0.5, cmap='viridis', axis='off'):
     return PIL.Image.open(buf)
 
 try:
-    session = boto3.Session()
+    if st.sidebar.button('Clear cache and refresh database'):
+        st.experimental_singleton.clear()
+        wr.athena.repair_table(table="heatmap", database="default", boto3_session=session)
 
     s3 = session.client('s3')
     response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix ='dailycapture/', MaxKeys=100)
@@ -179,6 +183,7 @@ try:
                 f" and (\"left\" + \"w\"/2) between {left} and {right} and (\"top\" + \"h\") between {top} and {bottom} group by hour"
         #we should reflect group by frame number to uniquely identify number in that scene
         numpeople_df = get_data(query).set_index('hour')
+        numpeople_chart.write("Num of passed objects")
         numpeople_chart.line_chart(numpeople_df)
         query = f"SELECT cast(hour as int) as hour, max(stay) as maxstay FROM " \
                 f"(SELECT hour, ((array_agg(age order by tid, fnum desc))[1] - (array_agg(age order by tid, fnum asc))[1]) as stay from heatmap"\
@@ -186,6 +191,7 @@ try:
                 f" and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}'" \
                 f" and (\"left\" + \"w\"/2) between {left} and {right} and (\"top\" + \"h\") between {top} and {bottom} group by hour, tid) group by hour order by hour"
         longstay_df = get_data(query).set_index('hour')
+        longstay_chart.write("Maximum stop over time by single object")
         longstay_chart.line_chart(longstay_df)
 
     if st.button('Save analysis') == True:
@@ -196,10 +202,10 @@ try:
             rects[idx]['height'] = round(val['height'])
         annotation.output_xml(f'{image_name}', heatImage, rects)
     
-    #For getting maximum object in a single shot
+    #For getting maximum objects in a single shot
     query = f"SELECT cast(hour as int) as hour, max(ocount) as Crowd FROM (SELECT hour, count(fnum) as ocount FROM heatmap where camera='{camera_id}' and year='{dt.year}' and month='{str(dt.month).zfill(2)}' and day='{str(dt.day).zfill(2)}' and hour between '{str(start_time).zfill(2)}' and '{str(end_time).zfill(2)}' and \"cid\" in {replacelist(cid)} group by hour, fnum) group by hour order by hour"
     crowd_df = get_data(query).set_index('hour').reindex(list(range(start_time, end_time+1, 1)), fill_value=0)
-    st.write(f'Busy hours')
+    st.write(f'Busy hours (Maximum objects in a single shot)')
     st.line_chart(crowd_df)
 
 except Exception as e:

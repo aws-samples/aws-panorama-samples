@@ -110,7 +110,7 @@ In this document, the region is where the location of storing data which can be 
     * RUN 'pip install boto3 awswrangler streamlit streamlit-autorefresh streamlit_img_label matplotlib numpy pandas pascal_voc_writer scikit-image' to install required packages while running dashboard
     * Open mot_analysis.py and set proper value of BUCKET_NAME to mot-analysis-{accountid}
     * RUN 'streamlit run mot_analysis.py' to launch dashboard
-    * Newly created S3 folder partitions(eg, hourly, new camera and so on) between crawler schedules will not visible via athena until next schedule. Run crawler job manually if you are one of the situation or wait till next schedule.
+    * Newly created S3 folder partitions(eg, hourly, new camera and so on) between crawler schedules will not visible via athena until next schedule. Click 'Clear cache and refresh database' button to update partitions if you are one of the situation or wait till next schedule.
 ```
 
 ### Appendix
