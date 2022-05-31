@@ -3,11 +3,11 @@
         "envelopeVersion": "2021-01-01",
         "packages": [
             {
-                "name": "157978720707::MOT_ANALYSIS_CODE",
+                "name": "123456789012::MOT_ANALYSIS_CODE",
                 "version": "1.0"
             },
             {
-                "name": "157978720707::YOLOXM_MODEL",
+                "name": "123456789012::YOLOXM_MODEL",
                 "version": "1.0"
             },
             {
@@ -22,13 +22,13 @@
         "nodes": [
             {
                 "name": "code_node",
-                "interface": "157978720707::MOT_ANALYSIS_CODE.interface",
+                "interface": "123456789012::MOT_ANALYSIS_CODE.interface",
                 "overridable": false,
                 "launch": "onAppStart"
             },
             {
                 "name": "model_node",
-                "interface": "157978720707::YOLOXM_MODEL.interface",
+                "interface": "123456789012::YOLOXM_MODEL.interface",
                 "overridable": false,
                 "launch": "onAppStart"
             },
