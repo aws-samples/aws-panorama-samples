@@ -43,24 +43,23 @@ class Application(panoramasdk.node):
         
         self.CAMERA_INPUT = (height, width)
         
-        try:
-            # Parameters
-            logger.info('Getting parameters')
-            self.service_region = self.inputs.service_region.get()
-            self.bucket_name = self.inputs.bucket_name.get()
-            self.kinesis_name = self.inputs.kinesis_name.get()
-            self.kinesis_video_name = self.inputs.kinesis_video_name.get()
+        # Parameters
+        logger.info('Getting parameters')
+        self.service_region = self.inputs.service_region.get()
+        self.bucket_name = self.inputs.bucket_name.get()
+        self.kinesis_name = self.inputs.kinesis_name.get()
+        self.kinesis_video_name = self.inputs.kinesis_video_name.get()
+        
+        session = boto3.Session(region_name=self.service_region)
+        self.s3 = session.client('s3')
+        self.firehose = session.client('firehose')
             
-            session = boto3.Session(region_name=self.service_region)
-            self.s3 = session.client('s3')
-            self.firehose = session.client('firehose')
-            
-            self.SOURCE_FPS = self.inputs.source_fps.get() #30
-            self.TARGET_FPS = self.inputs.target_fps.get() #10
-            self.CATEGORY = compile(self.inputs.yolox_category.get(), '<string>', 'eval') #[0,1,2]
-            self.VERTICAL_RATIO = round(self.inputs.vertical_ratio.get(), 2) #1.6
-            
-            self.args = SimpleNamespace(**{
+        self.SOURCE_FPS = self.inputs.source_fps.get() #30
+        self.TARGET_FPS = self.inputs.target_fps.get() #10
+        self.CATEGORY = compile(self.inputs.yolox_category.get(), '<string>', 'eval') #[0,1,2]
+        self.VERTICAL_RATIO = round(self.inputs.vertical_ratio.get(), 2) #1.6
+        
+        self.args = SimpleNamespace(**{
                     'nms': round(self.inputs.nms.get(),2), #0.45
                     'track_thresh': round(self.inputs.track_thresh.get(), 2), #0.65
                     'track_buffer': self.inputs.track_buffer.get(), #30
@@ -68,21 +67,18 @@ class Application(panoramasdk.node):
                     'min_box_area': self.inputs.min_box_area.get(), #100 w*h
                     'mot20': False})
             
-            self.trackers = [BYTETracker(self.args, frame_rate=self.TARGET_FPS) for _ in range(len(streams))]
-            
-            gst_out = self.inputs.gstreamer_encoder.get()
-            if len(gst_out) > 0:
-                self.VIDEO_RECORDING = True
-                kvssecret = session.client('secretsmanager')                
-                aksk = json.loads(kvssecret.get_secret_value(SecretId='KVSSecret')['SecretString'])
-                gst_out += f" ! kvssink log-config=/amazon-kinesis-video-streams-producer-sdk-cpp stream-name={self.kinesis_video_name} framerate={self.TARGET_FPS} access-key={aksk['accesskey']} secret-key={aksk['secretkey']} aws-region={self.service_region} "
-                self.videowriter = cv2.VideoWriter(gst_out, cv2.CAP_GSTREAMER, 0, float(self.TARGET_FPS), (width, height))
-            
-        except:
-            logger.exception('Error during initialization.')
-        finally:
-            logger.info('Initialiation complete.')
-            logger.info('Args: {}'.format(self.args))
+        self.trackers = [BYTETracker(self.args, frame_rate=self.TARGET_FPS) for _ in range(len(streams))]
+        
+        gst_out = self.inputs.gstreamer_encoder.get()
+        if len(gst_out) > 0:
+            self.VIDEO_RECORDING = True
+            kvssecret = session.client('secretsmanager')                
+            aksk = json.loads(kvssecret.get_secret_value(SecretId='KVSSecret')['SecretString'])
+            gst_out += f" ! kvssink log-config=/amazon-kinesis-video-streams-producer-sdk-cpp stream-name={self.kinesis_video_name} framerate={self.TARGET_FPS} access-key={aksk['accesskey']} secret-key={aksk['secretkey']} aws-region={self.service_region} "
+            self.videowriter = cv2.VideoWriter(gst_out, cv2.CAP_GSTREAMER, 0, float(self.TARGET_FPS), (width, height))
+        
+        logger.info('Initialiation complete.')
+        logger.info('Args: {}'.format(self.args))
 
     def stop(self):
         if self.VIDEO_RECORDING == True:
