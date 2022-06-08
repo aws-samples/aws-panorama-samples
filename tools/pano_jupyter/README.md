@@ -40,9 +40,12 @@ In order to customize the PanoJupyter application, you can modify source code (D
 1. Change directory to "./src/pano_jupyter_*".
 1. Run "panorama-cli import-application".
 1. Apply your changes in the source code and Dockerfile under "packages/{account-id}-pano_jupyter_*_code-1.0/".
-    1. For pano_jupyter_tf, Copy "tensorflow-2.4.4-cp37-cp37m-linux_aarch64.whl" from [TF37_opengpu sample](https://github.com/aws-samples/aws-panorama-samples/tree/main/samples/TF37_opengpu) to "./packages/{your-account-id}-pano_jupyter_tf_code-1.0/"
+    1. For pano_jupyter_tf, copy "tensorflow-2.4.4-cp37-cp37m-linux_aarch64.whl" from [TF37_opengpu sample](https://github.com/aws-samples/aws-panorama-samples/tree/main/samples/TF37_opengpu) to "./packages/{your-account-id}-pano_jupyter_tf_code-1.0/"
 1. Run "panorama-cli build-container --container-asset-name code --package-path packages/{your-account-id}-pano_jupyter_*_code-1.0".
-1. Create a Zip file for future use.
+1. Create an archive file of the application, for future use.
+    ``` bash
+    tar cvzf pano_jupyter_tf_20220607.tgz ./pano_jupyter_tf
+    ```
 1. Follow steps in "Quick start" above.
 
 

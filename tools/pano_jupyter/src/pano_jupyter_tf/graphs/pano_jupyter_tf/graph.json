@@ -29,7 +29,7 @@
                 "launch": "onAppStart",
                 "decorator": {
                     "title": "camera(s)",
-                    "description": ""
+                    "description": "camera(s)"
                 }
             },
             {
@@ -39,7 +39,6 @@
                 "launch": "onAppStart"
             }
         ],
-        
         "edges": [
             {
                 "producer": "camera_node.video_out",
@@ -48,8 +47,7 @@
             {
                 "producer": "code_node.video_out",
                 "consumer": "hdmi_node.video_in"
-            }            
-        ]        
-        
+            }
+        ]
     }
 }

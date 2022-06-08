@@ -10,9 +10,8 @@
                 "implementations": [
                     {
                         "type": "container",
-                        "assetUri": "b532bea2b979d8d46d6a74ef092c89fc1759b8926a5afbd0710a40cc1c0e8bd9.tar.gz",
-                        "descriptorUri": "5bcd23659fd325d5107b96daac75da48b88cbcffedfc534a64c35898f91f4ced.json",
-
+                        "assetUri": "25948fb4311ae508dffa229058520c9ffa1d7066f56ecabe10f290eb9e225aa8.tar.gz",
+                        "descriptorUri": "d4fb8aa121add1f1088a7475e25850b97633e9190ada40b9fb11e4bc02e94997.json",
                         "requirements": [
                             {
                                 "type": "hardware_access",
@@ -47,7 +46,6 @@
                         "type": "media"
                     }
                 ],
-
                 "network": {
                     "inboundPorts": [
                         {
@@ -56,7 +54,6 @@
                         }
                     ]
                 }
-
             }
         ]
     }
