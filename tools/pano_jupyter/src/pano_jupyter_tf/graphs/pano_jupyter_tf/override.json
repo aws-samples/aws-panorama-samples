@@ -1,0 +1,37 @@
+{
+    "nodeGraphOverrides":{
+        "envelopeVersion":"2021-01-01",
+        "packages": [
+            {
+                "name": "357984623133::Laptop1",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "Laptop1_node",
+                "interface": "357984623133::Laptop1.Laptop1",
+                "overridable": true,
+                "overrideMandatory" : false,
+                "launch" : "onAppStart"
+            }
+        ],
+        "nodeOverrides": [
+            {
+                "replace": "camera_node",
+                "with": [
+                    {
+                        "name": "Laptop1_node"
+                    }
+                ]
+            }
+        ],
+        "networkRoutingRules":[
+            {
+                "node": "code_node",
+                "containerPort": 8888,
+                "hostPort": 8888
+            }
+        ]
+    }
+}

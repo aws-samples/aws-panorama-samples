@@ -1,0 +1,9 @@
+{
+    "runtimeDescriptor": {
+        "envelopeVersion": "2021-01-01",
+        "entry": {
+            "path": "python3",
+            "name": "/panorama/jupyter_launcher.py"
+        }
+    }
+}
