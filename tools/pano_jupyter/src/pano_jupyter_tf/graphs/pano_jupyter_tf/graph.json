@@ -3,7 +3,7 @@
         "envelopeVersion": "2021-01-01",
         "packages": [
             {
-                "name": "357984623133::pano_jupyter_tf_code",
+                "name": "123456789012::pano_jupyter_tf_code",
                 "version": "1.0"
             },
             {
@@ -18,7 +18,7 @@
         "nodes": [
             {
                 "name": "code_node",
-                "interface": "357984623133::pano_jupyter_tf_code.code_interface",
+                "interface": "123456789012::pano_jupyter_tf_code.code_interface",
                 "overridable": false,
                 "launch": "onAppStart"
             },
