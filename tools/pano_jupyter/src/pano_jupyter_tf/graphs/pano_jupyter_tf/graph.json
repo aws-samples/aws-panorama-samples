@@ -48,6 +48,17 @@
                 "producer": "code_node.video_out",
                 "consumer": "hdmi_node.video_in"
             }
+        ],
+        "networkRoutingRules": [
+            {
+                "node": "code_node",
+                "containerPort": 8888,
+                "hostPort": 8888,
+                "decorator": {
+                    "title": "Port for Jupyter",
+                    "description": "Port for Jupyter."
+                }
+            }
         ]
     }
 }
