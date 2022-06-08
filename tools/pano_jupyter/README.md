@@ -25,7 +25,10 @@ You can use pre-built image to quickly start using PanoJupyter.
 1. Under the "pano_jupyter_\*/" directory, run "panorama-cli import-application" command.
 1. Run "panorama-cli package-application" command.
 1. Deploy the pano_jupyter_\* app onto device.
-    * Option 1 : Use Management Console UI. Please specify the port mapping for Jupyter server. (8888 -> 8888)
+    * Option 1 : Use Management Console UI. Please specify the inbound networking port for Jupyter server.
+        1. At the "Configure" step in the deployment wizard, click the "Configure application" button. ![](images/configure_inbound_port_1.png)
+        1. Choose "Inbound ports" tab. ![](images/configure_inbound_port_2.png)
+        1. Enable "Open port", configure "Device port" (default: 8888), and "Save" ![](images/configure_inbound_port_3.png)
     * Option 2 : Edit the "pano_jupyter_\*/graphs/pano_jupyter_\*/override.json" to include cameras you want to use, and deploy pano_jupyter_\* programmatically using graph.json and override.json.
 1. Confirm the successful completion of deployment.
 1. Identify the IP address of your appliance device. You can use the Management Console UI or "aws panorama describe-device" command.
