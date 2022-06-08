@@ -51,7 +51,7 @@ def create_zipfile( archive_filename, dir_name ):
 
     print( f"Creating archive file : {dir_name} -> {archive_filename}" )
 
-    shutil.make_archive( archive_filename, 'zip', dir_name )
+    shutil.make_archive( archive_filename, 'zip', ".", dir_name )
 
 
 if args.application_name == "pano_jupyter_tf":
