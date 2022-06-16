@@ -90,8 +90,15 @@ In this document, the region is where the location of storing data which can be 
     * service_region: aws region to host data
     * bucket_name: mot-analysis-{accountid}
 4. (Optional) Run simulator_setup.sh inside the simulator to install required packages for testing sample before deploy.
+    * Installing additional libraries into the simulator only requires for modifying and testing the code
+    * The script tested on provided ARM based simulator but it will work on other types.
+    * Check application log using 'tail -f /opt/aws/panorama/logs/app.log' from jupyter cli console
 5. Open mot_analysis.ipynb to test and deploy this sample
 6. Open S3 bucket and Kinesis Video preview to check presence of data. You'll need at least 5 minutes to get data from Kinesis Firehose to S3.
+    * In case of initial loading, it takes usually 30 minutes for receiving first data
+    * Check S3 folder to confirm application deployed and running
+    * 'dailycapture' folder indicates captured daily image from each camera for rendering heatmap
+    * 'heatmap' folder indicates object movement data to render heatmap and tracking analysis
 ```
 
 ### 3. Deploy dashboard on local machine(or EC2) for visualization and analysis
@@ -107,10 +114,17 @@ In this document, the region is where the location of storing data which can be 
     * Check option 'Update all new and existing partitions with metadata from the table'
 3. Download files in ./dashboard to local machine or EC2 to host dashboard.
     * (Optional)'aws configure' to set proper credential (S3 read/list, KVS read, Athena read required)
-    * RUN 'pip install boto3 awswrangler streamlit streamlit-autorefresh streamlit_img_label matplotlib numpy pandas pascal_voc_writer scikit-image' to install required packages while running dashboard
+    * RUN 'pip install boto3 awswrangler streamlit streamlit-autorefresh streamlit_img_label matplotlib numpy pandas pascal_voc_writer scikit-image' to install required packages for running dashboard
     * Open mot_analysis.py and set proper value of BUCKET_NAME to mot-analysis-{accountid}
-    * RUN 'streamlit run mot_analysis.py' to launch dashboard
+    * RUN 'streamlit run mot_analysis.py --server.port 80' to launch dashboard
     * Newly created S3 folder partitions(eg, hourly, new camera and so on) between crawler schedules will not visible via athena until next schedule. Click 'Clear cache and refresh database' button to update partitions if you are one of the situation or wait till next schedule.
+4. Do analysis using interactive dashboard.
+    * Left pane shows list of cameras connected to appliance and date to check history and category of objects. Tracking history shows top 10 long stay object IDs.
+    * Right pane shows live analysis video from appliance. As of now it shows only first camera
+    * Heatmap shows objects history by given date with timerange.
+    * When 'Tracking history' selected from left pane, the map shows each objects trajectory.
+    * Click 'Add bounding box' to do spot analysis. First graph shows how many object passed the box. Second shows maximum stay time by single object.
+    * Bottom wide graph shows maximum people count in a single shot by time.
 ```
 
 ### Appendix

@@ -31,6 +31,7 @@ To know **how to use Test Utility**, please refer to [How to use Test Utility](d
 | **Object Detection ONNX Runtime Yolov5s**| This example shows how to run your own YoloV5s model using ONNX Runtime | ONNX Runtime (Open GPU) | Object Detection (BYO Container) | Advanced | N/A
 | **Object Detection using TensorRT network definition APIs**| This example shows how to get infernece from a YoloV5s model optimized using TensorRT Network definition API's | TensorRT (OpenGPU) | Object Detection (BYO Container) | Advanced | N/A
 | **Inbound networking**| This sample explains how to enable inbound networking port on Panorama device, and how to run a simple HTTP server wihtin a Panorama application. | N/A | Network | Easy | N/A
+| **MOT Analysis**| This sample shows how to build end to end multi object tracking solution using pretrained YOLOX model, kinesis video upstream by gstreamer and dashboard | PyTorch | Object Tracking | Advanced | YOLOX
 
 
 ## Running the Samples
