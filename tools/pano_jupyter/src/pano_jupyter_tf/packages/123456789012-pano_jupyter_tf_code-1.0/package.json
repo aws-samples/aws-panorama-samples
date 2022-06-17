@@ -1,0 +1,60 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "pano_jupyter_tf_code",
+        "version": "1.0",
+        "description": "Code for pano_jupyter_tf",
+        "assets": [
+            {
+                "name": "code",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": "25948fb4311ae508dffa229058520c9ffa1d7066f56ecabe10f290eb9e225aa8.tar.gz",
+                        "descriptorUri": "d4fb8aa121add1f1088a7475e25850b97633e9190ada40b9fb11e4bc02e94997.json",
+                        "requirements": [
+                            {
+                                "type": "hardware_access",
+                                "inferenceAccelerators": [
+                                    {
+                                        "deviceType": "nvhost_gpu",
+                                        "sharedResourcePolicy": {
+                                            "policy": "allow_all"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "code_interface",
+                "category": "business_logic",
+                "asset": "code",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ],
+                "network": {
+                    "inboundPorts": [
+                        {
+                            "port": 8888,
+                            "description": "jupyter"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

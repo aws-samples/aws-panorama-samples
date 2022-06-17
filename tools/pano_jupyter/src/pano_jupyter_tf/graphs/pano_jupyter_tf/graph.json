@@ -1,0 +1,64 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "123456789012::pano_jupyter_tf_code",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "code_node",
+                "interface": "123456789012::pano_jupyter_tf_code.code_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "camera_node",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart",
+                "decorator": {
+                    "title": "camera(s)",
+                    "description": "camera(s)"
+                }
+            },
+            {
+                "name": "hdmi_node",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": false,
+                "launch": "onAppStart"
+            }
+        ],
+        "edges": [
+            {
+                "producer": "camera_node.video_out",
+                "consumer": "code_node.video_in"
+            },
+            {
+                "producer": "code_node.video_out",
+                "consumer": "hdmi_node.video_in"
+            }
+        ],
+        "networkRoutingRules": [
+            {
+                "node": "code_node",
+                "containerPort": 8888,
+                "hostPort": 8888,
+                "decorator": {
+                    "title": "Port for Jupyter",
+                    "description": "Port for Jupyter."
+                }
+            }
+        ]
+    }
+}
