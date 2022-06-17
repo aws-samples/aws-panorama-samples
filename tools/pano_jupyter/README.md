@@ -28,7 +28,7 @@
 1. Change directory to "aws-panorama-samples/tools/pano_jupyter/src/pano_jupyter_\*".
     * **Note** : There will be multiple variations of PanoJupyter applications for different frameworks. But currently only TensorFlow one is available (suffix : `_tf`).
 1. Run "panorama-cli import-application".
-1. For pano_jupyter_tf, download [TF37_opengpu sample dependency file](https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TF_Sample/dependencies.zip) , extract it, and copy "tensorflow-2.4.4-cp37-cp37m-linux_aarch64.whl" to "./packages/{your-account-id}-pano_jupyter_tf_code-1.0/".
+1. For pano_jupyter_tf, download [TF37_opengpu sample dependencies file](https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TF_Sample/dependencies.zip), extract and copy "docker/tensorflow-2.4.4-cp37-cp37m-linux_aarch64.whl" to "./packages/{your-account-id}-pano_jupyter_tf_code-1.0/".
 1. (Optional) If you want to install additional libraries in the PanoJupyter, apply your changes in the Dockerfile under "packages/{account-id}-pano_jupyter_\*_code-1.0/".
 1. Run "panorama-cli build-container --container-asset-name code --package-path packages/{your-account-id}-pano_jupyter_\*_code-1.0".
 1. Create a Zip file of the application.
