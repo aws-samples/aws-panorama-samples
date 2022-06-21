@@ -25,6 +25,8 @@ packages/<app_name>/src/onnx_model/yolov5s.onnx
 
 * Training Custom Model : [Refer to this link](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)
 * Convert the custom model to .onnx file : [Refer to this link](https://docs.ultralytics.com/tutorials/torchscript-onnx-coreml-export)
+    - If one want to make it batch size dynamic, please refer to the `dynamic` argument in the export.py in the yolov5 repo. This will change batch size, image size all dynamic
+    - ex: `python models/export.py --weights yolov5s.pt --dynamic`
 
 
 ## Setup the application
@@ -36,7 +38,7 @@ The dependencies folder included with this application has
 * ONNX Runtime GPU 1.6
 * yolov5s.onnx
 
-**VERY IMPORTANT** : This example uses a batch of 8, this means we have to use ATLEAST 2 CAMERAS for this example
+**VERY IMPORTANT** : This example uses a batch of 8, this means we have to use ATLEAST 2 CAMERAS for this example. Batch size 8 is suitable for Jetson Xavier AGX. And for devices using Jetson Xavier NX module, please select batch size 2 instead of 8. please refer to this [link](https://aws.amazon.com/tw/panorama/appliance/) for more information about your device.
 
 ## Steps for setting this up
 

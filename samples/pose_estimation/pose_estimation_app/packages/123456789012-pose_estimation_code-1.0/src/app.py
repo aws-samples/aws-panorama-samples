@@ -38,6 +38,7 @@ class Application:
         self.profile_requested = False
         self.screenshot_requested_frames = 0
         self.screenshot_current_frame = 0
+        self.target_pose_batch_size = 4
         
         if launcher:
             launcher.registerCommandHandler( "profile", self.command_Profile, in_main_thread = False )
@@ -188,7 +189,17 @@ class Application:
             
             pose_esimation_input.append( sub_image_resized )
 
-        self.estimate_pose( i_stream, stream, boxes[0][top4_index], np.array( pose_esimation_input ) )
+        # Padding to batch 4 for pose estimation model    
+        target_boxes = boxes[0][top4_index]
+        pose_esimation_input = np.array( pose_esimation_input )
+
+        b, _, _, _ = np.shape(pose_esimation_input)
+        image_padding = [[0, self.target_pose_batch_size-b], [0,0], [0,0], [0,0]]
+        box_padding = [[0, self.target_pose_batch_size-b], [0,0]]
+        pose_esimation_input = np.pad(pose_esimation_input, image_padding, 'constant', constant_values=0)
+        target_boxes = np.pad(target_boxes, box_padding, 'constant', constant_values=0)
+        
+        self.estimate_pose( i_stream, stream, target_boxes, pose_esimation_input )
 
     # Estimate poses of 1~4 people, and visualize the result
     def estimate_pose( self, i_stream, stream, boxes, images ):
@@ -219,7 +230,8 @@ class Application:
         assert estimate_pose_results[0].shape[0] == boxes.shape[0]
 
         for pose, box in zip( estimate_pose_results[0], boxes):
-
+            if box[0]==box[1]==0:
+                continue # This is a padded box
             assert pose.shape == (17,pose_estimation_output_resolution[1],pose_estimation_output_resolution[0])
             
             # 0     : # nose

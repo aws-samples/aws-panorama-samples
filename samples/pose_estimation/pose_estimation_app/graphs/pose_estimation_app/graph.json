@@ -39,24 +39,6 @@
                 "launch": "onAppStart"
             },
             {
-                "name": "pose_estimation_model_1",
-                "interface": "123456789012::pose_estimation_models.pose_estimation_model_1_interface",
-                "overridable": false,
-                "launch": "onAppStart"
-            },
-            {
-                "name": "pose_estimation_model_2",
-                "interface": "123456789012::pose_estimation_models.pose_estimation_model_2_interface",
-                "overridable": false,
-                "launch": "onAppStart"
-            },
-            {
-                "name": "pose_estimation_model_3",
-                "interface": "123456789012::pose_estimation_models.pose_estimation_model_3_interface",
-                "overridable": false,
-                "launch": "onAppStart"
-            },
-            {
                 "name": "pose_estimation_model_4",
                 "interface": "123456789012::pose_estimation_models.pose_estimation_model_4_interface",
                 "overridable": false,

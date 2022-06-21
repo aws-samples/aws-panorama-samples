@@ -27,12 +27,26 @@
                 "interface": "028663699634::tf2_4_trt_app.tf24_trt_app_interface",
                 "overridable": false,
                 "launch": "onAppStart"
+            },
+            {
+                "name": "batch_size",
+                "interface": "int32",
+                "value": 8,
+                "overridable": true,
+                "decorator": {
+                    "title": "Batch size",
+                    "description": "The batch size for model inference. Batch size 8 for Jetson Xavier AGX; batch size 6 for Jetson Xavier NX module."
+                }
             }
         ],
         "edges": [
             {
                 "producer": "front_door_camera.video_out",
                 "consumer": "tf24_trt_app_node.video_in"
+            },
+            {
+                "producer": "batch_size",
+                "consumer": "tf24_trt_app_node.batch_size"
             }
         ]
     }

@@ -27,12 +27,26 @@
                 "interface": "028663699634::onnx_37_app.onnx_37_app_interface",
                 "overridable": false,
                 "launch": "onAppStart"
+            },
+            {
+                "name": "batch_size",
+                "interface": "int32",
+                "value": 8,
+                "overridable": true,
+                "decorator": {
+                    "title": "Batch size",
+                    "description": "The batch size for model inference. Batch size 8 for Jetson Xavier AGX; batch size 2 for Jetson Xavier NX module."
+                }
             }
         ],
         "edges": [
             {
                 "producer": "front_door_camera.video_out",
                 "consumer": "onnx_37_app_node.video_in"
+            },
+            {
+                "producer": "batch_size",
+                "consumer": "onnx_37_app_node.batch_size"
             }
         ]
     }

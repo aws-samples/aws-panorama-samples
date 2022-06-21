@@ -15,6 +15,10 @@
                     {
                         "name": "video_in",
                         "type": "media"
+                    },
+                    {
+                        "name": "batch_size",
+                        "type": "int32"
                     }
                 ],
                 "outputs": [
