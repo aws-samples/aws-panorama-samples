@@ -2,26 +2,35 @@
 
 ## Brief
 
-In this guide, we show how to runtime build a tensorrt engine file in panorama and import the engine file for faster inference.
+In this guide, we show how to runtime build a tensorrt engine file in panorama and import the engine file for faster inference. This will includes:
+- Export  yolov5 model to ONNX format.
+- Convert ONNX model to TensorRT engine.
+- Finally, inference using the engine file.
 
-## Why Runtime Build a TensorRT Engine File?
-Currently Nvidia GPUs does not support cross GPU architecture building engine file.
-- ex: Build an engine file on Nvidia T4 GPU and execute it on Jetson Xavier AGX.
-
-And thus the most common way to build engine file is build it runtime
-- ex: In [tensorrt-tensorflow](https://blog.tensorflow.org/2021/01/leveraging-tensorflow-tensorrt-integration.html ), it also mentioned:
-    - > As a rule of thumb, we recommend building at runtime
-- ex: In onnxruntime-gpu, it also provides TensorRT as exectution provider. And the execution provider will build the engine first before inference.
-
-
-## Why Convert ONNX First?
+## Why Convert to ONNX First?
 ONNX is an open format built to represent machine learning models. ONNX defines a common set of operators - the building blocks of machine learning and deep learning models - and a common file format to enable AI developers to use models with a variety of frameworks, tools, runtimes, and compilers.
 
-And thus TensorRT also provides an ONNX parser to parse the model and build engine.
+And thus TensorRT also provides an ONNX Parser to parse the model and build engine.
 
 ![TensorRT+ONNX](https://developer-blogs.nvidia.com/wp-content/uploads/2021/07/onnx-workflow.png)
 
 To learn more, please go to [this Nvidia Blog](https://developer.nvidia.com/blog/speeding-up-deep-learning-inference-using-tensorflow-onnx-and-tensorrt/)
+
+The Pros:
+- Independent to the ML framework one is using. As long as you can convert your Tensorflow/Pytorch/MxNet/Caffe (and so on) models to ONNX, you can leverage TensorRT ONNX Parser to build an engine file.
+- The ONNX to TensorRT script (onnx_tensorrt.py under packages/<app_name>-1.0/src/ folder) is generic. Thus it can fit different models. One only need to focus on exporting the model to ONNX format.
+
+The Cons:
+- ONNX TensorRT Parser sometimes does not support the latest ops. But at least currently Yolov5 is fully supported.
+
+## Why Runtime Build a TensorRT Engine File?
+Currently Nvidia GPUs do not support cross GPU architecture building engine file.
+- ex: Build an engine file on Nvidia T4 GPU and execute it on Jetson Xavier AGX.
+
+And thus the most common way to build engine file is build it runtime on target device (i.e. Panorama)
+- ex: In [tensorrt-tensorflow](https://blog.tensorflow.org/2021/01/leveraging-tensorflow-tensorrt-integration.html ), it also mentioned:
+    - > As a rule of thumb, we recommend building at runtime
+- ex: In onnxruntime-gpu, it also provides TensorRT as exectution provider. And the execution provider will build the engine first before inference.
 
 ## Model
 
@@ -35,7 +44,7 @@ packages/<app_name>/src/onnx_model/yolov5s.onnx
 ## Train Custom Model
 
 * Training Custom Model : [Refer to this link](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)
-* Convert the custom model to .onnx file : [Refer to this readme](./ONNX2TRT_opengpu.ipynbonnx2trt_app/dependency/Readme.md)
+* Convert the custom model to .onnx file : [Refer to this readme](./onnx2trt_app/dependency/Readme.md)
 
 
 ## Setup the application
