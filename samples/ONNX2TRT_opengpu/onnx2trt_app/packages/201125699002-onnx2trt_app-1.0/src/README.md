@@ -1,32 +1,15 @@
 # yolov5
 
-The Pytorch implementation is [ultralytics/yolov5](https://github.com/ultralytics/yolov5).
+The Pytorch implementation is based on [ultralytics/yolov5](https://github.com/ultralytics/yolov5).
 
-Based on this commit: 47233e1698b89fc437a4fb9463c815e9171be955
+## Brief Code Structure
 
-1. Convert yolov5 model to onnx file, then we will deploy the onnx file along with the app.
-2. The first time the app is deployed, we will compile a tensorrt file from onnx, and start the app.
-
-
-To debug your code locally, we recommend (Currently Panorama Environment)
-
-1. CUDA 10.02, Tensorrt 7.1.3.4
-
-To use  tensorrt
-
-```
-pip install nvidia-tensorrt==7.2.3.4 --index-url https://pypi.ngc.nvidia.com
-```
-
-# TODO
-
-Tuesday:
-- Add an export file for Matthew
-- Merge with Tec and upload to git
-
-Wed:
-- Make it an App
-- Support Batching
-
-Thursday:
-- Support Batching
+- tensorrt_pytorch_panorama.py
+    - This is the main panorama app. 
+    - It will call onnx_tensorrt.py to convert onnx model to engine file if engine file does not exist.
+    - After building the engine, it will start the inferencing.
+    - It usually takes 12~20 mins to build the engine. Just one time build.
+- onnx_tensorrt.py
+    - The code that will convert onnx to engine file.
+- yolov5trt.py
+    - It is a yolov5 inference code wrapper. It includes preprocessing, inference and postprocessing. And in this app we only plot bboxes for human. You can easily change the logic in the `post_process` function

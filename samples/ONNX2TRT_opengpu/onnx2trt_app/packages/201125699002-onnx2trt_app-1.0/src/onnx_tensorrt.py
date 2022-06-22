@@ -71,12 +71,8 @@ def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_
         print("Completed creating Engine", flush=True)
 
 if __name__ == '__main__':
-    onnx_path = "yolov5s_dynamic_batch.onnx"
-    # output_path = "yolov5s_dynamicbatch_148.engine"
-    # onnx2tensorrt(onnx_path, output_path, dynamic_batch=[1,4,8])
-    # output_path = "yolov5s_staticbatch_4.engine"
-    # onnx2tensorrt(onnx_path, output_path, dynamic_batch=[4])
+    onnx_path = "yolov5s.onnx"
     output_path = "yolov5s_staticbatch_1.engine"
     onnx2tensorrt(onnx_path, output_path, dynamic_batch=[1])
-    output_path = "yolov5s_staticbatch_8.engine"
-    onnx2tensorrt(onnx_path, output_path, dynamic_batch=[8])
+    output_path = "yolov5s_dynamicbatch_8.engine"
+    onnx2tensorrt(onnx_path, output_path, dynamic_batch=[1, 4, 8])
