@@ -10,20 +10,21 @@
                 "implementations": [
                     {
                         "type": "container",
-                        "assetUri": "7a80d9b0ae5c3697d201eef3e891fc53f55c31be3a7c4c4fc7b130d1c4d46246.tar.gz",
-                        "descriptorUri": "63a87b807a1a19dea23660a2e2ca168a9377b6dca80fb1bfb3e9e123702f26a8.json",
-                        "requirements": 
-                        [{
-                            "type" : "hardware_access",
-                            "inferenceAccelerators": [ 
-                                {
-                                    "deviceType": "nvhost_gpu",
-                                    "sharedResourcePolicy": {
-                                        "policy" : "allow_all"
+                        "assetUri": "c402506ba1175dc1aeca11421f5b0642b3d9bd55f0adae41faec9169e61b29f7.tar.gz",
+                        "descriptorUri": "081b9484578f179470669c01c800b769b0e5c1a51141761c1ac8a33b514b2998.json",
+                        "requirements": [
+                            {
+                                "type": "hardware_access",
+                                "inferenceAccelerators": [
+                                    {
+                                        "deviceType": "nvhost_gpu",
+                                        "sharedResourcePolicy": {
+                                            "policy": "allow_all"
+                                        }
                                     }
-                                }
-                            ]
-                        }]
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

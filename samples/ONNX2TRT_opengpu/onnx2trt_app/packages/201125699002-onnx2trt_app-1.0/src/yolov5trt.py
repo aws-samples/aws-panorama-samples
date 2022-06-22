@@ -25,11 +25,6 @@ categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "trai
 
 HUMAN_CLASS  = categories.index("person")
 
-
-def print_memory_usage():
-    total_memory, used_memory, free_memory = map(
-        int, os.popen('free -t -m').readlines()[-1].split()[1:])
-    log.info("Total {}M, Used {}M, Free {}M".format(total_memory, used_memory, free_memory))
     
 
 def plot_one_box(x, img, color=None, label=None, line_thickness=None):
@@ -177,7 +172,6 @@ class YoLov5TRT(object):
             buf = np.array(self.duration_buffer)
             fps = 1.0/np.mean(buf)*self.batch_size
             log.info('FPS: {}'.format(fps))
-            print_memory_usage()
             self.duration_buffer = []
         # Do postprocess
         result_boxes_list, result_scores_list, result_classid_list = self.post_process_batch(
