@@ -1,4 +1,5 @@
 {
+    "device_id": "<device uuid>", // This is optional
     "cameras": [
         {
             "name": "panorama-camera",

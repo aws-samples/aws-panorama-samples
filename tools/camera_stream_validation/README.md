@@ -1,5 +1,23 @@
-### Setup
-Configure the local environment to point to the expected region
+## Overview
+**Camera Stream Validation(CSV)** is a Panorama tool for testing IP camera connection to specific Panorama device. Using the tool, you can anticipate the validation completes for about 5 minutes to get the status of each camera.
+
+## Features
+* **Register** the cameras if they are not registered in the AWS Panorama console
+* Validate list of cameras through an application **Deployment** under the hood on the specific Panorama device
+* Control the validation **stage** as the whole application deployment flow is executed for validation, and it can control in which stage e.g. register camera, deploy app or remove app, to terminate.
+* List camera connection status at the moment when the associated application **remains** on device
+
+## Security notice
+This is the beta version software, please read the following agreement before using.
+
+### AWS Beta Software Agreement
+1. Customer agrees that any beta software provided by AWS Panorama will not be installed on any devices used in production settings or with production data.
+2. Customer agrees that any beta software provided by AWS Panorama is provided as-is without any guarantees of reliability, performance or support.
+3. Customer agrees that any beta software provided by AWS Panorama could stop working at any time. Customer is responsible for migrating workloads built on the beta software to the production software when the production software is available.
+4. Customer agrees that any information regarding the beta feature is AWS Confidential information and access to the beta feature is limited to personnel who are pre-approved by AWS.
+
+## Setup
+Download the tool to your local PC/laptop, and then to configure the local environment to point to target accounts where your devices are provisioned.
 
 ```
 1. aws configure
@@ -7,14 +25,14 @@ Configure the local environment to point to the expected region
    AWS Access Key ID [********************]: Enter Access key
    AWS Secret Access Key [****************]: Enter Secret key
    Default region name [us-east-1]: Enter Region name
-   Default output format [None]:  Leave blank
+   Default output format [None]:  json or leave blank
 
 2. specify the device_id[optional] information in the input json file
-   device_id is optional, if not specified, you will be asked to select available device listed from response.
+   device_id is optional, if not specified, you will be asked to select available devices listed from response.
 ```
 
-### Execution
-python3 workflowname:
+## How to use
+python3 workflow name:
 
 Eg:
 
@@ -22,7 +40,9 @@ Eg:
 
 Usage:
 
-Check usage by `python main.py -h`
+* Check usage by `python3 main.py -h`
+* List current camera status from applications on device `python3 main.py -l`
+* Normal validation `python3 main.py -i <input_json> -t Deploy`
 
 ```
 usage: panorama-csv-tool [-h] [-i INPUT] [-t {Register,Deploy,Remove}] [-l] [-n NUMBER]
@@ -47,7 +67,8 @@ Optional arguments:
 ------------------------------------------------------------------------
 Sample input
 {
-    "device_id": "device-h3ai3ijd4w3nyi5tz5lbk5fvri"
+    // device_id is optional, if not specified, you will be asked to select available devices
+    "device_id": "device-h3ai3ijd4w3nyi5tz5lbk5fvri" 
     "cameras": [
         {
             "name": "my-data-source",
@@ -65,13 +86,8 @@ Sample output
 {
     "ValidationResult": [
         {
+            // auto-generated application id asociated with set of cameras validated
             "applicationInstance-ok75ymoq5tji2goxltqjqkpsuy": {
-                "david_test_camera_4": "ERROR",
-                "david_test_camera_1": "RUNNING"
-            }
-        },
-        {
-            "applicationInstance-3c76x7c47ua43irldj4hukbpx4": {
                 "david_test_camera_4": "ERROR",
                 "david_test_camera_1": "RUNNING"
             }
@@ -80,8 +96,8 @@ Sample output
 }
 
 ```
-### AWS Beta Software Agreement
-1. Customer agrees that any beta software provided by AWS Panorama will not be installed on any devices used in production settings or with production data.
-2. Customer agrees that any beta software provided by AWS Panorama is provided as-is without any guarantees of reliability, performance or support.
-3. Customer agrees that any beta software provided by AWS Panorama could stop working at any time. Customer is responsible for migrating workloads built on the beta software to the production software when the production software is available.
-4. Customer agrees that any information regarding the beta feature is AWS Confidential information and access to the beta feature is limited to personnel who are pre-approved by AWS.
+
+## Limitations
+* Camera registration and application may encounter timeout return depends on Panorama console response time and network status. 
+* Camera validation status cannot be retrieved from removed application
+* There is a camera state transition time between application gets deployed with success and camera is completed initialized, it may return camera is in error state if the camera is not setup property.

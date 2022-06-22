@@ -50,6 +50,11 @@ Developer Guide](https://docs.aws.amazon.com/panorama/latest/dev/)
 * [AWS Panorama Application SDK reference](https://github.com/awsdocs/aws-panorama-developer-guide/blob/main/resources/applicationsdk-reference.md)
 * [panorama-cli document](https://github.com/aws/aws-panorama-cli/blob/main/README.md)
 
+## Tools
+List of tools for ease of development of panorama. Please see details at corresponding tool page.
+* [PanoJupyter](https://github.com/aws-samples/aws-panorama-samples/tree/main/tools/pano_jupyter)
+* [CameraStreamValidation](https://github.com/aws-samples/aws-panorama-samples/tree/main/tools/csv)
+
 
 ## Getting Help
 
