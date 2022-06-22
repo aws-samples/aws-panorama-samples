@@ -1,0 +1,55 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "onnx2trt_app",
+        "version": "1.0",
+        "description": "Default description for package onnx2trt_app",
+        "assets": [
+            {
+                "name": "onnx2trt_app",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": "7a80d9b0ae5c3697d201eef3e891fc53f55c31be3a7c4c4fc7b130d1c4d46246.tar.gz",
+                        "descriptorUri": "63a87b807a1a19dea23660a2e2ca168a9377b6dca80fb1bfb3e9e123702f26a8.json",
+                        "requirements": 
+                        [{
+                            "type" : "hardware_access",
+                            "inferenceAccelerators": [ 
+                                {
+                                    "deviceType": "nvhost_gpu",
+                                    "sharedResourcePolicy": {
+                                        "policy" : "allow_all"
+                                    }
+                                }
+                            ]
+                        }]
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "onnx2trt_app_interface",
+                "category": "business_logic",
+                "asset": "onnx2trt_app",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    },
+                    {
+                        "name": "batch_size",
+                        "type": "int32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}

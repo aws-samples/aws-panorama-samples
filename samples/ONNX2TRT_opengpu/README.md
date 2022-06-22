@@ -1,21 +1,32 @@
-# Run YoloV5s that is converted to ONNX using the ONNX Runtime on AWS Panorama
+# Run Yolov5 TensorRT in Panorama: YoloV5s.pt ➡️ ONNX  ➡️ TensorRT
 
 ## Brief
 
-In this guide, we show how to get inference from a Yolov5s pytorch model that is converted to an onnx file using ONNX Runtime
+In this guide, we show how to runtime build a tensorrt engine file in panorama and import the engine file for faster inference.
 
-## Why ONNX and ONNX Runtime?
+## Why Runtime Build a TensorRT Engine File?
+Currently Nvidia GPUs does not support cross GPU architecture building engine file.
+- ex: Build an engine file on Nvidia T4 GPU and execute it on Jetson Xavier AGX.
 
+And thus the most common way to build engine file is build it runtime
+- ex: In [tensorrt-tensorflow](https://blog.tensorflow.org/2021/01/leveraging-tensorflow-tensorrt-integration.html ), it also mentioned:
+    - > As a rule of thumb, we recommend building at runtime
+- ex: In onnxruntime-gpu, it also provides TensorRT as exectution provider. And the execution provider will build the engine first before inference.
+
+
+## Why Convert ONNX First?
 ONNX is an open format built to represent machine learning models. ONNX defines a common set of operators - the building blocks of machine learning and deep learning models - and a common file format to enable AI developers to use models with a variety of frameworks, tools, runtimes, and compilers.
 
-![Supported Frameworks and Converters](ONNX_Supported.png)
+And thus TensorRT also provides an ONNX parser to parse the model and build engine.
 
-To learn more, go to [ONNX.ai](https://onnx.ai/)
+![TensorRT+ONNX](https://developer-blogs.nvidia.com/wp-content/uploads/2021/07/onnx-workflow.png)
+
+To learn more, please go to [this Nvidia Blog](https://developer.nvidia.com/blog/speeding-up-deep-learning-inference-using-tensorflow-onnx-and-tensorrt/)
 
 ## Model
 
-* We have already included the yolov5s.onnx model in the depdendencies folder and also packages/<app_name>-1.0/src/onnx_model folder.
-* If you would like to convert any other model from any other framework to ONNX, please see the ONNX.ai website 
+* We have already included the yolov5s.onnx model in the packages/<app_name>-1.0/src/ folder.
+* If you would like to convert any other model from any other framework to ONNX, please see the [ONNX.ai](https://onnx.ai/) website.
 
 ```
 packages/<app_name>/src/onnx_model/yolov5s.onnx
@@ -24,34 +35,27 @@ packages/<app_name>/src/onnx_model/yolov5s.onnx
 ## Train Custom Model
 
 * Training Custom Model : [Refer to this link](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)
-* Convert the custom model to .onnx file : [Refer to this link](https://docs.ultralytics.com/tutorials/torchscript-onnx-coreml-export)
-    - If one want to make it batch size dynamic, please refer to the `dynamic` argument in the export.py in the yolov5 repo. This will change batch size, image size all dynamic
-    - ex: `python models/export.py --weights yolov5s.pt --dynamic`
+* Convert the custom model to .onnx file : [Refer to this readme](./ONNX2TRT_opengpu.ipynbonnx2trt_app/dependency/Readme.md)
 
 
 ## Setup the application
 
-The dependencies folder included with this application has 
+This application requires a Docker base image that is exactly the same as the [TRTPT36_opengpu App](https://github.com/aws-samples/aws-panorama-samples/tree/main/samples/TRTPT36_opengpu#setup-the-application)
 
-* The Dockerfile
-* Cuda Enabled PyTorch for Jetson Xavier
-* ONNX Runtime GPU 1.6
-* yolov5s.onnx
+* Please refer to the link for setting up the docker base image.
+* Walk through the Steps for setting this up section.
 
-**VERY IMPORTANT** : This example uses a batch of 8, this means we have to use ATLEAST 2 CAMERAS for this example. Batch size 8 is suitable for Jetson Xavier AGX. And for devices using Jetson Xavier NX module, please select batch size 2 instead of 8. please refer to this [link](https://aws.amazon.com/tw/panorama/appliance/) for more information about your device.
+
+**VERY IMPORTANT** : This example will build the engine file with dynamic batch size ranges from 1 to 8. If you decide to use batch size larger than 4, please use ATLEAST 2 CAMERAS for this example.
 
 ## Steps for setting this up
 
-* Step 1: Navigate to ./dependencies
-* Step 2 : ``` sudo docker build -t onnx37:latest . ```
-* Step 3 : Open onnx_example.ipynb and make sure you configure the following
-    * The Device ID
-    * The Camera node information
-* Step 4 : Follow the steps outlined in the notebook
+* Step 1: Navigate to TRTPT36_opengpu app and build the base docker image.
+* Step 2 : Open ONNX2TRT_opengpu.ipynb and follow along.
 
 ## Special flags in package.json
 
-* Step 1 : Before you deploy the application, open ONNX37_opengpu/onnx_37_app/packages/(account-id)-onnx_37_app-1.0/package.json
+* Step 1 : Before you deploy the application, open ONNX2TRT_opengpu/onnx2trt_app/packages/(account-id)-onnx2trt_app-1.0/package.json
 * Step 2 : Add the following flags to the package.json
 
 ```
@@ -74,7 +78,7 @@ The assets should look something like this
 ```
 "assets": [
     {
-        "name": "onnx_37_app",
+        "name": "onnx2trt_app",
         "implementations": [
             {
                 "type": "container",

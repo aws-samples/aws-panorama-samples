@@ -3,7 +3,7 @@
         "envelopeVersion": "2021-01-01",
         "packages": [
             {
-                "name": "201125699002::ppe_panorama_app",
+                "name": "201125699002::onnx2trt_app",
                 "version": "1.0"
             },
             {
@@ -27,8 +27,8 @@
                 }
             },
             {
-                "name": "ppe_panorama_app_node",
-                "interface": "201125699002::ppe_panorama_app.ppe_panorama_app_interface",
+                "name": "onnx2trt_app_node",
+                "interface": "201125699002::onnx2trt_app.onnx2trt_app_interface",
                 "overridable": false,
                 "launch": "onAppStart"
             },
@@ -37,15 +37,25 @@
                 "interface": "panorama::hdmi_data_sink.hdmi0",
                 "overridable": true,
                 "launch": "onAppStart"
+            },
+            {
+                "name": "batch_size",
+                "interface": "int32",
+                "value": 8,
+                "overridable": true,
+                "decorator": {
+                    "title": "Batch size",
+                    "description": "The batch size for model inference. Dynamic batch size supprot 1~8"
+                }
             }
         ],
         "edges": [
             {
                 "producer": "front_door_camera.video_out",
-                "consumer": "ppe_panorama_app_node.video_in"
+                "consumer": "onnx2trt_app_node.video_in"
             },
             {
-                "producer": "ppe_panorama_app_node.video_out",
+                "producer": "onnx2trt_app_node.video_out",
                 "consumer": "output_node.video_in"
             }
         ]
