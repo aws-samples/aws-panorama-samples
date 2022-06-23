@@ -1,0 +1,13 @@
+{
+    "device_id": "<device uuid>", // This is optional
+    "cameras": [
+        {
+            "name": "panorama-camera",
+            "Username": "admin",
+            "Password": "123456",
+            "StreamUrl": "rtsp://192.168.0.212:554/stream0",
+            "version" : 1.0,
+            "remove" : true
+        }
+    ]
+}
