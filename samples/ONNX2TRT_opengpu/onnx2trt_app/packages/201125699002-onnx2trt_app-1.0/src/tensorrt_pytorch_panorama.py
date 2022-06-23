@@ -32,7 +32,7 @@ class ObjectDetectionApp(p.node):
         self.onnx_file_path = "/panorama/yolov5s.onnx"
         self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
         if not os.path.exists(self.engine_file_path):
-            onnx_tensorrt.onnx2tensorrt(self.onnx_file_path, self.engine_file_path, dynamic_batch=[1, 4, 8])
+            onnx_tensorrt.onnx2tensorrt(self.onnx_file_path, self.engine_file_path, dynamic_batch=[1, 4, 8], max_workspace_GB=8)
         
         self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, True)
     

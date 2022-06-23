@@ -4,7 +4,7 @@ import argparse
 # source from https://github.com/bei91/yolov5-onnx-tensorrt/blob/master/demo/onnx_tensorrt.py
 # dynamic batch source from https://github.com/egbertYeah/simple_tensorrt_dynamic/blob/main/onnx-tensorrt.py
 
-def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_height=640, img_width=640):
+def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_height=640, img_width=640, max_workspace_GB = 8):
     """
     Converts Onnx model to tensorrt engine.
     
@@ -36,7 +36,7 @@ def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_
             
         builder.max_batch_size = dynamic_batch[-1]
         config = builder.create_builder_config()
-        config.max_workspace_size = 8* (1 << 30) # 8GB for TRT to use.
+        config.max_workspace_size = max_workspace_GB* (1 << 30) # 8GB for TRT to use.
         
         ## Seting FP16 or 32
         if fp == 16:

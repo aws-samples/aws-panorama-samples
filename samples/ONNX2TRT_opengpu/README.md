@@ -3,8 +3,9 @@
 ## Brief
 
 In this guide, we show how to runtime build a tensorrt engine file in panorama and import the engine file for faster inference. This will includes:
-- Export  yolov5 model to ONNX format.
-- Convert ONNX model to TensorRT engine.
+- Export yolov5.pt model to ONNX format **before deploying to Panroama** (Optional. Use it when you trained a custom yolov5 model).
+- Deploy the app along with the ONNX model.
+- Convert ONNX model to TensorRT engine **in runtime**.
 - Finally, inference using the engine file.
 
 ## Why Convert to ONNX First?
@@ -41,10 +42,10 @@ And thus the most common way to build engine file is build it runtime on target 
 packages/<app_name>/src/onnx_model/yolov5s.onnx
 ```
 
-## Train Custom Model
+## Train Custom Yolov5 Model
 
-* Training Custom Model : [Refer to this link](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)
-* Convert the custom model to .onnx file : [Refer to this readme](./onnx2trt_app/dependency/Readme.md)
+* Training Custom Yolov5 Model : [Refer to this link](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)
+* Convert the custom model to .onnx file before deployment: [Refer to this readme](./onnx2trt_app/dependency/Readme.md)
 
 
 ## Setup the application
