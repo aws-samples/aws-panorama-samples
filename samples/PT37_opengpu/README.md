@@ -23,8 +23,8 @@ We have already included two models in
 * ```./dependencies/model```
 * ```./yolov5s_37_2_app/packages/<account_id>-yolov5s_37_2_app/src/yolov5s_model```
 * The two models included are 
-    * yolov5s.pt ==> FP32 Model
-    * yolov5s_half.pt ==> FP16 Model
+    * yolov5s.pt ==> (FP32 Model)
+    * yolov5s_half.pt ==> (FP16 Model)
 
 ## Use FP32 Model
 
