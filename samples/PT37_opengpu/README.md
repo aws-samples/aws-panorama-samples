@@ -1,22 +1,71 @@
 # Run YoloV5s Model on AWS Panorama using Torch + TorchVision
 
 ## Brief
-In this guide, we show how to use a Yolov5s model with PyTorch GPU on the Panorama device. 
+In this guide, we show how to use a Yolov5s model with PyTorch GPU on the Panorama device.
 
-## Model
+## Downloading Model and Source Code
 
-We have already included the yolov5s.pt model in 
-```
-./dependencies/model
-```
+To download the /dependencies and ./packages/src folder
 
-Copy this model to 
+* Run aws configure on a terminal on your Test Utility
+* Open the pytorch_example.ipynb
+* Run the code in the notebook until this line is run
 
-```
-aws-panorama-samples/samples/PT37_opengpu/yolov5s_37_app/packages/028663699634-yolov5s_37_app-1.0/src/yolov5s_model/
-```
+```panorama_test_utility.download_artifacts_gpu_sample('pytorch', account_id)```
+* You will now see two folders
+    * ```./dependencies/model```
+    * ```./yolov5s_37_2_app/packages/<account_id>-yolov5s_37_2_app/src```
+    
 
-## Download Pre-Built model (Optional)
+## Models Included
+
+We have already included two models in 
+* ```./dependencies/model```
+* ```./yolov5s_37_2_app/packages/<account_id>-yolov5s_37_2_app/src/yolov5s_model```
+* The two models included are 
+    * yolov5s.pt ==> FP32 Model
+    * yolov5s_half.pt ==> FP16 Model
+
+## Use FP32 Model
+
+To use the FP32 model do this
+
+* In ```aws-panorama-samples/samples/PT37_opengpu/yolov5s_37_2_app/packages/<account_id>-yolov5s_37_2_app-1.0/descriptor.json```, make sure the descriptor looks like this
+
+    ```
+    {
+    "runtimeDescriptor":
+        {
+            "envelopeVersion": "2021-01-01",
+            "entry":
+            {
+                "path": "python3.7",
+                "name": "/panorama/yolov5/app.py"
+            }
+        }
+    }
+    ```
+    
+## Use FP16 Model
+
+* In ```aws-panorama-samples/samples/PT37_opengpu/yolov5s_37_2_app/packages/<account_id>-yolov5s_37_2_app-1.0/descriptor.json```, make sure the descriptor looks like this
+
+    ```
+    {
+    "runtimeDescriptor":
+        {
+            "envelopeVersion": "2021-01-01",
+            "entry":
+            {
+                "path": "python3.7",
+                "name": "/panorama/yolov5/app_fp16.py"
+            }
+        }
+    }
+    ```
+* To note is that the FP16 model does not have post processing / Visualization code built in. Please use the code from the FP32 (app.py) if you would like visualization as part of this app
+
+## Download a Pre-Built model instead (Optional)
 
 You can download a pre-built model from the yolov5s ultralytics github repository here : [Link](https://github.com/ultralytics/yolov5).
 ```
