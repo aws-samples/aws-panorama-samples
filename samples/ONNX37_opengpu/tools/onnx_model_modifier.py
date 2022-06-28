@@ -25,10 +25,10 @@ def change_input_dim(model):
 if __name__ == '__main__':
     # example usage here
     # convert to dynamic batch size
-    model = onnx.load("batch8_yolov5s.onnx")
+    model = onnx.load("onnx_models/batch8_yolov5s.onnx")
     change_input_dim(model)
-    onnx.save(model, "batch_dynamic_yolov5s.onnx")
+    onnx.save(model, "onnx_models/batch_dynamic_yolov5s.onnx")
 
-    model = onnx.load("batch_dynamic_yolov5s.onnx")
+    model = onnx.load("onnx_models/batch_dynamic_yolov5s.onnx")
     fp16_model = float16_converter.convert_float_to_float16(model,keep_io_types=True)
-    onnx.save(fp16_model, "batch_dynamic_fp16_yolov5s.onnx")
+    onnx.save(fp16_model, "onnx_models/batch_dynamic_fp16_yolov5s.onnx")

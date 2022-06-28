@@ -15,6 +15,6 @@ pip3 install -r requirements.txt
 - Now we can execute the onnx_model_modifier.py to modify the batch 8 fp32 yolov5s model to dynamic batch fp16 model.
 
 - Before conversion, the batch8 model looks like: 
-    - ![before](before.png)
+    - ![before](img/before.png)
 - After conversion, it should be like:
-    - ![after](after.png)
+    - ![after](img/after.png)
