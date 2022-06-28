@@ -1,12 +1,3 @@
-# This script will modify the onnx model to fp16 & dynamic batch.
-# Inside the ultralytics repo, it provides script to export onnx model
-# It allows either export fp16 onnx model or fp32 onnx model with dynamic batch size.
-# But it does not support export model with both dynamic and fp16.
-# One easy way is export the model to fp16 onnx first, and modify the model to dynamic batch size
-# Or export the model with dynamic batch size first and convert to fp16.
-# In this script, we will show both without using the export.py
-# Before we start, we neend to install onnx and onnxtools
-
 import onnx
 from onnxmltools.utils import float16_converter
 
