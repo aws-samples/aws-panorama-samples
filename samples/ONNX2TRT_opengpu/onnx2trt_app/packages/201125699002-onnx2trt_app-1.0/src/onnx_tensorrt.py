@@ -1,10 +1,8 @@
 import tensorrt as trt
-import sys
-import argparse
 # source from https://github.com/bei91/yolov5-onnx-tensorrt/blob/master/demo/onnx_tensorrt.py
 # dynamic batch source from https://github.com/egbertYeah/simple_tensorrt_dynamic/blob/main/onnx-tensorrt.py
 
-def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_height=640, img_width=640, max_workspace_GB = 8):
+def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_height=640, img_width=640, max_workspace_GB = 1):
     """
     Converts Onnx model to tensorrt engine.
     
@@ -71,8 +69,12 @@ def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_
         print("Completed creating Engine", flush=True)
 
 if __name__ == '__main__':
-    onnx_path = "yolov5s.onnx"
-    output_path = "yolov5s_staticbatch_1.engine"
-    onnx2tensorrt(onnx_path, output_path, dynamic_batch=[1])
-    output_path = "yolov5s_dynamicbatch_8.engine"
-    onnx2tensorrt(onnx_path, output_path, dynamic_batch=[1, 4, 8])
+    import argparse
+    parser = argparse.ArgumentParser(description='convert onnx to tensorrt engine.')
+    parser.add_argument('-b','--batchsize', nargs='+', help='Setting the converted batch size', required=True, default=[1,4,8])
+    parser.add_argument('-p','--fp', type=int, help='Floating Point Precision', required=True, default=16)
+    parser.add_argument('-i','--input_path', type=str, help='Input. The onnx model path', required=True)
+    parser.add_argument('-o','--output_path', type=str, help='Output. The engine path', required=True)
+    args = parser.parse_args()
+    args.batchsize = [ int(a) for a in args.batchsize]
+    onnx2tensorrt(args.input_path, args.output_path, fp=args.fp, dynamic_batch=args.batchsize)
