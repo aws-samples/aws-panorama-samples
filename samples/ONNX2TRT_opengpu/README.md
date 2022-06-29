@@ -58,6 +58,8 @@ This application requires a Docker base image that is exactly the same as the [T
 
 **VERY IMPORTANT** : This example will build the engine file with dynamic batch size ranges from 1 to 8. If you decide to use batch size larger than 4, please use ATLEAST 2 CAMERAS for this example.
 
+**VERY IMPORTANT** : Batch size 8 is suitable for Jetson Xavier AGX. And for devices using Jetson Xavier NX module, please select at most batch size 4 instead of 8. please refer to this [link](https://aws.amazon.com/tw/panorama/appliance/) for more information about your device.
+
 ## Steps for setting this up
 
 * Step 1: Navigate to TRTPT36_opengpu app and build the base docker image.
@@ -113,6 +115,6 @@ The assets should look something like this
 ```
     
 
-# Debugging
+## Debugging
 
 If you encounter issues with deploying from this, once the application is uploaded to the cloud, you can use the graph.json and deploy using the Panorama console as well
