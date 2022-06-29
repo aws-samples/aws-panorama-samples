@@ -6,12 +6,9 @@ s3 = boto3.resource('s3')
 
 import panoramasdk as p
 import os
-import random
 import sys
-import threading
-import cv2
 import numpy as np
-import onnx_tensorrt
+from onnx_tensorrt import onnx2tensorrt
 from yolov5trt import YoLov5TRT
 
 import logging
@@ -31,8 +28,18 @@ class ObjectDetectionApp(p.node):
         self.pre_processing_output_size = 640
         self.onnx_file_path = "/panorama/yolov5s.onnx"
         self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
+        self.fp = 16
+        self.engine_batch_size = "1 4 8"
+        # The reason we use os system here instead of using function call is to save memory.
+        # Building engines will runtime load more tensorrt library, and cuase more memory usage.
+        # And the loaded library will be released only after the app ends.
+        # Thus here using a system call to trigger a standalone process can solve the problem. 
+        # (The process will die after building engine file, and thus release loaded library)
+        # Another possible way is using Python inbuilt Process. However, Process under Panorama cannot access GPU.
         if not os.path.exists(self.engine_file_path):
-            onnx_tensorrt.onnx2tensorrt(self.onnx_file_path, self.engine_file_path, dynamic_batch=[1, 4, 8], max_workspace_GB=8)
+            os.system("python3 /opt/aws/panorama/storage/onnx2trt/onnx_tensorrt.py -i {} -o {} -p {} -b {}".format(
+                self.onnx_file_path, self.engine_file_path, self.fp, self.engine_batch_size
+            ))
         
         self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, True)
     
