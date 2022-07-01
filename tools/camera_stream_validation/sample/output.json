@@ -1,0 +1,26 @@
+{
+    "ValidationResult": [
+        {
+            "applicationInstance-ok75ymoq5tji2goxltqjqkpsuy": {
+                "david_test_camera_4": "ERROR",
+                "david_test_camera_1": "RUNNING"
+            }
+        },
+        {
+            "applicationInstance-3c76x7c47ua43irldj4hukbpx4": {
+                "david_test_camera_4": "ERROR",
+                "david_test_camera_1": "RUNNING"
+            }
+        },
+        {
+            "applicationInstance-4taibq5lzf23ecs5sye5ivnuse": {
+                "david_test_camera_1": "ERROR"
+            }
+        },
+        {
+            "applicationInstance-mtaibx53srk35ssegb75b24lra": {
+                "david_test_camera_1": "RUNNING"
+            }
+        }
+    ]
+}
