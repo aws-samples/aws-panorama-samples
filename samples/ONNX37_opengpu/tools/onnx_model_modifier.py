@@ -25,7 +25,7 @@ def change_input_dim(model):
 if __name__ == '__main__':
     # example usage here
     # convert to dynamic batch size
-    model = onnx.load("onnx_models/batch8_yolov5s.onnx")
+    model = onnx.load("<your model path>")
     change_input_dim(model)
     onnx.save(model, "onnx_models/batch_dynamic_yolov5s.onnx")
 

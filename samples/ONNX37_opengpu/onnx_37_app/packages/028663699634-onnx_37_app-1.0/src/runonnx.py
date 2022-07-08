@@ -64,7 +64,7 @@ class ObjectDetectionApp(p.node):
         self.model_batch_size = self.inputs.batch_size.get()
         self.pre_processing_output_size = 640
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu' 
-        self.onnx = ort.InferenceSession('/opt/aws/panorama/storage/src_onnx/onnx_model/batch_dynamic_fp16_yolov5s.onnx')
+        self.onnx = ort.InferenceSession('/panorama/onnx_model/yolov5s.onnx') # or use batch_dynamic_fp16_yolov5s.onnx
         self.input_name = self.onnx.get_inputs()[0].name
         log.info('Model Loaded')
         self.stride = 32
