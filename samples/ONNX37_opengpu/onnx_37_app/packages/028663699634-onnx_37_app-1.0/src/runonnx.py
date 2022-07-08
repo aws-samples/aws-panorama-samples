@@ -64,7 +64,7 @@ class ObjectDetectionApp(p.node):
         self.model_batch_size = self.inputs.batch_size.get()
         self.pre_processing_output_size = 640
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu' 
-        self.onnx = ort.InferenceSession('/panorama/onnx_model/yolov5s.onnx')        
+        self.onnx = ort.InferenceSession('/opt/aws/panorama/storage/src_onnx/onnx_model/batch_dynamic_fp16_yolov5s.onnx')
         self.input_name = self.onnx.get_inputs()[0].name
         log.info('Model Loaded')
         self.stride = 32
@@ -114,6 +114,13 @@ class ObjectDetectionApp(p.node):
         cv2.imencode('.jpg', img)[1].tofile(dst)
 
     @metric_latency_decorator(metric_name='PreProcessBatchTime')
+    def preprocess_onnx_batch(self, input_images_batch):
+        return np.vstack([self.preprocess_onnx(image) for image in input_images_batch])
+
+    @metric_latency_decorator(metric_name='TotalInferenceTime')
+    def infer(self, pre_processed_images):
+        return self.onnx.run(None, {self.input_name: pre_processed_images})
+
     def preprocess_onnx(self, img):
         img = cv2.resize(img, IMAGE_SIZE)
         img = img.transpose(2, 0, 1)
@@ -180,10 +187,11 @@ class ObjectDetectionApp(p.node):
                 input_images_batch = input_images[:self.model_batch_size]
                 
                 # Create Torch Arrays from Preprocessed Images
-                pre_processed_images = np.vstack([self.preprocess_onnx(image) for image in input_images_batch])
+                pre_processed_images = self.preprocess_onnx_batch(input_images_batch)
                 
                 # Inference
-                pred = self.onnx.run(None, {self.input_name: pre_processed_images})
+                pred = self.infer(pre_processed_images)
+                
                 total_process_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(total_process_metric)
                 
