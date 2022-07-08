@@ -19,7 +19,7 @@ def check_anchor_order(m):
 
 def make_divisible(x, divisor): 
     # Returns x evenly divisble by divisor
-    return math.ceil(x / divisor) * divisor #除32，向上取整，再乘以32
+    return math.ceil(x / divisor) * divisor
 
 def xywh2xyxy(x):
     y = torch.zeros_like(x) if isinstance(x, torch.Tensor) else np.zeros_like(x)
@@ -29,26 +29,26 @@ def xywh2xyxy(x):
     y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
     return y
 
-def clip_coords(boxes, img_shape): #查看是否越界
+def clip_coords(boxes, img_shape):
     # Clip bounding xyxy bounding boxes to image shape (height, width)
     boxes[:, 0].clamp_(0, img_shape[1])  # x1
     boxes[:, 1].clamp_(0, img_shape[0])  # y1
     boxes[:, 2].clamp_(0, img_shape[1])  # x2
     boxes[:, 3].clamp_(0, img_shape[0])  # y2
 
-def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None): #输入尺寸，输入坐标，映射的尺寸
+def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     # Rescale coords (xyxy) from img1_shape to img0_shape
     if ratio_pad is None:  # calculate from img0_shape
-        gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new,计算缩放比率
-        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2  # wh padding ，计算扩充的尺寸
+        gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])
+        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2
     else:
         gain = ratio_pad[0][0]
         pad = ratio_pad[1]
 
-    coords[:, [0, 2]] -= pad[0]  # x padding，减去x方向上的扩充
-    coords[:, [1, 3]] -= pad[1]  # y padding，减去y方向上的扩充
-    coords[:, :4] /= gain #将box坐标对应到原始图像上
-    clip_coords(coords, img0_shape) #边界检查
+    coords[:, [0, 2]] -= pad[0]
+    coords[:, [1, 3]] -= pad[1]
+    coords[:, :4] /= gain
+    clip_coords(coords, img0_shape)
     return coords
 
 def nms(prediction, conf_thres=0.1, iou_thres=0.6, agnostic=False):
