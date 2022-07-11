@@ -23,7 +23,7 @@ def preprocess(img):
 
 def letterbox(im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
     # Follow the yolov5 
-    # https://github.com/ultralytics/yolov5/blob/master/utils/dataloaders.py#L176
+    # https://github.com/ultralytics/yolov5/blob/526e650553819dbff67897b9c752c4072e989823/utils/augmentations.py#L91
     
     # Resize and pad image while meeting stride-multiple constraints
     shape = im.shape[:2]  # current shape [height, width]
@@ -57,11 +57,12 @@ def letterbox(im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleF
     return im, ratio, (dw, dh)
 
 def box_area(box):
-        # box = xyxy(4,n)
-        return (box[2] - box[0]) * (box[3] - box[1])
+    # https://github.com/ultralytics/yolov5/blob/526e650553819dbff67897b9c752c4072e989823/utils/metrics.py#L257
+    # box = xyxy(4,n)
+    return (box[2] - box[0]) * (box[3] - box[1])
 
 def box_iou(box1, box2):
-    # https://github.com/pytorch/vision/blob/master/torchvision/ops/boxes.py
+    # https://github.com/ultralytics/yolov5/blob/526e650553819dbff67897b9c752c4072e989823/utils/metrics.py#L262
     """
     Return intersection-over-union (Jaccard index) of boxes.
     Both sets of boxes are expected to be in (x1, y1, x2, y2) format.
@@ -81,6 +82,7 @@ def box_iou(box1, box2):
     return inter / (box_area(box1.T)[:, None] + box_area(box2.T) - inter)
 
 def xywh2xyxy(x):
+    # https://github.com/ultralytics/yolov5/blob/526e650553819dbff67897b9c752c4072e989823/utils/general.py#L689
     # Convert nx4 boxes from [x, y, w, h] to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
     y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
     y[:, 0] = x[:, 0] - x[:, 2] / 2  # top left x
@@ -98,6 +100,7 @@ def non_max_suppression(prediction,
                         labels=(),
                         max_det=300,
                         max_nms=1000):
+    # https://github.com/ultralytics/yolov5/blob/526e650553819dbff67897b9c752c4072e989823/utils/general.py#L784
     """Non-Maximum Suppression (NMS) on inference results to reject overlapping bounding boxes
 
     Args:
@@ -194,6 +197,7 @@ def non_max_suppression(prediction,
     return output
 
 def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
+    # https://github.com/ultralytics/yolov5/blob/526e650553819dbff67897b9c752c4072e989823/utils/general.py#L756
     # Rescale coords (xyxy) from img1_shape to img0_shape
     if ratio_pad is None:  # calculate from img0_shape
         gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
@@ -209,6 +213,7 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     return coords
 
 def clip_coords(boxes, shape):
+    # https://github.com/ultralytics/yolov5/blob/526e650553819dbff67897b9c752c4072e989823/utils/general.py#L772
     # Clip bounding xyxy bounding boxes to image shape (height, width)
     if isinstance(boxes, torch.Tensor):  # faster individually
         boxes[:, 0].clamp_(0, shape[1])  # x1
