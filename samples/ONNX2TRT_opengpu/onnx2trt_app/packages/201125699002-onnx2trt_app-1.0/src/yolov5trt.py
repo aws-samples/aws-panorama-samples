@@ -1,5 +1,4 @@
 from collections import defaultdict
-from re import M
 import pycuda.autoinit
 import torch
 import pycuda.driver as cuda
@@ -11,26 +10,13 @@ import utils
 
 log = logging.getLogger('my_logger')
 
-# load coco labels
-categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
-            "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
-            "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
-            "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
-            "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
-            "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch",
-            "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
-            "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
-            "hair drier", "toothbrush"]
-
-HUMAN_CLASS  = categories.index("person")
-
 class YoLov5TRT(object):
     """
     description: A YOLOv5 class that warps TensorRT ops, preprocess and postprocess ops.
     """
 
     def __init__(self, engine_file_path, batch_size, dynamic=False, num_classes = 80, input_w=640, input_h=640, 
-                 conf_threshold = 0.25, iou_threshold = 0.4):
+                 conf_threshold = 0.50, iou_threshold = 0.45, filtered_classes=[0]):
         # Create a Context on this device,
         log.info('Loading CFX')
         self.cfx = cuda.Device(0).make_context()
@@ -45,6 +31,7 @@ class YoLov5TRT(object):
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.dynamic=dynamic
+        self.filtered_classes = filtered_classes
         # Deserialize the engine from file
         
         log.info('Loading Engine File')
@@ -93,7 +80,7 @@ class YoLov5TRT(object):
         self.bindings = bindings
         self.time_buffers = defaultdict(list)
 
-    def infer(self, image_raw_list):
+    def infer(self, input_image_batch):
         self.cfx.push()
         # Make self the active context, pushing it on top of the context stack.
         # Restore
@@ -105,19 +92,16 @@ class YoLov5TRT(object):
         host_outputs = self.host_outputs
         cuda_outputs = self.cuda_outputs
         bindings = self.bindings
-        # Do image preprocess
+
         t1 = time.time()
-        input_image_batch = self.preprocess_image_list(image_raw_list)
-        
-        t2 = time.time()
         # Copy input image to host buffer
         np.copyto(host_inputs[0], input_image_batch.ravel())
         # Transfer input data to the GPU.
         cuda.memcpy_htod(cuda_inputs[0], host_inputs[0])
         # Run inference.
-        t3 = time.time()
+        t2 = time.time()
         context.execute_v2(bindings=bindings)
-        t4 = time.time()
+        t3 = time.time()
         # Transfer predictions back from the GPU.
         cuda.memcpy_dtoh(host_outputs[0], cuda_outputs[0])
         
@@ -125,43 +109,26 @@ class YoLov5TRT(object):
         self.cfx.pop()
         # Here we use the first row of output in that batch_size = 1
         output_batch = host_outputs[0]
-        t5 = time.time()
+        t4 = time.time()
         # Do postprocess
-        
-        prediction = self.post_process_batch(
-            output_batch, input_image_batch[0], image_raw_list[0]
-        )
-        # print(prediction, flush=True)
-        t6 = time.time()
-
-        self.time_buffers["preprocess"].append(t2-t1)
-        self.time_buffers["memcp"].append(t3-t2)
-        self.time_buffers["infer"].append(t4-t3)
-        self.time_buffers["post_memcp"].append(t5-t4)
-        self.time_buffers["postprocess"].append(t6-t5)
-        self.time_buffers["total"].append(t6-t1)
+        self.time_buffers["memcp"].append(t2-t1)
+        self.time_buffers["infer"].append(t3-t2)
+        self.time_buffers["post_memcp"].append(t4-t3)
+        self.time_buffers["total"].append(t4-t1)
         
         for key, val_list in self.time_buffers.items():
             if(len(val_list)>=500//self.batch_size):
                 timespent_ms = np.mean(val_list)
                 log.info('Time Spent {}: {}ms'.format(key,timespent_ms))
                 self.time_buffers[key] = []
-        # # Draw rectangles and labels on the original image
-
-        # for image_idx, det_results in enumerate(prediction):
-        #     for box_idx, bbox in enumerate(det_results):
-        #         bbox = bbox.tolist()
-        #         coord = bbox[:4]
-        #         score = bbox[4]
-        #         class_id = bbox[5]
-        #         utils.plot_one_box(coord, image_raw_list[image_idx],
-        #             label="{}:{:.2f}".format(categories[int(class_id)], score))
+        
+        return output_batch
 
     def destroy(self):
         # Remove any context from the top of the context stack, deactivating it.
         self.cfx.pop()
 
-    def preprocess_image_list(self, image_list):
+    def preprocess_image_batch(self, image_list):
         """
         Preprocess a list of image. We preprocess each image individually to prevent the case
         that each image has different input dimension. (Cannot batch before preprocessing)
@@ -177,7 +144,9 @@ class YoLov5TRT(object):
     def post_process_batch(self, pred, preprocessed_image, orig_image):
         pred = np.reshape(pred, (self.batch_size,-1, self.num_classes+5)) # [x,y,w,h, object_score] + [coco 80 scores] => 85
         pred = torch.from_numpy(pred)
-        pred = utils.non_max_suppression(pred)
+        pred = utils.non_max_suppression(pred, 
+            conf_thres = self.conf_threshold, iou_thres=self.iou_threshold,
+            classes=self.filtered_classes)
         output = []
         for det in pred:
             if det is not None and len(det):
