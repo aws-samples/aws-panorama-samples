@@ -14,3 +14,4 @@ internal/
 /samples/people_counter/screenshots
 /samples/pose_estimation/screenshot
 /tools/pano_jupyter/src/pano_jupyter_tf/assets/*
+*.DS_Store
