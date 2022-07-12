@@ -15,8 +15,7 @@ class YoLov5TRT(object):
     description: A YOLOv5 class that warps TensorRT ops, preprocess and postprocess ops.
     """
 
-    def __init__(self, engine_file_path, batch_size, dynamic=False, num_classes = 80, input_w=640, input_h=640, 
-                 conf_threshold = 0.50, iou_threshold = 0.45, filtered_classes=[0]):
+    def __init__(self, engine_file_path, batch_size, dynamic=False, num_classes = 80):
         # Create a Context on this device,
         log.info('Loading CFX')
         self.cfx = cuda.Device(0).make_context()
@@ -24,14 +23,9 @@ class YoLov5TRT(object):
         stream = cuda.Stream()
         TRT_LOGGER = trt.Logger(trt.Logger.INFO)
         runtime = trt.Runtime(TRT_LOGGER)
-        self.input_w = input_w
-        self.input_h = input_h
-        self.conf_threshold = conf_threshold
-        self.iou_threshold = iou_threshold
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.dynamic=dynamic
-        self.filtered_classes = filtered_classes
         # Deserialize the engine from file
         
         log.info('Loading Engine File')
@@ -132,6 +126,7 @@ class YoLov5TRT(object):
         """
         Preprocess a list of image. We preprocess each image individually to prevent the case
         that each image has different input dimension. (Cannot batch before preprocessing)
+        By default the image will be resized to 640x640.
         
         param:
             image_list: a list of np int8 array.
@@ -141,12 +136,11 @@ class YoLov5TRT(object):
         """
         return np.vstack([utils.preprocess(image) for image in image_list])
     
-    def post_process_batch(self, pred, preprocessed_image, orig_image):
+    def post_process_batch(self, pred, preprocessed_image, orig_image, filtered_classes = None, conf_thres=0.5, iou_thres=0.45):
         pred = np.reshape(pred, (self.batch_size,-1, self.num_classes+5)) # [x,y,w,h, object_score] + [coco 80 scores] => 85
         pred = torch.from_numpy(pred)
-        pred = utils.non_max_suppression(pred, 
-            conf_thres = self.conf_threshold, iou_thres=self.iou_threshold,
-            classes=self.filtered_classes)
+        pred = utils.non_max_suppression(pred, conf_thres = conf_thres, 
+            iou_thres=iou_thres, classes=filtered_classes)
         output = []
         for det in pred:
             if det is not None and len(det):

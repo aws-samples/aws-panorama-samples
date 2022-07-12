@@ -8,7 +8,6 @@ import panoramasdk as p
 import os
 import sys
 import numpy as np
-from onnx_tensorrt import onnx2tensorrt
 from yolov5trt import YoLov5TRT
 
 import logging
@@ -55,8 +54,7 @@ class ObjectDetectionApp(p.node):
                 self.onnx_file_path, self.engine_file_path, self.fp, self.engine_batch_size
             ))
         
-        self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, 
-            self.is_dynamic, filtered_classes=[HUMAN_CLASS])
+        self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, self.is_dynamic)
     
     def get_frames(self):
         input_frames = self.inputs.video_in.get()
@@ -77,7 +75,8 @@ class ObjectDetectionApp(p.node):
                     input_image_batch = self.yolov5_wrapper.preprocess_image_batch(image_raw_list)
                     output_batch = self.yolov5_wrapper.infer(input_image_batch)
                     prediction = self.yolov5_wrapper.post_process_batch(
-                        output_batch, input_image_batch[0], image_raw_list[0]
+                        output_batch, input_image_batch[0], image_raw_list[0],
+                        filtered_classes=[HUMAN_CLASS]
                     )
 
                     # Draw rectangles and labels on the original image
