@@ -30,6 +30,7 @@ class ObjectDetectionApp(p.node):
         self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
         self.fp = 16
         self.engine_batch_size = "1 4 8"
+        self.is_dynamic = True
         # The reason we use os system here instead of using function call is to save memory.
         # Building engines will runtime load more tensorrt library, and cuase more memory usage.
         # And the loaded library will be released only after the app ends.
@@ -41,7 +42,7 @@ class ObjectDetectionApp(p.node):
                 self.onnx_file_path, self.engine_file_path, self.fp, self.engine_batch_size
             ))
         
-        self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, True)
+        self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, self.is_dynamic)
     
     def get_frames(self):
         input_frames = self.inputs.video_in.get()
