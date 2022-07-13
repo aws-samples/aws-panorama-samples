@@ -15,7 +15,7 @@ class YoLov5TRT(object):
     description: A YOLOv5 class that warps TensorRT ops, preprocess and postprocess ops.
     """
 
-    def __init__(self, engine_file_path, batch_size, dynamic=False, num_classes = 80):
+    def __init__(self, engine_file_path, batch_size, dynamic=False, num_classes = 80, input_w=640, input_h=640):
         # Create a Context on this device,
         log.info('Loading CFX')
         self.cfx = cuda.Device(0).make_context()
@@ -23,6 +23,8 @@ class YoLov5TRT(object):
         stream = cuda.Stream()
         TRT_LOGGER = trt.Logger(trt.Logger.INFO)
         runtime = trt.Runtime(TRT_LOGGER)
+        self.input_w = input_w
+        self.input_h = input_h
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.dynamic=dynamic
@@ -61,7 +63,7 @@ class YoLov5TRT(object):
                 host_outputs.append(host_mem)
                 cuda_outputs.append(cuda_mem)
         
-        context.set_binding_shape(0, (self.batch_size, 3, self.input_h, input_w))
+        context.set_binding_shape(0, (self.batch_size, 3, self.input_h, self.input_w))
         
         # Store
         self.stream = stream
@@ -145,5 +147,7 @@ class YoLov5TRT(object):
         for det in pred:
             if det is not None and len(det):
                 det[:, :4] = utils.scale_coords(preprocessed_image.shape[1:], det[:, :4], orig_image.shape).round()
-                output.append(det)
+                output.append(det.cpu().detach().numpy())
+            else:
+                output.append(np.array([]))
         return output

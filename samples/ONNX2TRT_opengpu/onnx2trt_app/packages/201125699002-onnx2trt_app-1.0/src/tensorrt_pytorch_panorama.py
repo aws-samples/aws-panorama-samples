@@ -63,7 +63,6 @@ class ObjectDetectionApp(p.node):
 
     def run(self):
         input_images = list()
-        # TODO: supprot batch_size > 1, with multiple
         image_list = [] # An image queue
         while True:
             try:
