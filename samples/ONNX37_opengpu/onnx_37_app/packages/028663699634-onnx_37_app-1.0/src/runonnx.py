@@ -29,6 +29,15 @@ formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
+categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
+            "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
+            "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
+            "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
+            "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
+            "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch",
+            "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
+            "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
+            "hair drier", "toothbrush"]
 class MockedFrame:
     __slots__ = ["image", "resolution"]  # <-- allowed attributes
 
@@ -55,7 +64,9 @@ class ObjectDetectionApp(p.node):
         self.pre_processing_output_size = 640
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu' 
         self.onnx = ort.InferenceSession('/panorama/onnx_model/yolov5s.onnx') # or use batch_dynamic_fp16_yolov5s.onnx
+        self.io_binding = self.onnx.io_binding()
         self.input_name = self.onnx.get_inputs()[0].name
+        self.output_name = self.onnx.get_outputs()[3].name
         log.info('Model Loaded')
         self.stride = 32
         
@@ -96,12 +107,16 @@ class ObjectDetectionApp(p.node):
         return input_frames
 
     @metric_latency_decorator(metric_name='PreProcessBatchTime')
-    def preprocess_onnx_batch(self, input_images_batch):
-        return np.vstack([utils.preprocess(image) for image in input_images_batch])
+    def preprocess_onnx_batch(self):
+        self.preprocessed_images = np.vstack([utils.preprocess(image) for image in self.org_image_list])
+        X_ortvalue = ort.OrtValue.ortvalue_from_numpy(self.preprocessed_images, 'cuda', 0)
+        self.io_binding.bind_input(self.input_name, device_type=X_ortvalue.device_name(), device_id=0, element_type=np.float32, shape=X_ortvalue.shape(), buffer_ptr=X_ortvalue.data_ptr())
+        self.io_binding.bind_output(self.output_name)
 
     @metric_latency_decorator(metric_name='TotalInferenceTime')
-    def infer(self, pre_processed_images):
-        return self.onnx.run(None, {self.input_name: pre_processed_images})
+    def infer(self):
+        # pred = self.onnx.run(None, {self.input_name: pre_processed_images})
+        self.onnx.run_with_iobinding(self.io_binding)
 
     @metric_latency_decorator(metric_name='InputFrameGetTime')
     def get_frames(self):
@@ -109,13 +124,19 @@ class ObjectDetectionApp(p.node):
         return input_frames
 
     @metric_latency_decorator(metric_name='PostProcessBatchTime')
-    def postprocess(self, pred, preprocessed_image, orig_image):
+    def postprocess(self):
+        pred = self.io_binding.copy_outputs_to_cpu()[0]
+        pred = torch.from_numpy(pred)
         pred = utils.non_max_suppression(pred)
+        
         output = []
         for det in pred:
             if det is not None and len(det):
-                det[:, :4] = utils.scale_coords(preprocessed_image.shape[1:], det[:, :4], orig_image.shape).round()
-                output.append(det)
+                det[:, :4] = utils.scale_coords(self.preprocessed_images[0].shape[1:], 
+                    det[:, :4], self.org_image_list[0].shape).round()
+                output.append(det.cpu().detach().numpy())
+            else:
+                output.append(np.array([]))
         return output
 
     def run(self):
@@ -126,32 +147,31 @@ class ObjectDetectionApp(p.node):
             input_images.extend([frame.image for frame in input_frames])
             if len(input_images) >= self.model_batch_size:
                 total_process_metric = self.metrics_handler.get_metric('TotalProcessBatchTime')
-                input_images_batch = input_images[:self.model_batch_size]
+                self.org_image_list = input_images[:self.model_batch_size]
                 
                 # Image preprocessing, sequentially
-                pre_processed_images = self.preprocess_onnx_batch(input_images_batch)
+                self.preprocess_onnx_batch()
                 
                 # Inference
-                pred = self.infer(pre_processed_images)
+                self.infer()
                 
                 total_process_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(total_process_metric)
                 
                 # Post Process
                 try:
-                    prediction = torch.from_numpy(pred[3])
-                    prediction = self.postprocess(prediction, pre_processed_images[0], input_images_batch[0])
+                    
+                    prediction = self.postprocess()
 
                     # uncomment the below section to draw the bounding box, drawing takes time and slow.
-                    
-                    # for image_idx, det_results in enumerate(prediction):
-                    #     for box_idx, bbox in enumerate(det_results):
-                    #         bbox = bbox.tolist()
-                    #         coord = bbox[:4]
-                    #         score = bbox[4]
-                    #         class_id = bbox[5]
-                    #         utils.plot_one_box(coord, input_images_batch[image_idx],
-                    #             label="{}:{:.2f}".format(class_id, score))
+                    for image_idx, det_results in enumerate(prediction):
+                        for box_idx, bbox in enumerate(det_results):
+                            bbox = bbox.tolist()
+                            coord = bbox[:4]
+                            score = bbox[4]
+                            class_id = bbox[5]
+                            utils.plot_one_box(coord, self.org_image_list[image_idx],
+                                label="{}:{:.2f}".format(categories[int(class_id)], score))
 
                 except Exception as e:
                     log.exception('Exception from Try is {}'.format(e))
