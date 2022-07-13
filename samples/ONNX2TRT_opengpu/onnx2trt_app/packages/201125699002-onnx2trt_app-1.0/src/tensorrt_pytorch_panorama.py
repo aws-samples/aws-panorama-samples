@@ -71,10 +71,13 @@ class ObjectDetectionApp(p.node):
                 image_list+=input_images
                 if len(image_list) >= self.model_batch_size:
                     image_raw_list = image_list[:self.model_batch_size]
-                    input_image_batch = self.yolov5_wrapper.preprocess_image_batch(image_raw_list)
-                    output_batch = self.yolov5_wrapper.infer(input_image_batch)
+                    # preprocessing and memcp to device mem
+                    preprocessed_images = self.yolov5_wrapper.preprocess_image_batch(image_raw_list)
+                    # inference and left the inferenced results in device memory
+                    self.yolov5_wrapper.infer()
+                    # memcp from device to host memory, and nms + postprocessing.
                     prediction = self.yolov5_wrapper.post_process_batch(
-                        output_batch, input_image_batch[0], image_raw_list[0],
+                        preprocessed_images[0], image_raw_list[0],
                         filtered_classes=[HUMAN_CLASS]
                     )
 
