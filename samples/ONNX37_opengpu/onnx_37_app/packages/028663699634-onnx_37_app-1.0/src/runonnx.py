@@ -164,14 +164,14 @@ class ObjectDetectionApp(p.node):
                     prediction = self.postprocess()
 
                     # uncomment the below section to draw the bounding box, drawing takes time and slow.
-                    for image_idx, det_results in enumerate(prediction):
-                        for box_idx, bbox in enumerate(det_results):
-                            bbox = bbox.tolist()
-                            coord = bbox[:4]
-                            score = bbox[4]
-                            class_id = bbox[5]
-                            utils.plot_one_box(coord, self.org_image_list[image_idx],
-                                label="{}:{:.2f}".format(categories[int(class_id)], score))
+                    # for image_idx, det_results in enumerate(prediction):
+                    #     for box_idx, bbox in enumerate(det_results):
+                    #         bbox = bbox.tolist()
+                    #         coord = bbox[:4]
+                    #         score = bbox[4]
+                    #         class_id = bbox[5]
+                    #         utils.plot_one_box(coord, self.org_image_list[image_idx],
+                    #             label="{}:{:.2f}".format(categories[int(class_id)], score))
 
                 except Exception as e:
                     log.exception('Exception from Try is {}'.format(e))
