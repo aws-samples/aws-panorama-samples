@@ -34,7 +34,8 @@ RUN apt-get update && \
        libhdf5-dev \
        zlib1g-dev \
        zip \
-       libjpeg8-dev
+       libjpeg8-dev \
+       wget
 
 #RUN mkdir -p /usr/lib/python3.6/lib-dynload
 #RUN cp /usr/lib/python3.7/lib-dynload/panoramasdk.so /usr/lib/python3.6/lib-dynload/panoramasdk.so
@@ -144,7 +145,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 CMD [ "/bin/bash" ]
 
 
-COPY torch-1.10.0-cp36-cp36m-linux_aarch64.whl .
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torch-1.10.0-cp36-cp36m-linux_aarch64.whl
 ARG TORCH_WHL=torch-1.10.0-cp36-cp36m-linux_aarch64.whl
 
 
