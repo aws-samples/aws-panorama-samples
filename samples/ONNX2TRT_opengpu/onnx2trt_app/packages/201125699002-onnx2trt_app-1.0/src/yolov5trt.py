@@ -146,6 +146,6 @@ class YoLov5TRT(object):
         for key, val_list in self.time_buffers.items():
             if(len(val_list)>=500//self.batch_size):
                 timespent_ms = np.mean(val_list)
-                log.info('Time Spent {}: {}ms'.format(key,timespent_ms))
+                log.info('Time Spent {}: {}s'.format(key,timespent_ms))
                 self.time_buffers[key] = []
         return output

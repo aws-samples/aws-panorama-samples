@@ -7,12 +7,12 @@ s3 = boto3.resource('s3')
 import panoramasdk as p
 import os
 import sys
-import numpy as np
 from yolov5trt import YoLov5TRT
 
 import logging
 from logging.handlers import RotatingFileHandler
 import utils
+
 log = logging.getLogger('my_logger')
 log.setLevel(logging.DEBUG)
 handler = RotatingFileHandler("/opt/aws/panorama/logs/app.log", maxBytes=10000000, backupCount=2)
@@ -55,6 +55,28 @@ class ObjectDetectionApp(p.node):
             ))
         
         self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, self.is_dynamic)
+
+        ########### CLOUD WATCH METRICS #################
+        # Note: These are CW dimensions. Change as necessary
+        # sending performance related metrics to cloudwatch metrics
+        # Please deploy this app with IAM role that has CW permission if you want to send the 
+        # metrics to CW metrics. Otherwise, please replace all cloudwatch metrics to simply time.time()
+        from cw_metrics.metrics import MetricsFactory
+        from cw_metrics.cw_post_metric import MetricsHandler
+        dimensions = list()
+        stage_dimension = {'Name': 'Stage', 'Value': 'Gamma'}
+        region_dimension = {'Name': 'Region', 'Value': 'us-east-1'}
+        model_name_dimension = {'Name': 'ModelName', 'Value': 'YoloV5s'}
+        batch_size_dimention = {'Name': 'BatchSize', 'Value': str(self.model_batch_size)}
+        app_function_dimension = {'Name': 'AppName', 'Value': 'TensorRTDemo'}
+        dimensions.append(stage_dimension)
+        dimensions.append(region_dimension)
+        dimensions.append(app_function_dimension)
+        dimensions.append(model_name_dimension)
+        dimensions.append(batch_size_dimention)
+        metrics_factory = MetricsFactory(dimensions)
+        self.metrics_handler = MetricsHandler("TensorRTAppMetrics", metrics_factory)
+        ########### CLOUD WATCH METRICS #################
     
     def get_frames(self):
         input_frames = self.inputs.video_in.get()
@@ -70,17 +92,32 @@ class ObjectDetectionApp(p.node):
                 input_images = [frame.image for frame in input_frames]
                 image_list+=input_images
                 if len(image_list) >= self.model_batch_size:
+                    total_process_metric = self.metrics_handler.get_metric('TotalProcessBatchTime')
+                    
                     image_raw_list = image_list[:self.model_batch_size]
                     # preprocessing and memcp to device mem
+                    preprocess_metric = self.metrics_handler.get_metric('PreProcessBatchTime')
                     preprocessed_images = self.yolov5_wrapper.preprocess_image_batch(image_raw_list)
+                    preprocess_metric.add_time_as_milliseconds(1)
+                    
                     # inference and left the inferenced results in device memory
+                    infernce_metric = self.metrics_handler.get_metric('TotalInferenceTime')
                     self.yolov5_wrapper.infer()
+                    infernce_metric.add_time_as_milliseconds(1)
+
+                    # exclude postprocessing time, since this is business logic heavy.
+                    total_process_metric.add_time_as_milliseconds(1)
+                    
+
                     # memcp from device to host memory, and nms + postprocessing.
+                    postprocess_metric = self.metrics_handler.get_metric('PostProcessBatchTime')
                     prediction = self.yolov5_wrapper.post_process_batch(
                         preprocessed_images[0], image_raw_list[0],
                         filtered_classes=[HUMAN_CLASS]
                     )
+                    postprocess_metric.add_time_as_milliseconds(1)
 
+                    visualize_metric = self.metrics_handler.get_metric('VisualizeBatchTime')
                     # Draw rectangles and labels on the original image
                     for image_idx, det_results in enumerate(prediction):
                         for box_idx, bbox in enumerate(det_results):
@@ -90,8 +127,16 @@ class ObjectDetectionApp(p.node):
                             class_id = bbox[5]
                             utils.plot_one_box(coord, image_raw_list[image_idx],
                                 label="{}:{:.2f}".format(categories[int(class_id)], score))
+                    visualize_metric.add_time_as_milliseconds(1)
 
                     image_list = image_list[self.model_batch_size:]
+
+                    self.metrics_handler.put_metric(total_process_metric)
+                    self.metrics_handler.put_metric(preprocess_metric)
+                    self.metrics_handler.put_metric(infernce_metric)
+                    self.metrics_handler.put_metric(postprocess_metric)
+                    self.metrics_handler.put_metric(visualize_metric)
+                    
                 self.outputs.video_out.put(input_frames)
         
             except Exception as e:
