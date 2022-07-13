@@ -94,10 +94,10 @@ class ObjectDetectionApp(p.node):
                 if len(image_list) >= self.model_batch_size:
                     total_process_metric = self.metrics_handler.get_metric('TotalProcessBatchTime')
                     
-                    image_raw_list = image_list[:self.model_batch_size]
+                    org_image_list = image_list[:self.model_batch_size]
                     # preprocessing and memcp to device mem
                     preprocess_metric = self.metrics_handler.get_metric('PreProcessBatchTime')
-                    preprocessed_images = self.yolov5_wrapper.preprocess_image_batch(image_raw_list)
+                    self.yolov5_wrapper.preprocess_image_batch(org_image_list)
                     preprocess_metric.add_time_as_milliseconds(1)
                     
                     # inference and left the inferenced results in device memory
@@ -111,10 +111,7 @@ class ObjectDetectionApp(p.node):
 
                     # memcp from device to host memory, and nms + postprocessing.
                     postprocess_metric = self.metrics_handler.get_metric('PostProcessBatchTime')
-                    prediction = self.yolov5_wrapper.post_process_batch(
-                        preprocessed_images[0], image_raw_list[0],
-                        filtered_classes=[HUMAN_CLASS]
-                    )
+                    prediction = self.yolov5_wrapper.post_process_batch(filtered_classes=[HUMAN_CLASS])
                     postprocess_metric.add_time_as_milliseconds(1)
 
                     visualize_metric = self.metrics_handler.get_metric('VisualizeBatchTime')
@@ -125,7 +122,7 @@ class ObjectDetectionApp(p.node):
                             coord = bbox[:4]
                             score = bbox[4]
                             class_id = bbox[5]
-                            utils.plot_one_box(coord, image_raw_list[image_idx],
+                            utils.plot_one_box(coord, org_image_list[image_idx],
                                 label="{}:{:.2f}".format(categories[int(class_id)], score))
                     visualize_metric.add_time_as_milliseconds(1)
 

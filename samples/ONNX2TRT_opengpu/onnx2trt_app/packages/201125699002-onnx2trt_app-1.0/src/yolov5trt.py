@@ -89,7 +89,7 @@ class YoLov5TRT(object):
         # Remove any context from the top of the context stack, deactivating it.
         self.cfx.pop()
 
-    def preprocess_image_batch(self, image_list):
+    def preprocess_image_batch(self, org_image_list):
         """
         Preprocess a list of image and copy to device memory. 
         We preprocess each image individually to prevent the case
@@ -102,12 +102,13 @@ class YoLov5TRT(object):
         return:
             A batch of float32 image. Shape [B, C, H, W]
         """
+        self.org_image_list = org_image_list
         t1 = time.time()
-        preprocessed_images = np.vstack([utils.preprocess(image) for image in image_list])
+        self.preprocessed_images = np.vstack([utils.preprocess(image) for image in org_image_list])
 
         t2 = time.time()
         # Copy input image to host buffer
-        np.copyto(self.host_inputs[0], preprocessed_images.ravel())
+        np.copyto(self.host_inputs[0], self.preprocessed_images.ravel())
         # Transfer input data to the GPU.
         cuda.memcpy_htod(self.cuda_inputs[0], self.host_inputs[0])
         
@@ -115,9 +116,8 @@ class YoLov5TRT(object):
         self.time_buffers["preprocessing"].append(t2-t1)
         self.time_buffers["memcp"].append(t3-t2)
 
-        return preprocessed_images
     
-    def post_process_batch(self, preprocessed_image, orig_image, filtered_classes = None, conf_thres=0.5, iou_thres=0.45):
+    def post_process_batch(self, filtered_classes = None, conf_thres=0.5, iou_thres=0.45):
         # Transfer predictions back from the GPU.
         t6 = time.time()
         cuda.memcpy_dtoh(self.host_outputs[0], self.cuda_outputs[0])
@@ -134,7 +134,8 @@ class YoLov5TRT(object):
         output = []
         for det in pred:
             if det is not None and len(det):
-                det[:, :4] = utils.scale_coords(preprocessed_image.shape[1:], det[:, :4], orig_image.shape).round()
+                det[:, :4] = utils.scale_coords(self.preprocessed_images[0].shape[1:], 
+                    det[:, :4], self.org_image_list[0].shape).round()
                 output.append(det.cpu().detach().numpy())
             else:
                 output.append(np.array([]))
