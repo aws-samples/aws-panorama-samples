@@ -63,10 +63,11 @@ class ObjectDetectionApp(p.node):
         self.model_batch_size = self.inputs.batch_size.get()
         self.pre_processing_output_size = 640
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu' 
-        self.onnx = ort.InferenceSession('/panorama/onnx_model/yolov5s.onnx') # or use batch_dynamic_fp16_yolov5s.onnx
+        # self.onnx = ort.InferenceSession('/panorama/onnx_model/yolov5s.onnx') # or use batch_dynamic_fp16_yolov5s.onnx
+        self.onnx = ort.InferenceSession("/opt/aws/panorama/storage/src_onnx/onnx_model/yolov5s_fp16.onnx")
         self.io_binding = self.onnx.io_binding()
         self.input_name = self.onnx.get_inputs()[0].name
-        self.output_name = self.onnx.get_outputs()[3].name
+        self.output_name = self.onnx.get_outputs()[0].name
         log.info('Model Loaded')
         self.stride = 32
         
@@ -109,6 +110,7 @@ class ObjectDetectionApp(p.node):
     @metric_latency_decorator(metric_name='PreProcessBatchTime')
     def preprocess_onnx_batch(self):
         self.preprocessed_images = np.vstack([utils.preprocess(image) for image in self.org_image_list])
+        # self.preprocessed_images = self.preprocessed_images.astype(np.float16)
         X_ortvalue = ort.OrtValue.ortvalue_from_numpy(self.preprocessed_images, 'cuda', 0)
         self.io_binding.bind_input(self.input_name, device_type=X_ortvalue.device_name(), device_id=0, element_type=np.float32, shape=X_ortvalue.shape(), buffer_ptr=X_ortvalue.data_ptr())
         self.io_binding.bind_output(self.output_name)
@@ -164,14 +166,15 @@ class ObjectDetectionApp(p.node):
                     prediction = self.postprocess()
 
                     # uncomment the below section to draw the bounding box, drawing takes time and slow.
-                    # for image_idx, det_results in enumerate(prediction):
-                    #     for box_idx, bbox in enumerate(det_results):
-                    #         bbox = bbox.tolist()
-                    #         coord = bbox[:4]
-                    #         score = bbox[4]
-                    #         class_id = bbox[5]
-                    #         utils.plot_one_box(coord, self.org_image_list[image_idx],
-                    #             label="{}:{:.2f}".format(categories[int(class_id)], score))
+                    for image_idx, det_results in enumerate(prediction):
+                        for box_idx, bbox in enumerate(det_results):
+                            bbox = bbox.tolist()
+                            coord = bbox[:4]
+                            score = bbox[4]
+                            class_id = bbox[5]
+                            utils.plot_one_box(coord, self.org_image_list[image_idx],
+                                label="{}:{:.2f}".format(categories[int(class_id)], score))
+                        cv2.imwrite("/opt/aws/panorama/storage/example_img.jpg", self.org_image_list[image_idx])
 
                 except Exception as e:
                     log.exception('Exception from Try is {}'.format(e))

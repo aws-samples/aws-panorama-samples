@@ -1,11 +1,13 @@
 # Converting ONNX model to Dynamic Batch Size & FP16
 
-- This script will modify the onnx model to fp16 & dynamic batch.
+- This script will modify the dynamic batch onnx model to fp16.
 - Inside the ultralytics/yolov5 repo, it provides script to export onnx model
     - It allows either export fp16 onnx model or fp32 onnx model with dynamic batch size.
     - But it does not support export model with both dynamic and fp16.
-- One easy way is export the model to fp16 onnx first, and modify the model to dynamic batch size. Or export the model with dynamic batch size first and convert to fp16.
-- In this script, we will show both without using the export.py
+- One easy way is export the model to dynamc onnx first, and modify the model to fp16.
+- In this script, we will show how to convert the model from fp32 to fp16
+- Please prepare a dynamic fp32 yolov5s dynamic model by using the export.py provided in ultralytics/yolov5 repo
+    - `python3 export.py --weights yolov5s.pt --include onnx --dynamic`
 - Before we start, we neend to install some dependencies
 
 ```
