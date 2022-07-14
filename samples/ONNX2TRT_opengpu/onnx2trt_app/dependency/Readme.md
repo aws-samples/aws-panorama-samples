@@ -9,3 +9,5 @@
 ```
 python export_trt7_onnx.py --weights yolov5s.pt --dynamic
 ```
+
+Currently it will export yolov5.pt r6.1 to ONNX.
