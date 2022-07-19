@@ -12,6 +12,7 @@ from yolov5trt import YoLov5TRT
 import logging
 from logging.handlers import RotatingFileHandler
 import utils
+import tensorrt as trt
 
 log = logging.getLogger('my_logger')
 log.setLevel(logging.DEBUG)
@@ -38,7 +39,15 @@ class ObjectDetectionApp(p.node):
     def __init__(self):
         self.model_batch_size = self.inputs.batch_size.get()
         self.pre_processing_output_size = 640
-        self.onnx_file_path = "/panorama/yolov5s.onnx"
+        self.onnx_file_path = None
+        if trt.__version__[0] == '7':
+            self.onnx_file_path = "/panorama/yolov5s.onnx"
+        elif trt.__version__[0] == '8':
+            self.onnx_file_path = "/panorama/yolov5s_opset13.onnx"
+        else:
+            raise ValueError("Currently only support TRT 7 and 8 but trt version {} found.".format(trt.__version__[0]))
+
+        
         self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
         self.fp = 16
         self.engine_batch_size = "1 4 8"
@@ -50,7 +59,7 @@ class ObjectDetectionApp(p.node):
         # (The process will die after building engine file, and thus release loaded library)
         # Another possible way is using Python inbuilt Process. However, Process under Panorama cannot access GPU.
         if not os.path.exists(self.engine_file_path):
-            os.system("python3 /opt/aws/panorama/storage/onnx2trt/onnx_tensorrt.py -i {} -o {} -p {} -b {}".format(
+            os.system("python3 /panorama/onnx_tensorrt.py -i {} -o {} -p {} -b {}".format(
                 self.onnx_file_path, self.engine_file_path, self.fp, self.engine_batch_size
             ))
         
