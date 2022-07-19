@@ -14,8 +14,7 @@ import json
 import boto3
 
 from workflow.application_deployment_workflow import ApplicationDeploymentWorkflow
-from workflow.utils import Logger
-from workflow.utils import DeviceValidator
+from workflow.utils import Logger, DeviceValidator, get_secret
 
 logger = Logger().get_logger()
 
@@ -59,10 +58,19 @@ if __name__ == '__main__':
                 ''')
     )
     # input file
-    parser.add_argument('-i', '--input',
-                        help='JSON file that contains the list of data source inputs.',
-                        type=str,
-                        )
+    parser.add_argument(
+        "-i",
+        "--input",
+        help="JSON file that contains the list of data source inputs.",
+        type=str,
+    )
+
+    parser.add_argument(
+        "-s",
+        "--secret",
+        help="Name of an AWS Secrets Manager secret with source inputs.",
+        type=str,
+    )
     # configure flow
     # create camera package | deploy application | remove application
     # by default the whole flow is followed
@@ -106,8 +114,10 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # ========== Start processing args =============
-    if args.input is None:
-        logger.error("Please specify the input file! Check the sample input from --help")
+    if args.input is None and args.secret is None:
+        logger.error(
+            "Please specify an input file or secret! Check the sample input from --help"
+        )
         sys.exit(-1)
 
     output_file = ""
@@ -123,7 +133,12 @@ if __name__ == '__main__':
         else:
             logger.info("Output path: {} specified.".format(output_file))
 
-    input_file = json.load(open(args.input))
+    input_file = None
+
+    if args.secret:
+        input_file = json.loads(get_secret(args.secret))
+    else:
+        input_file = json.load((args.input))
 
     account_id = boto3.client('sts').get_caller_identity().get('Account')
     if 'device_id' not in input_file:
