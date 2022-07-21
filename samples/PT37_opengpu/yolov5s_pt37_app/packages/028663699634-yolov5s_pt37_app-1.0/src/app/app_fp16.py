@@ -5,7 +5,7 @@ site.addsitedir('/usr/lib/python3.7/site-packages/')
 site.addsitedir('/usr/local/lib/python3.7/site-packages/')
 
 import panoramasdk as p
-
+import numpy as np
 import torch
 import sys
 import img_utils
@@ -25,6 +25,18 @@ log.addHandler(handler)
 
 log.info('Logging and Imports Done')
 
+categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
+            "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
+            "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
+            "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
+            "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
+            "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch",
+            "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
+            "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
+            "hair drier", "toothbrush"]
+
+HUMAN_CLASS  = categories.index("person")
+
 class ObjectDetectionApp(p.node):
 
     def __init__(self):
@@ -32,7 +44,8 @@ class ObjectDetectionApp(p.node):
         self.pre_processing_output_size = 640
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.yolov5s = torch.jit.load('/panorama/yolov5s_model/yolov5s_half.pt', map_location=torch.device(self.device))
-        
+        self.num_classes = 80
+
         # Note: These are CW dimensions. Change as necessary
         dimensions = list()
         stage_dimension = {'Name': 'Stage', 'Value': 'Gamma'}
@@ -68,52 +81,88 @@ class ObjectDetectionApp(p.node):
 
     def run(self):
         log.info("Pytorch Yolov5s FP16 App starts")
-        input_images = list()
+        image_list = [] # An image queue
 
         while True:
-            input_frames = self.get_frames()           
+            input_frames = self.get_frames()
             self.metrics_handler.put_metric_count('InputFrameCount', len(input_frames))
-            input_images.extend([frame.image for frame in input_frames])
-            if len(input_images) >= self.model_batch_size:
+            image_list += [frame.image for frame in input_frames]
+
+            if len(image_list) >= self.model_batch_size:
                 total_process_metric = self.metrics_handler.get_metric('TotalProcessBatchTime')
-                input_images_batch = input_images[:self.model_batch_size]
-                
-                # Create Torch Arrays from Preprocessed Images
+                input_images_batch = image_list[:self.model_batch_size]
+
                 preprocessing_metric = self.metrics_handler.get_metric('PreProcessBatchTime')
                 pre_processed_images = [torch.from_numpy(img_utils.preprocess_v2(image)).to(self.device).half() for image in input_images_batch]
                 preprocessing_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(preprocessing_metric)
 
                 # Create Torch Stack
-                pre_processed_images_arr = torch.stack(pre_processed_images)
-                
+                pre_processed_images = torch.stack(pre_processed_images) # 4 (batch size) * [1 * 100 * 100] -> [4, 1, 100, 100]
+
                 # the latest yolov5s preprocessing (preprocess_v2) adding one more dimension
                 # e.g. with batch size 4, have [4, 1, 3, 640, 640] squeezed into [4, 3, 640, 640]
-                pre_processed_images_arr = torch.squeeze(pre_processed_images_arr, dim=1)
-                
+                pre_processed_images = torch.squeeze(pre_processed_images, dim=1)
+
                 # Inference
                 total_inference_metric = self.metrics_handler.get_metric('TotalInferenceTime')
-                pred = self.yolov5s(pre_processed_images_arr)[0]
+                pred = self.yolov5s(pre_processed_images)[3] # 1, 25200, 85
                 total_inference_metric.add_time_as_milliseconds(1)
-                self.metrics_handler.put_metric(total_inference_metric)  
-                
-                # Reset Input Images
-                input_images = input_images[self.model_batch_size:]
-                
+                self.metrics_handler.put_metric(total_inference_metric)
+
+                # total process time includes only preprocess and inference
                 total_process_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(total_process_metric)
-            
+
+                # Post Process
+                postprocess_metric = self.metrics_handler.get_metric('PostProcessBatchTime')
+
+                conf_thres = 0.5
+                iou_thres = 0.45
+                filtered_classes = HUMAN_CLASS
+                pred = img_utils.non_max_suppression(pred, conf_thres = conf_thres,
+                       iou_thres=iou_thres, classes=filtered_classes)
+
+                output = []
+                for det in pred:
+                    if det is not None and len(det):
+                        det[:, :4] = img_utils.scale_coords(pre_processed_images[0].shape[1:],
+                                     det[:, :4], input_images_batch[0].shape).round()
+                        output.append(det.cpu().detach().numpy())
+                        log.info("det: {}".format(det))
+                    else:
+                        output.append(np.array([]))
+
+                postprocess_metric.add_time_as_milliseconds(1)
+                self.metrics_handler.put_metric(postprocess_metric)
+
+                visualize_metric = self.metrics_handler.get_metric('VisualizeBatchTime')
+                # Draw rectangles and labels on the original image
+                for image_idx, det_results in enumerate(output):
+                    for box_idx, bbox in enumerate(det_results):
+                        bbox = bbox.tolist()
+                        coord = bbox[:4]
+                        score = bbox[4]
+                        class_id = bbox[5]
+                        img_utils.plot_one_box(coord, input_images_batch[image_idx],
+                            label="{}:{:.2f}".format(categories[int(class_id)], score))
+                visualize_metric.add_time_as_milliseconds(1)
+                self.metrics_handler.put_metric(visualize_metric)
+
+                # Reset Input Images
+                image_list = image_list[self.model_batch_size:]
+
             self.outputs.video_out.put(input_frames)
-            
+
             app_inference_state = self.metrics_handler.get_metric('ApplicationStatus')
             app_inference_state.add_value(float("1"), "None", 1)
             self.metrics_handler.put_metric(app_inference_state)
-            
+
 
 if __name__ == '__main__':
     try:
         app = ObjectDetectionApp()
         app.run()
     except Exception as err:
-        log.exception('App Did not Start {}'.format(err))
+        log.exception('App did not Start {}'.format(err))
         sys.exit(1)
