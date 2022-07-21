@@ -94,8 +94,6 @@ class ObjectDetectionApp(p.node):
 
                 preprocessing_metric = self.metrics_handler.get_metric('PreProcessBatchTime')
                 pre_processed_images = [torch.from_numpy(img_utils.preprocess_v2(image)).to(self.device).half() for image in input_images_batch]
-                preprocessing_metric.add_time_as_milliseconds(1)
-                self.metrics_handler.put_metric(preprocessing_metric)
 
                 # Create Torch Stack
                 pre_processed_images = torch.stack(pre_processed_images) # 4 (batch size) * [1 * 100 * 100] -> [4, 1, 100, 100]
@@ -103,6 +101,9 @@ class ObjectDetectionApp(p.node):
                 # the latest yolov5s preprocessing (preprocess_v2) adding one more dimension
                 # e.g. with batch size 4, have [4, 1, 3, 640, 640] squeezed into [4, 3, 640, 640]
                 pre_processed_images = torch.squeeze(pre_processed_images, dim=1)
+
+                preprocessing_metric.add_time_as_milliseconds(1)
+                self.metrics_handler.put_metric(preprocessing_metric)
 
                 # Inference
                 total_inference_metric = self.metrics_handler.get_metric('TotalInferenceTime')
@@ -129,7 +130,6 @@ class ObjectDetectionApp(p.node):
                         det[:, :4] = img_utils.scale_coords(pre_processed_images[0].shape[1:],
                                      det[:, :4], input_images_batch[0].shape).round()
                         output.append(det.cpu().detach().numpy())
-                        log.info("det: {}".format(det))
                     else:
                         output.append(np.array([]))
 

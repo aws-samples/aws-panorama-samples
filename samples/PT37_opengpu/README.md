@@ -5,7 +5,7 @@ In this guide, we show how to use a Yolov5s model with PyTorch GPU on the Panora
 
 ## Model
 
-We have yolov5s.pt (FP32) and yolov5_half.pt (FP16) models in
+We have yolov5_half.pt (FP16) model in
 
 ```
 aws-panorama-samples/samples/PT37_opengpu/yolov5s_37_app/packages/028663699634-yolov5s_37_app-1.0/src/yolov5s_model/
