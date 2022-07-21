@@ -13,16 +13,14 @@ RUN apt-key adv --fetch-key http://repo.download.nvidia.com/jetson/jetson-ota-pu
 
 ENV DEBIAN_FRONTEND noninteractive
 
-#####
-RUN apt-get -y update \
-    && apt-get -y install apt-utils \
+RUN apt-get update && apt-get -y install apt-utils \
     && apt-get install -y build-essential unzip pkg-config \
         zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev \
         libssl-dev libreadline-dev libffi-dev wget
 RUN alias python3=python3.7
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
-RUN  apt-get -y install python3.7 python3 python3.7-dev libpython3.7-dev
+RUN apt-get -y install python3.7 python3 python3.7-dev libpython3.7-dev
 
 #
 # install prerequisites - https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html#prereqs
@@ -34,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gfortran build-
 # Install Cuda, cuDNN
 #
 RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
 	cuda-libraries-$CUDAPKG \
 	cuda-nvtx-$CUDAPKG \
 	cuda-libraries-dev-$CUDAPKG \
@@ -44,9 +42,6 @@ RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
     libcudnn8 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
-
-# Install libnvinfer required for tensorrt
-RUN apt-get update && apt-get install python3-libnvinfer-dev -y
 
 #Remove static libraries to save space
 RUN rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a
@@ -95,14 +90,7 @@ RUN printenv
 #
 RUN python3.7 -m pip install --no-cache-dir setuptools Cython wheel
 RUN python3.7 -m pip install --no-cache-dir --verbose numpy==1.19.4
-#RUN python3.7 -m pip install --no-cache-dir --verbose h5py==2.10.0
-#RUN python3.7 -m pip install --no-cache-dir --verbose future==0.18.2 mock==3.0.5 h5py==2.10.0 keras_preprocessing==1.1.1 keras_applications==1.0.8 gast==0.2.2 futures protobuf pybind11
 RUN python3.7 -m pip install --no-cache-dir --verbose future==0.18.2 mock==3.0.5 keras_preprocessing==1.1.1 keras_applications==1.0.8 gast==0.2.2 futures protobuf pybind11
-
-COPY tensorrt-7.1.3.0-cp37-none-linux_aarch64.whl .
-ARG TENSORRT_WHL=tensorrt-7.1.3.0-cp37-none-linux_aarch64.whl
-RUN python3.7 -m pip install --pre --verbose ${TENSORRT_WHL} && \
-    rm ${TENSORRT_WHL}
 
 #
 # PyCUDA
@@ -115,10 +103,8 @@ RUN python3.7 -m pip install --no-cache-dir --verbose pycuda six
 #
 # Run ld config
 #
-RUN ldconfig
+RUN ldconfig && apt-get update && apt install libcudnn8-dev -y
 
-RUN apt-get update
-RUN apt install libcudnn8-dev -y
 #
 # setup environment for opencv
 #
@@ -133,18 +119,17 @@ WORKDIR /opt
 #
 ARG OPENCV_VERSION="4.4.0"
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
-	   gfortran \
+	    gfortran \
         cmake \
         git \
-	   file \
-	   tar \
-	   python3-pip \
-	   python3-dev \
-	   python3-distutils \
-	   python3-setuptools \
+	    file \
+	    tar \
+	    python3-pip \
+	    python3-dev \
+	    python3-distutils \
+	    python3-setuptools \
         libatlas-base-dev \
         libavcodec-dev \
         libavformat-dev \
@@ -174,8 +159,8 @@ RUN apt-get update && \
         libxine2-dev \
         libxvidcore-dev \
         libx264-dev \
-	   libgtkglext1 \
-	   libgtkglext1-dev \
+	    libgtkglext1 \
+	    libgtkglext1-dev \
         pkg-config \
         qv4l2 \
         v4l-utils \
@@ -194,10 +179,10 @@ RUN git clone --depth 1 --branch ${OPENCV_VERSION} https://github.com/opencv/ope
     cd build && \
     cmake \
         -D CPACK_BINARY_DEB=ON \
-	   -D BUILD_EXAMPLES=OFF \
+	    -D BUILD_EXAMPLES=OFF \
         -D BUILD_opencv_python2=OFF \
         -D BUILD_opencv_python3=ON \
-	   -D BUILD_opencv_java=OFF \
+	    -D BUILD_opencv_java=OFF \
         -D CMAKE_BUILD_TYPE=RELEASE \
         -D CMAKE_INSTALL_PREFIX=/usr/local \
         -D CUDA_ARCH_BIN=5.3,6.2,7.2 \
@@ -205,7 +190,7 @@ RUN git clone --depth 1 --branch ${OPENCV_VERSION} https://github.com/opencv/ope
         -D CUDA_FAST_MATH=ON \
         -D CUDNN_INCLUDE_DIR=/usr/include/aarch64-linux-gnu \
         -D EIGEN_INCLUDE_PATH=/usr/include/eigen3 \
-	   -D WITH_EIGEN=ON \
+	    -D WITH_EIGEN=ON \
         -D ENABLE_NEON=ON \
         -D OPENCV_DNN_CUDA=ON \
         -D OPENCV_ENABLE_NONFREE=ON \
@@ -217,13 +202,13 @@ RUN git clone --depth 1 --branch ${OPENCV_VERSION} https://github.com/opencv/ope
         -D WITH_GSTREAMER=ON \
         -D WITH_LIBV4L=ON \
         -D WITH_OPENGL=ON \
-	   -D WITH_OPENCL=OFF \
-	   -D WITH_IPP=OFF \
+	    -D WITH_OPENCL=OFF \
+	    -D WITH_IPP=OFF \
         -D WITH_TBB=ON \
-	   -D BUILD_TIFF=ON \
-	   -D BUILD_PERF_TESTS=OFF \
-	   -D BUILD_TESTS=OFF \
-	   ../
+	    -D BUILD_TIFF=ON \
+	    -D BUILD_PERF_TESTS=OFF \
+	    -D BUILD_TESTS=OFF \
+	    ../
 
 RUN cd opencv/build && make -j$(nproc)
 RUN cd opencv/build && make install
@@ -240,22 +225,22 @@ ENV DEBIAN_FRONTEND=noninteractive
 #
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-            python3-pip \
-          python3-dev \
-          libopenblas-dev \
-          libopenmpi2 \
-            openmpi-bin \
-            openmpi-common \
-          gfortran \
-          libomp-dev \
+        python3-pip \
+        python3-dev \
+        libopenblas-dev \
+        libopenmpi2 \
+        openmpi-bin \
+        openmpi-common \
+        gfortran \
+        libomp-dev \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 RUN python3.7 -m pip install --no-cache-dir setuptools Cython wheel
 
-COPY torch-1.10.0-cp37-cp37m-linux_aarch64.whl .
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torch-1.10.0-cp37-cp37m-linux_aarch64.whl
 ARG PYTORCH_WHL=torch-1.10.0-cp37-cp37m-linux_aarch64.whl
-RUN  python3.7 -m pip install --no-cache-dir --verbose ${PYTORCH_WHL} && \
+RUN python3.7 -m pip install --no-cache-dir --verbose ${PYTORCH_WHL} && \
     rm ${PYTORCH_WHL}
 
 #
@@ -268,10 +253,10 @@ ARG TORCH_CUDA_ARCH_LIST="5.3;6.2;7.2"
 RUN printenv && echo "torchvision version = $TORCHVISION_VERSION" && echo "pillow version = $PILLOW_VERSION" && echo "TORCH_CUDA_ARCH_LIST = $TORCH_CUDA_ARCH_LIST"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-          git \
-          build-essential \
-            libjpeg-dev \
-          zlib1g-dev \
+        git \
+        build-essential \
+        libjpeg-dev \
+        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 RUN git clone -b ${TORCHVISION_VERSION} https://github.com/pytorch/vision torchvision
@@ -285,10 +270,10 @@ RUN cd torchvision && \
 # pip3 install --no-cache-dir "${PILLOW_VERSION}"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-          software-properties-common \
-          apt-transport-https \
-          ca-certificates \
-          gnupg \
+        software-properties-common \
+        apt-transport-https \
+        ca-certificates \
+        gnupg \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -301,7 +286,7 @@ RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
     echo "contents of ${TORCH_CMAKE_CONFIG} after patching..." && \
     cat ${TORCH_CMAKE_CONFIG}
 
-#Required to run to create the Python_egg cache. May get a numpy initialization warning. 
+#Required to run to create the Python_egg cache, since panorama is a read-only container. May get a numpy initialization warning.
 #RUN python3.7 -c "import torch; import torchvision"
 
 RUN python3.7 -m pip install -U matplotlib && \ 
@@ -309,14 +294,8 @@ RUN python3.7 -m pip install -U matplotlib && \
 
 RUN pip3 install --upgrade numpy
 
-#Required to run to create the Python_egg cache, since panorama is a read-only container. 
-# RUN python3.7 -c "import torch; import torchvision"
-
 ARG PYTHON_EGG_CACHE="/panorama/.cache"
 RUN python3.7 -c "import torch; \
 import site; \
 site.addsitedir('/usr/lib/python3.7/site-packages/'); \
 import torchvision"
-
-# RUN mkdir -p /tmp
-# RUN ln -s /tmp /panorama
