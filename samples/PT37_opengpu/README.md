@@ -5,12 +5,7 @@ In this guide, we show how to use a Yolov5s model with PyTorch GPU on the Panora
 
 ## Model
 
-We have already included the yolov5s.pt model in 
-```
-./dependencies/model
-```
-
-Copy this model to 
+We have yolov5s.pt (FP32) and yolov5_half.pt (FP16) models in
 
 ```
 aws-panorama-samples/samples/PT37_opengpu/yolov5s_37_app/packages/028663699634-yolov5s_37_app-1.0/src/yolov5s_model/
@@ -36,12 +31,11 @@ Training Custom Model : [Refer to this link](https://github.com/ultralytics/yolo
 The dependencies folder included with this application has 
 
 * The Dockerfile
-* TensorRT 7.1
 * Cuda Enabled PyTorch for Jetson Xavier
 
 ## Steps for setting this up
 
-* Step 1: Navigate to ./dependencies
+* Step 1: Navigate to ./dependencies/docker
 * Step 2 : ``` sudo docker build -t pt:37 . ```
 * Step 3 : Open pytorch_example.ipynb and make sure you configure the following
     * The Device ID
@@ -54,7 +48,7 @@ The dependencies folder included with this application has
 * Step 2 : Add the following flags to the package.json
 
 ```
-"requirements": 
+            "requirements":
             [{
                     "type" : "hardware_access",
                     "inferenceAccelerators": [ 
@@ -73,13 +67,13 @@ The assets should look something like this
 ```
 "assets": [
     {
-        "name": "yolov5s_37_2_app",
+        "name": "yolov5s_pt37_app_asset",
         "implementations": [
             {
                 "type": "container",
                 "assetUri": "9a49a98784f4571adacc417f00942dac7ef2e34686eef21dca9fcb7f4b7ffd70.tar.gz",
                 "descriptorUri": "4bab130ec48eea84e072d9fe813b947e9d9610b2924099036b0165026a91d306.json",
-                "requirements": 
+                "requirements":
                 [{
                     "type" : "hardware_access",
                     "inferenceAccelerators": [ 
