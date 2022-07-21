@@ -38,6 +38,10 @@
                     {
                         "name": "video_in",
                         "type": "media"
+                    },
+                    {
+                        "name": "model_batch_size",
+                        "type": "int32"
                     }
                 ],
                 "outputs": [

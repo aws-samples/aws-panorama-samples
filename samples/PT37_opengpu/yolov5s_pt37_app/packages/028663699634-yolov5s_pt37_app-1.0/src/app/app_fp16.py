@@ -28,11 +28,10 @@ log.info('Logging and Imports Done')
 class ObjectDetectionApp(p.node):
 
     def __init__(self):
-        self.model_batch_size = int(self.inputs.batch_size.get()) or 1
+        self.model_batch_size = int(self.inputs.model_batch_size.get()) or 1
         self.pre_processing_output_size = 640
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.yolov5s = torch.jit.load('/panorama/yolov5s_model/yolov5s_half.pt', map_location=torch.device(self.device))
-        self.line_thickness = 3
         
         # Note: These are CW dimensions. Change as necessary
         dimensions = list()
@@ -81,7 +80,7 @@ class ObjectDetectionApp(p.node):
                 
                 # Create Torch Arrays from Preprocessed Images
                 preprocessing_metric = self.metrics_handler.get_metric('PreProcessBatchTime')
-                pre_processed_images = [torch.from_numpy(img_utils.preprocess_v1(image)).to(self.device).half() for image in input_images_batch]
+                pre_processed_images = [torch.from_numpy(img_utils.preprocess_v2(image)).to(self.device).half() for image in input_images_batch]
                 preprocessing_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(preprocessing_metric)
 
@@ -90,7 +89,7 @@ class ObjectDetectionApp(p.node):
                 
                 # the latest yolov5s preprocessing (preprocess_v2) adding one more dimension
                 # e.g. with batch size 4, have [4, 1, 3, 640, 640] squeezed into [4, 3, 640, 640]
-                # pre_processed_images_arr = torch.squeeze(pre_processed_images_arr, dim=1)
+                pre_processed_images_arr = torch.squeeze(pre_processed_images_arr, dim=1)
                 
                 # Inference
                 total_inference_metric = self.metrics_handler.get_metric('TotalInferenceTime')

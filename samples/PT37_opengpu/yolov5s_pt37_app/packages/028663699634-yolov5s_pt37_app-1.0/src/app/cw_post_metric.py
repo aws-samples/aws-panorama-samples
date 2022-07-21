@@ -25,7 +25,7 @@ class PostMetricProcess(Process):
         self.namespace = namespace
         #self.q = q
         self.metrics_buffer = list()
-        self.cw_client = boto3.client('cloudwatch', region_name='ap-southeast-2')
+        self.cw_client = boto3.client('cloudwatch', region_name='us-west-2')
         self.fifoName = fifoName
 
 
