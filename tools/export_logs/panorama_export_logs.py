@@ -128,43 +128,51 @@ def exportSingleLogGroup( log_group, local_dirname ):
 def convertToPlainTextAndNormalize( src_dirname, dst_dirname ):
 
     for place, dirs, files in os.walk( src_dirname ):
+
+        line_group_list = []
+
+        # read all .gz files under a single log stream
         for filename in files:
             if filename.endswith(".gz"):
-                
+
                 src_filepath = os.path.join( place, filename )
 
                 assert src_filepath.startswith( src_dirname )
-                dst_filepath = os.path.join( dst_dirname, src_filepath[len(src_dirname):].lstrip("/\\") )
-                dst_filepath = os.path.splitext(dst_filepath)[0] + ".log"
                 
-                print( "Converting to plain text :", dst_filepath )
+                print( "Reading :", src_filepath )
                 
                 with gzip.open( src_filepath ) as fd_gz:
                     d = fd_gz.read()
                 
-                # Sort
                 lines = d.splitlines()
-                line_group_list = []
                 for line in lines:
-                    # 2022-06-24T16:50:57.033Z
+                    # format: 2022-06-24T16:50:57.033Z
                     re_result = re.match( rb"[0-9]{4}\-[0-9]{2}\-[0-9]{2}T[0-9]{2}\:[0-9]{2}\:[0-9]{2}\.[0-9]{3}Z .*", line )
                     if re_result is not None:
                         line_group_list.append( [ line ] )
                     else:
                         assert len(line)==0 or line.startswith(b"\t"), str([ line ])
                         line_group_list[-1].append(line)
-                line_group_list.sort()
-                lines = []
-                for line_group in line_group_list:
-                    lines += line_group
-                d = b"\n".join(lines)               
-                
-                # Normalize                
-                d = d.replace( b"\0", b"\\0" )
-                
-                os.makedirs( os.path.split(dst_filepath)[0], exist_ok=True )
-                with open( dst_filepath, "wb" ) as fd_log:
-                    fd_log.write(d)
+
+        # sort lines and write a log file at log stream level
+        if line_group_list:
+            
+            dst_filepath = os.path.join( dst_dirname, place[len(src_dirname):].lstrip("/\\") + ".log" )
+
+            print( "Writing", dst_filepath )
+
+            line_group_list.sort()
+            lines = []
+            for line_group in line_group_list:
+                lines += line_group
+            d = b"\n".join(lines)               
+            
+            # Normalize                
+            d = d.replace( b"\0", b"\\0" )
+            
+            os.makedirs( os.path.split(dst_filepath)[0], exist_ok=True )
+            with open( dst_filepath, "wb" ) as fd_log:
+                fd_log.write(d)
 
 
 def createAccountInfoFile( dirname ):
