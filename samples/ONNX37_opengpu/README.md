@@ -100,12 +100,9 @@ The assets should look something like this
     
 
 ## graph.json
-By default we do not include hmdi pacakge and disable the edge connection between the app and hdmi node in graph.json. And thus the app will not output any visualization on screen. (The purpose is just showcasing the purpose of the edge.)
+By default we do not include hmdi pacakge and disable the edge connection between the app and hdmi node in graph.json. And thus the app will not output any visualization on screen.
 
-If one want to show the visualization on hdmi, please add:
-- the app->hdmi edge in graph.json
-- include hdmi package and hdmi node in graph.json
-- A good example will be looking at PT37_OpenGPU App.
+If one want to show the visualization on hdmi, please use graph_with_hdmi.json instead of graph.json
 
 # Debugging
 

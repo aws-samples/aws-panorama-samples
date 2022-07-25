@@ -39,7 +39,6 @@ categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "trai
             "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
             "hair drier", "toothbrush"]
 
-HUMAN_CLASS  = categories.index("person")
 class MockedFrame:
     __slots__ = ["image", "resolution"]  # <-- allowed attributes
 
@@ -163,7 +162,7 @@ class ObjectDetectionApp(p.node):
                 
                 # Post Process
                     
-                prediction = self.postprocess(filtered_classes=[HUMAN_CLASS])
+                prediction = self.postprocess()
 
                 # uncomment the below section to draw the bounding box, drawing takes time and slow.
                 visualize_metric = self.metrics_handler.get_metric('VisualizeBatchTime')
@@ -179,6 +178,7 @@ class ObjectDetectionApp(p.node):
                 self.metrics_handler.put_metric(visualize_metric)
                 
                 input_images = list()
+                self.outputs.video_out.put(input_frames)
             
             app_inference_state = self.metrics_handler.get_metric('ApplicationStatus')
             app_inference_state.add_value(float("1"), "None", 1)
