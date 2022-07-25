@@ -7,6 +7,8 @@ import argparse
 import tempfile
 import shutil
 import gzip
+import json
+
 import boto3
         
 argparser = argparse.ArgumentParser( description='Export Panorama device level / application level logs in a Zip file' )
@@ -163,7 +165,24 @@ def convertToPlainTextAndNormalize( src_dirname, dst_dirname ):
                 os.makedirs( os.path.split(dst_filepath)[0], exist_ok=True )
                 with open( dst_filepath, "wb" ) as fd_log:
                     fd_log.write(d)
-    
+
+
+def createAccountInfoFile( dirname ):
+
+    sts = boto3.client( "sts", region_name = args.region )
+
+    account_id = sts.get_caller_identity()["Account"]
+    region_name = sts.meta.region_name
+
+    filename = os.path.join( dirname, "info.json" )
+    with open( filename, "w" ) as fd:
+        d = {
+            "account_id" : account_id,
+            "region_name" : region_name,
+        }
+
+        fd.write( json.dumps(d) )
+
 
 def createZipFile( dirname_to_zip, zip_filename_wo_ext ):
 
@@ -187,8 +206,11 @@ def exportLogsAndCreateZip():
         
             # convert to plain text, sort, and normalize
             convertToPlainTextAndNormalize( export_dir, plaintext_dir )
+
+            # create account info file
+            createAccountInfoFile( plaintext_dir )
             
-            # create a Zip file from plain text files        
+            # create a Zip file from plain text files
             createZipFile( plaintext_dir, "./panorama_exported_logs_%s" % utcnow.strftime("%Y%m%d_%H%M%S") )
             
 

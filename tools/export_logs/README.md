@@ -8,6 +8,7 @@
 * By specifying device-id and application-instance-id, the tool automatically identifies log groups and log streams to download. (application-instance-id is optional if application level logs are not needed.)
 * You can specify a date-time range (in UTC) to export, and export logs of multiple days quickly.
 * It creates a Zip file (e.g. "panorama_exported_logs_20220720_145056.zip") at your current working directory. It contains all the log streams based on the device-id and application-instance-id you specified.
+* The tool creates "info.json" file in the Zip file, which contains account id and region name, for easer issue reporting.
 
 
 ## How to use
