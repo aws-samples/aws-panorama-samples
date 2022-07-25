@@ -161,7 +161,8 @@ class ObjectDetectionApp(p.node):
                 self.metrics_handler.put_metric(total_process_metric)
                 
                 # Post Process
-                    
+                # you can filter the prediction by class before nms. 
+                # ex: prediction = self.postprocess(['person']) 
                 prediction = self.postprocess()
 
                 # uncomment the below section to draw the bounding box, drawing takes time and slow.
