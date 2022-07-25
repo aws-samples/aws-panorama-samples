@@ -32,7 +32,6 @@ categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "trai
             "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
             "hair drier", "toothbrush"]
 
-HUMAN_CLASS  = categories.index("person")
 
 class ObjectDetectionApp(p.node):
 
@@ -120,7 +119,9 @@ class ObjectDetectionApp(p.node):
 
                     # memcp from device to host memory, and nms + postprocessing.
                     postprocess_metric = self.metrics_handler.get_metric('PostProcessBatchTime')
-                    prediction = self.yolov5_wrapper.post_process_batch(filtered_classes=[HUMAN_CLASS])
+                    # you can filter the prediction by class before nms. 
+                    # ex: prediction = self.yolov5_wrapper.post_process_batch(filtered_classes=['person'])
+                    prediction = self.yolov5_wrapper.post_process_batch() 
                     postprocess_metric.add_time_as_milliseconds(1)
 
                     visualize_metric = self.metrics_handler.get_metric('VisualizeBatchTime')
