@@ -70,6 +70,9 @@ class ObjectDetectionApp(p.node):
         self.output_name = self.onnx.get_outputs()[0].name
         log.info('Model Loaded')
         self.stride = 32
+        self.filtered_classes = None # classes you want to detect. None as disable filter.
+        # This will filter out other classes before nms.
+        # ex: self.filtered_classes = [ categories.index("person") ]
         
         # Note: These are CW dimensions. Change as necessary
         dimensions = list()
@@ -125,11 +128,11 @@ class ObjectDetectionApp(p.node):
         return input_frames
 
     @metric_latency_decorator(metric_name='PostProcessBatchTime')
-    def postprocess(self, filtered_classes = None, conf_thres=0.5, iou_thres=0.45):
+    def postprocess(self, conf_thres=0.5, iou_thres=0.45):
         pred = self.io_binding.copy_outputs_to_cpu()[0]
         pred = torch.from_numpy(pred)
         pred = utils.non_max_suppression(pred, conf_thres = conf_thres, 
-            iou_thres=iou_thres, classes=filtered_classes)
+            iou_thres=iou_thres, classes=self.filtered_classes)
         
         output = []
         for det in pred:
@@ -160,11 +163,7 @@ class ObjectDetectionApp(p.node):
                 total_process_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(total_process_metric)
                 
-                # Post Process
-                # you can filter the prediction by a list of class_idx before nms. 
-                # we recommend to do this in the begining of this file. Don't put categories.index inside while loop.
-                # ex: filtered_classes = [ categories.index("person") ]
-                # ex: prediction = self.postprocess(filtered_classes) 
+                # Post Process, nms
                 prediction = self.postprocess()
 
                 # uncomment the below section to draw the bounding box, drawing takes time and slow.
