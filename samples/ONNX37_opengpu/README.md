@@ -102,7 +102,7 @@ The assets should look something like this
 ## graph.json
 By default we do not include hmdi pacakge and disable the edge connection between the app and hdmi node in graph.json. And thus the app will not output any visualization on screen.
 
-If one want to show the visualization on hdmi, please use graph_with_hdmi.json instead of graph.json
+If one want to show the visualization on hdmi, please use graph_with_hdmi.json instead of graph.json. Just replace graph.json with graph_with_hdmi.json 
 
 # Debugging
 
