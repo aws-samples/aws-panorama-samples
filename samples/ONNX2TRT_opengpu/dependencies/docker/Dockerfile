@@ -134,45 +134,61 @@ RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/
     && rm ${TORCH_WHL}
     
 
-RUN apt-get update && apt-get install -y libglib2.0-0
+RUN apt-get update -y && apt-get install -y libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 RUN python3.6 -m pip install --no-cache-dir opencv-python
 
 # TesnorRT
-RUN apt-get update -y && apt-get install libopenblas-base libopenmpi-dev python3-libnvinfer-dev -y
+RUN apt-get update -y \
+    && apt-get install libopenblas-base libopenmpi-dev python3-libnvinfer-dev -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-#
-# torchvision 0.10.0
-#
-ARG FORCE_CUDA=1
-ARG TORCHVISION_VERSION=v0.10.0
+######################
+# torchvision 0.10.0 #
+######################
+# There are two ways to install it. Either install if from source or install the 
+# prebuilt whl we provide.
+
 ARG PILLOW_VERSION=pillow<9.0.1
-ARG TORCH_CUDA_ARCH_LIST="5.3;6.2;7.2"
-RUN printenv && echo "torchvision version = $TORCHVISION_VERSION" && echo "pillow version = $PILLOW_VERSION" && echo "TORCH_CUDA_ARCH_LIST = $TORCH_CUDA_ARCH_LIST"
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-          git \
-          build-essential \
-            libjpeg-dev \
-          zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-RUN git clone -b ${TORCHVISION_VERSION} https://github.com/pytorch/vision torchvision
-RUN python3.6 -m pip install "${PILLOW_VERSION}"
-RUN cd torchvision && \
-    python3.6 setup.py install && \
-    cd ../  && \
-    rm -rf torchvision
-# note:  this was used on older torchvision versions (~0.4) to workaround a bug,
-#        but has since started causing another bug as of torchvision 0.11.1
-# pip3 install --no-cache-dir "${PILLOW_VERSION}"
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-          software-properties-common \
-          apt-transport-https \
-          ca-certificates \
-          gnupg \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+RUN python3.6 -m pip install --no-cache-dir "${PILLOW_VERSION}"
+
+# # Install from source:
+# ARG FORCE_CUDA=1
+# ARG TORCHVISION_VERSION=v0.10.0
+# ARG TORCH_CUDA_ARCH_LIST="5.3;6.2;7.2"
+# RUN printenv && echo "torchvision version = $TORCHVISION_VERSION" && echo "pillow version = $PILLOW_VERSION" && echo "TORCH_CUDA_ARCH_LIST = $TORCH_CUDA_ARCH_LIST"
+# RUN apt-get update && \
+#     apt-get install -y --no-install-recommends \
+#           git \
+#           build-essential \
+#             libjpeg-dev \
+#           zlib1g-dev \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && apt-get clean
+# RUN git clone -b ${TORCHVISION_VERSION} https://github.com/pytorch/vision torchvision
+# RUN cd torchvision && \
+#     python3.6 setup.py install && \
+#     cd ../  && \
+#     rm -rf torchvision
+
+# # Install from whl
+ARG TORCHVISION_WHL=torchvision-0.10.0a0+300a8a4-cp36-cp36m-linux_aarch64.whl
+COPY ${TORCHVISION_WHL} .
+RUN python3.6 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
+
+# # note:  this was used on older torchvision versions (~0.4) to workaround a bug,
+# #       but has since started causing another bug as of torchvision 0.11.1
+# RUN apt-get update && \
+#     apt-get install -y --no-install-recommends \
+#           software-properties-common \
+#           apt-transport-https \
+#           ca-certificates \
+#           gnupg \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && apt-get clean
 
 # patch for https://github.com/pytorch/pytorch/issues/45323
 ARG TORCH_CMAKE_CONFIG=/usr/local/lib/python3.6/dist-packages/torch/share/cmake/Torch/TorchConfig.cmake
@@ -183,18 +199,12 @@ RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
     echo "contents of ${TORCH_CMAKE_CONFIG} after patching..." && \
     cat ${TORCH_CMAKE_CONFIG}
 
-# RUN python3.6 -m pip install -U matplotlib pyyaml scipy tqdm pandas requests seaborn
 
 ARG PYTHON_EGG_CACHE="/panorama/.cache"
 RUN python3.6 -c "import torch; import torchvision"
 
-RUN mkdir -p /tmp/test
-RUN mkdir -p /panorama/test
-RUN ln -s /tmp/test /panorama/test
-RUN mkdir -p /panorama/storage-test
-RUN ln -s /panorama/storage-test /opt/aws/panorama/storage/test
-
-# Originally 7.89 GB -> w/o 186 is 7.63GB
-# Originally 7.89 GB -> w/o torchvision and w/o 186 7.14GB
-
-# Things to improve: try to make sure how to minimize docker
+RUN mkdir -p /tmp/test && \
+    mkdir -p /panorama/test && \
+    ln -s /tmp/test /panorama/test && \ 
+    mkdir -p /panorama/storage-test && \
+    ln -s /panorama/storage-test /opt/aws/panorama/storage/test
