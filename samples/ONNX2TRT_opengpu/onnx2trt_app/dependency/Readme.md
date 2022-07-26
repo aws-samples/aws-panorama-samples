@@ -11,3 +11,7 @@ python export_onnx.py --weights yolov5s.pt --target_trt_version <your target ten
 ```
 
 Currently it will export yolov5.pt r6.1 to ONNX.
+
+*Note:*
+- The export_onnx.py is tested in G4dn with Cuda 10.02 installed.
+- Exporting onnx alone does not depends on Cuda and TensorRT. As long as one can install the requirements.txt provided in ultralytics/yolov5 repo, one should be able to finish the export_onnx.py with no issue.
