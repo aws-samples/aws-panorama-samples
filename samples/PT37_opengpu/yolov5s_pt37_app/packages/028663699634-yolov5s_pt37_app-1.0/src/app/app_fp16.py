@@ -47,7 +47,9 @@ class ObjectDetectionApp(p.node):
         # NMS: set the threshold and filtered class
         self.conf_thres = 0.5
         self.iou_thres = 0.45
-        # you can filter the prediction by class before nms.
+
+        # classes you want to detect. None as disable filter.
+        # this will filter out other classes before nms.
         # ex: filtered_classes = categories.index("person")
         self.filtered_classes = None
 
@@ -107,8 +109,8 @@ class ObjectDetectionApp(p.node):
                 # e.g. with batch size 4, have [4, 1, 3, 640, 640] squeezed into [4, 3, 640, 640]
                 pre_processed_images = torch.squeeze(pre_processed_images, dim=1)
 
-                # PyTorch CUDA is asynchronous.
-                # For time measurement, call synchronize() to wait for the prior GPU operation's completion.
+                # PyTorch CUDA is asynchronous: call synchronize() to wait for the prior GPU operation's completion.
+                # This can be disabled if no need to do time measurement.
                 torch.cuda.synchronize()
                 preprocessing_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(preprocessing_metric)
@@ -117,8 +119,8 @@ class ObjectDetectionApp(p.node):
                 total_inference_metric = self.metrics_handler.get_metric('TotalInferenceTime')
                 pred = self.yolov5s(pre_processed_images)[3] # 1, 25200, 85
 
-                # PyTorch CUDA is asynchronous.
-                # For time measurement, call synchronize() to wait for the prior GPU operation's completion.
+                # PyTorch CUDA is asynchronous: call synchronize() to wait for the prior GPU operation's completion.
+                # This can be disabled if no need to do time measurement.
                 torch.cuda.synchronize()
                 total_inference_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(total_inference_metric)
@@ -142,8 +144,8 @@ class ObjectDetectionApp(p.node):
                     else:
                         scaled_pred.append(np.array([]))
 
-                # PyTorch CUDA is asynchronous.
-                # For time measurement, call synchronize() to wait for the prior GPU operation's completion.
+                # PyTorch CUDA is asynchronous: call synchronize() to wait for the prior GPU operation's completion.
+                # This can be disabled if no need to do time measurement.
                 torch.cuda.synchronize()
                 postprocess_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(postprocess_metric)
