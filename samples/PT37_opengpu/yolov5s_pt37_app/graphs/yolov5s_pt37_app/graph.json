@@ -42,7 +42,11 @@
                 "name": "model_batch_size",
                 "value": 1,
                 "interface": "int32",
-                "overridable": true
+                "overridable": true,
+                "decorator": {
+                    "title": "Batch size",
+                    "description": "The batch size for model inference. Batch size 8 for Jetson Xavier AGX; batch size 2 for Jetson Xavier NX module."
+                }
             }
         ],
         "edges": [
