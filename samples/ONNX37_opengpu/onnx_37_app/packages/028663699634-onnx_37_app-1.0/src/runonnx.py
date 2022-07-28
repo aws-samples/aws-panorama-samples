@@ -38,6 +38,7 @@ categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "trai
             "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
             "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
             "hair drier", "toothbrush"]
+
 class MockedFrame:
     __slots__ = ["image", "resolution"]  # <-- allowed attributes
 
@@ -69,6 +70,9 @@ class ObjectDetectionApp(p.node):
         self.output_name = self.onnx.get_outputs()[0].name
         log.info('Model Loaded')
         self.stride = 32
+        self.filtered_classes = None # classes you want to detect. None as disable filter.
+        # This will filter out other classes before nms.
+        # ex: self.filtered_classes = [ categories.index("person") ]
         
         # Note: These are CW dimensions. Change as necessary
         dimensions = list()
@@ -124,10 +128,11 @@ class ObjectDetectionApp(p.node):
         return input_frames
 
     @metric_latency_decorator(metric_name='PostProcessBatchTime')
-    def postprocess(self):
+    def postprocess(self, conf_thres=0.5, iou_thres=0.45):
         pred = self.io_binding.copy_outputs_to_cpu()[0]
         pred = torch.from_numpy(pred)
-        pred = utils.non_max_suppression(pred)
+        pred = utils.non_max_suppression(pred, conf_thres = conf_thres, 
+            iou_thres=iou_thres, classes=self.filtered_classes)
         
         output = []
         for det in pred:
@@ -158,26 +163,24 @@ class ObjectDetectionApp(p.node):
                 total_process_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(total_process_metric)
                 
-                # Post Process
-                try:
-                    
-                    prediction = self.postprocess()
+                # Post Process, nms
+                prediction = self.postprocess()
 
-                    # uncomment the below section to draw the bounding box, drawing takes time and slow.
-                    # for image_idx, det_results in enumerate(prediction):
-                    #     for box_idx, bbox in enumerate(det_results):
-                    #         bbox = bbox.tolist()
-                    #         coord = bbox[:4]
-                    #         score = bbox[4]
-                    #         class_id = bbox[5]
-                    #         utils.plot_one_box(coord, self.org_image_list[image_idx],
-                    #             label="{}:{:.2f}".format(categories[int(class_id)], score))
-
-                except Exception as e:
-                    log.exception('Exception from Try is {}'.format(e))
-                    pass
+                # uncomment the below section to draw the bounding box, drawing takes time and slow.
+                visualize_metric = self.metrics_handler.get_metric('VisualizeBatchTime')
+                for image_idx, det_results in enumerate(prediction):
+                    for box_idx, bbox in enumerate(det_results):
+                        bbox = bbox.tolist()
+                        coord = bbox[:4]
+                        score = bbox[4]
+                        class_id = bbox[5]
+                        utils.plot_one_box(coord, self.org_image_list[image_idx],
+                            label="{}:{:.2f}".format(categories[int(class_id)], score))
+                visualize_metric.add_time_as_milliseconds(1)
+                self.metrics_handler.put_metric(visualize_metric)
                 
                 input_images = list()
+                self.outputs.video_out.put(input_frames)
             
             app_inference_state = self.metrics_handler.get_metric('ApplicationStatus')
             app_inference_state.add_value(float("1"), "None", 1)
