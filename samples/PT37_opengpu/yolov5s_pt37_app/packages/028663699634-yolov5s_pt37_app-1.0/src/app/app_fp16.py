@@ -35,8 +35,6 @@ categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "trai
             "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
             "hair drier", "toothbrush"]
 
-HUMAN_CLASS  = categories.index("person")
-
 class ObjectDetectionApp(p.node):
 
     def __init__(self):
@@ -45,6 +43,15 @@ class ObjectDetectionApp(p.node):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.yolov5s = torch.jit.load('/panorama/yolov5s_model/yolov5s_half.pt', map_location=torch.device(self.device))
         self.num_classes = 80
+
+        # NMS: set the threshold and filtered class
+        self.conf_thres = 0.5
+        self.iou_thres = 0.45
+
+        # classes you want to detect. None as disable filter.
+        # this will filter out other classes before nms.
+        # ex: filtered_classes = categories.index("person")
+        self.filtered_classes = None
 
         # Note: These are CW dimensions. Change as necessary
         dimensions = list()
@@ -102,12 +109,19 @@ class ObjectDetectionApp(p.node):
                 # e.g. with batch size 4, have [4, 1, 3, 640, 640] squeezed into [4, 3, 640, 640]
                 pre_processed_images = torch.squeeze(pre_processed_images, dim=1)
 
+                # PyTorch CUDA is asynchronous: call synchronize() to wait for the prior GPU operation's completion.
+                # This can be disabled if no need to do time measurement.
+                torch.cuda.synchronize()
                 preprocessing_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(preprocessing_metric)
 
                 # Inference
                 total_inference_metric = self.metrics_handler.get_metric('TotalInferenceTime')
                 pred = self.yolov5s(pre_processed_images)[3] # 1, 25200, 85
+
+                # PyTorch CUDA is asynchronous: call synchronize() to wait for the prior GPU operation's completion.
+                # This can be disabled if no need to do time measurement.
+                torch.cuda.synchronize()
                 total_inference_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(total_inference_metric)
 
@@ -118,27 +132,27 @@ class ObjectDetectionApp(p.node):
                 # Post Process
                 postprocess_metric = self.metrics_handler.get_metric('PostProcessBatchTime')
 
-                conf_thres = 0.5
-                iou_thres = 0.45
-                filtered_classes = HUMAN_CLASS
-                pred = img_utils.non_max_suppression(pred, conf_thres = conf_thres,
-                       iou_thres=iou_thres, classes=filtered_classes)
+                pred = img_utils.non_max_suppression(pred, conf_thres = self.conf_thres,
+                       iou_thres=self.iou_thres, classes=self.filtered_classes)
 
-                output = []
+                scaled_pred = []
                 for det in pred:
                     if det is not None and len(det):
                         det[:, :4] = img_utils.scale_coords(pre_processed_images[0].shape[1:],
                                      det[:, :4], input_images_batch[0].shape).round()
-                        output.append(det.cpu().detach().numpy())
+                        scaled_pred.append(det.cpu().detach().numpy())
                     else:
-                        output.append(np.array([]))
+                        scaled_pred.append(np.array([]))
 
+                # PyTorch CUDA is asynchronous: call synchronize() to wait for the prior GPU operation's completion.
+                # This can be disabled if no need to do time measurement.
+                torch.cuda.synchronize()
                 postprocess_metric.add_time_as_milliseconds(1)
                 self.metrics_handler.put_metric(postprocess_metric)
 
                 visualize_metric = self.metrics_handler.get_metric('VisualizeBatchTime')
                 # Draw rectangles and labels on the original image
-                for image_idx, det_results in enumerate(output):
+                for image_idx, det_results in enumerate(scaled_pred):
                     for box_idx, bbox in enumerate(det_results):
                         bbox = bbox.tolist()
                         coord = bbox[:4]
