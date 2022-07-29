@@ -36,3 +36,5 @@ sudo python3.7 -m pip install jupyterlab # failes with pexpect uninstall
 ./install-videos.sh
 
 ./create-opt-aws-panorama.sh
+
+echo "INSTALLATION COMPLETE" > ~/INSTALLATION_COMPLETE.txt

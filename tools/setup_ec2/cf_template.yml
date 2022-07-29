@@ -62,8 +62,6 @@ Resources:
             sudo su - ubuntu -c "cd && git clone https://github.com/aws-samples/aws-panorama-samples.git"
             sudo su - ubuntu -c "cd aws-panorama-samples && git checkout ec2_setup_improvement"
             sudo su - ubuntu -c "cd aws-panorama-samples/tools/setup_ec2 && ./setup-ec2.sh"
-
-            echo "INSTALLATION COMPLETE" > $HOME/INSTALLATION_COMPLETE.txt
                 
   ec2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
