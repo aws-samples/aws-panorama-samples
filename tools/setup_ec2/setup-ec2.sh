@@ -14,7 +14,7 @@ sudo apt install python3-pip -y
 sudo python3.7 -m pip install pip --upgrade
 
 # uninstall old version of expect which is not compatible with python3.7
-sudo apt-get remove python-pexpect python3-pexpect
+sudo apt-get remove python-pexpect python3-pexpect -y
 
 sudo python3.7 -m pip install boto3
 sudo python3.7 -m pip install awscli

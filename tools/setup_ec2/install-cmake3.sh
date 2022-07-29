@@ -11,5 +11,6 @@ cd cmake-3.22.2
 make
 sudo make install
 
+cd ..
 rm -rf cmake-3.22.2
 rm cmake-3.22.2.tar.gz
