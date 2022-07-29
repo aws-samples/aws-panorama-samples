@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 # See : https://neo-ai-dlr.readthedocs.io/en/latest/install.html#building-for-cpu
 
@@ -13,3 +13,5 @@ make -j4
 cd ../python
 python3.7 setup.py install --user
 
+cd ../..
+rm -rf neo-ai-dlr

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 #wget https://archive.apache.org/dist/incubator/mxnet/1.8.0/apache-mxnet-src-1.8.0-incubating.tar.gz
 #tar xvzf apache-mxnet-src-1.8.0-incubating.tar.gz

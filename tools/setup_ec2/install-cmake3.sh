@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 # sudo apt install cmake -y # -> this installs old version
 
@@ -11,4 +11,5 @@ cd cmake-3.22.2
 make
 sudo make install
 
-# FIXME : restarting shell needed?
+rm -rf cmake-3.22.2
+rm cmake-3.22.2.tar.gz

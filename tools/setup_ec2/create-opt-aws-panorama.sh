@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 sudo mkdir /opt/aws
 sudo mkdir /opt/aws/panorama
