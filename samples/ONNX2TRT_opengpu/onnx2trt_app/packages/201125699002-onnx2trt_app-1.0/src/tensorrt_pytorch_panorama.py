@@ -46,8 +46,10 @@ class ObjectDetectionApp(p.node):
         else:
             raise ValueError("Currently only support TRT 7 and 8 but trt version {} found.".format(trt.__version__[0]))
 
-        
-        self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
+        self.engine_file_path = "/panorama/yolov5s_dynamic_148.engine" # this is a TRT7 prebuilt engine.
+        # If you want to use your own onnx model and convert it to engine file, please 
+        # uncommnet the line below. This will build your engine and save it to the following path.
+        # self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
         self.fp = 16
         self.engine_batch_size = "1 4 8"
         self.is_dynamic = True
