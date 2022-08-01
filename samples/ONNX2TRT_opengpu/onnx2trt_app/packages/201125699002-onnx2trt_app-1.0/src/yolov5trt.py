@@ -4,7 +4,6 @@ import torch
 import pycuda.driver as cuda
 import tensorrt as trt
 import logging
-import time
 import numpy as np
 import utils
 
@@ -62,9 +61,9 @@ class YoLov5TRT(object):
             else:
                 host_outputs.append(host_mem)
                 cuda_outputs.append(cuda_mem)
-        
+
         context.set_binding_shape(0, (self.batch_size, 3, self.input_h, self.input_w))
-        
+
         # Store
         self.stream = stream
         self.context = context
@@ -74,16 +73,11 @@ class YoLov5TRT(object):
         self.host_outputs = host_outputs
         self.cuda_outputs = cuda_outputs
         self.bindings = bindings
-        self.time_buffers = defaultdict(list)
         self.cfx.push()
 
     def infer(self):
         # Move memcp out from infer, so that we can measure the pure inference time.
-        t4 = time.time()
         self.context.execute_v2(bindings=self.bindings)
-        t5 = time.time()
-        # Do postprocess
-        self.time_buffers["infer"].append(t5-t4)
 
     def destroy(self):
         # Remove any context from the top of the context stack, deactivating it.
@@ -103,34 +97,24 @@ class YoLov5TRT(object):
             A batch of float32 image. Shape [B, C, H, W]
         """
         self.org_image_list = org_image_list
-        t1 = time.time()
         self.preprocessed_images = np.vstack([utils.preprocess(image) for image in org_image_list])
 
-        t2 = time.time()
         # Copy input image to host buffer
         np.copyto(self.host_inputs[0], self.preprocessed_images.ravel())
         # Transfer input data to the GPU.
         cuda.memcpy_htod(self.cuda_inputs[0], self.host_inputs[0])
-        
-        t3 = time.time()
-        self.time_buffers["preprocessing"].append(t2-t1)
-        self.time_buffers["memcp"].append(t3-t2)
 
-    
     def post_process_batch(self, filtered_classes = None, conf_thres=0.5, iou_thres=0.45):
         # Transfer predictions back from the GPU.
-        t6 = time.time()
         cuda.memcpy_dtoh(self.host_outputs[0], self.cuda_outputs[0])
         # Here we use the first row of output in that batch_size = 1
         pred = self.host_outputs[0]
         pred = np.reshape(pred, (self.batch_size,-1, self.num_classes+5)) # [x,y,w,h, object_score] + [coco 80 scores] => 85
         pred = torch.from_numpy(pred)
         
-        t7 = time.time()
         pred = utils.non_max_suppression(pred, conf_thres = conf_thres, 
             iou_thres=iou_thres, classes=filtered_classes)
-        
-        t8 = time.time()
+
         output = []
         for det in pred:
             if det is not None and len(det):
@@ -139,14 +123,5 @@ class YoLov5TRT(object):
                 output.append(det.cpu().detach().numpy())
             else:
                 output.append(np.array([]))
-        t9 = time.time()
-        
-        self.time_buffers["post_memcp"].append(t7-t6)
-        self.time_buffers["nms"].append(t8-t7)
-        self.time_buffers["postprocessing"].append(t9-t6)
-        for key, val_list in self.time_buffers.items():
-            if(len(val_list)>=500//self.batch_size):
-                timespent_ms = np.mean(val_list)
-                log.info('Time Spent {}: {}s'.format(key,timespent_ms))
-                self.time_buffers[key] = []
+
         return output

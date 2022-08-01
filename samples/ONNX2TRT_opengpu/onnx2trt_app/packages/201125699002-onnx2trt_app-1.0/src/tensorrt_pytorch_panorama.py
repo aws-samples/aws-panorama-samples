@@ -46,22 +46,8 @@ class ObjectDetectionApp(p.node):
         else:
             raise ValueError("Currently only support TRT 7 and 8 but trt version {} found.".format(trt.__version__[0]))
 
-        
-        self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
-        self.fp = 16
-        self.engine_batch_size = "1 4 8"
+        self.engine_file_path = "/panorama/yolov5s_dynamic_148.engine"
         self.is_dynamic = True
-        # The reason we use os system here instead of using function call is to save memory.
-        # Building engines will runtime load more tensorrt library, and cuase more memory usage.
-        # And the loaded library will be released only after the app ends.
-        # Thus here using a system call to trigger a standalone process can solve the problem. 
-        # (The process will die after building engine file, and thus release loaded library)
-        # Another possible way is using Python inbuilt Process. However, Process under Panorama cannot access GPU.
-        if not os.path.exists(self.engine_file_path):
-            os.system("python3 /panorama/onnx_tensorrt.py -i {} -o {} -p {} -b {}".format(
-                self.onnx_file_path, self.engine_file_path, self.fp, self.engine_batch_size
-            ))
-        
         self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, self.is_dynamic)
 
         ########### CLOUD WATCH METRICS #################
@@ -85,7 +71,7 @@ class ObjectDetectionApp(p.node):
         metrics_factory = MetricsFactory(dimensions)
         self.metrics_handler = MetricsHandler("TensorRTAppMetrics", metrics_factory)
         ########### CLOUD WATCH METRICS #################
-    
+
     def get_frames(self):
         input_frames = self.inputs.video_in.get()
         return input_frames
