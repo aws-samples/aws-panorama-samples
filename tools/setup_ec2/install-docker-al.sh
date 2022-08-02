@@ -9,3 +9,5 @@ sudo yum install docker -y
 
 sudo gpasswd -a ec2-user docker
 #sudo newgrp docker
+
+sudo systemctl enable docker
