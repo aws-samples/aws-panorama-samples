@@ -12,9 +12,10 @@ make
 make install
 
 # Cherry pick libm (only glibc-2.27 version of libm is needed to use DLR)
-mkdir $HOME/glibc-2.27-subset
+mkdir -p $HOME/glibc-2.27-subset
 cp $HOME/glibc-2.27-full/lib/libm.so.6 $HOME/glibc-2.27-subset/
 
+cd ..
 rm -rf glibc-2.27
 rm -rf glibc-2.27-build
 rm -rf glibc-2.27-install
