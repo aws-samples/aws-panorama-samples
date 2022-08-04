@@ -48,12 +48,13 @@ Resources:
                 #!/bin/bash
                 set -e
                 sudo -i -u ec2-user bash << EOF
-                echo "Setup the Workshop exercises"
-                git clone https://github.com/aws-samples/amazon-sagemaker-devops-with-ml.git
+                echo "Setup AutoCV Object Detection using YoloV5s"
+                #git clone https://github.com/aws-samples/amazon-sagemaker-devops-with-ml.git
+                git clone -b autocv https://github.com/SuryaKari/aws-panorama-samples.git
                 pwd
                 ls -la
                 mkdir /home/ec2-user/SageMaker/byo-staging
-                cp -R /home/ec2-user/amazon-sagemaker-devops-with-ml/2-Bring-Your-Own/* /home/ec2-user/SageMaker/byo-staging/
+                cp -R /home/ec2-user/aws-panorama-samples.git/tools/autocv/object_detection/yolov5/* /home/ec2-user/SageMaker/byo-staging/
     DependsOn: CodeCommitRepo
  
   SageMakerNotebookInstance:
