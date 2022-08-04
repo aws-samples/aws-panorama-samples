@@ -1,0 +1,5 @@
+train: /opt/ml/input/data/yolov5_input/train/images
+val: /opt/ml/input/data/yolov5_input/valid/images
+
+nc: 1
+names: ['wheel']

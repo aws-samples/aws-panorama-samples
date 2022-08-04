@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - container_name=yolov5-training-sagemaker
+      - region=$AWS_DEFAULT_REGION
+      - account=$(aws sts get-caller-identity --query Account --output text)
+      - # Get the region defined in the current configuration (default to us-west-2 if none defined)
+      - fullname="${account}.dkr.ecr.${region}.amazonaws.com/${container_name}:1.0"
+      - aws ecr describe-repositories --repository-names "${container_name}" > /dev/null 2>&1
+      - echo Build started on `date`
+      - echo Building the Docker image...          
+      - cd model-code/   
+      - $(aws ecr get-login --region ${region} --no-include-email)
+      - docker build --build-arg account_id=${account} --build-arg region=${region} -f Dockerfile -t ${fullname} .
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      #- docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker push ${fullname}
