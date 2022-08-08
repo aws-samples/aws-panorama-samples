@@ -50,10 +50,10 @@ packages/<app_name>/src/onnx_model/yolov5s.onnx
 
 ## Setup the application
 
-This application requires a Docker base image that is exactly the same as the [TRTPT36_opengpu App](https://github.com/aws-samples/aws-panorama-samples/tree/main/samples/TRTPT36_opengpu#setup-the-application)
-
-* Please refer to the link for setting up the docker base image.
-* Walk through the Steps for setting this up section.
+This application requires a Docker base image. 
+- Please open a terminal, go to ./dependencies/docker
+- run: `sudo docker build -t  trtpt36:latest .`
+- This step takes a long time (approximately 5hrs.)
 
 
 **VERY IMPORTANT** : This example will build the engine file with dynamic batch size ranges from 1 to 8. If you decide to use batch size larger than 4, please use ATLEAST 2 CAMERAS for this example.
@@ -62,7 +62,7 @@ This application requires a Docker base image that is exactly the same as the [T
 
 ## Steps for setting this up
 
-* Step 1: Navigate to TRTPT36_opengpu app and build the base docker image.
+* Step 1: Navigate to ./dependencies/docker and build the base docker image.
 * Step 2 : Open ONNX2TRT_opengpu.ipynb and follow along.
 
 ## Special flags in package.json

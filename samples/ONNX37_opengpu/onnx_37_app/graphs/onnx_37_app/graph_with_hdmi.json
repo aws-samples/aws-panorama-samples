@@ -1,0 +1,67 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "937544830708::onnx_37_app",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "front_door_camera",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart",
+                "decorator": {
+                    "title": "Camera front_door_camera",
+                    "description": "Default description for camera front_door_camera"
+                }
+            },
+            {
+                "name": "onnx_37_app_node",
+                "interface": "937544830708::onnx_37_app.onnx_37_app_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "batch_size",
+                "interface": "int32",
+                "value": 8,
+                "overridable": true,
+                "decorator": {
+                    "title": "Batch size",
+                    "description": "The batch size for model inference."
+                }
+            },
+            {
+                "name": "output_node",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": true,
+                "launch": "onAppStart"
+            }
+        ],
+        "edges": [
+            {
+                "producer": "front_door_camera.video_out",
+                "consumer": "onnx_37_app_node.video_in"
+            },
+            {
+                "producer": "batch_size",
+                "consumer": "onnx_37_app_node.batch_size"
+            },
+            {
+                "producer": "onnx_37_app_node.video_out",
+                "consumer": "output_node.video_in"
+            }
+        ]
+    }
+}
