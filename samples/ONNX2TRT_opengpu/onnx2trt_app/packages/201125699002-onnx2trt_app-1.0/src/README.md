@@ -13,3 +13,6 @@ The Pytorch implementation is based on [ultralytics/yolov5](https://github.com/u
     - The code that will convert onnx to engine file.
 - yolov5trt.py
     - It is a yolov5 inference code wrapper. It includes preprocessing, inference and postprocessing. And in this app we only plot bboxes for human. You can easily change the logic in the `post_process` function
+- yolov5s.onnx
+    - This model is exported by `exprot_trt7_onnx.py` in dependency folder.
+    - This is a yolov5s r6.1 model.
