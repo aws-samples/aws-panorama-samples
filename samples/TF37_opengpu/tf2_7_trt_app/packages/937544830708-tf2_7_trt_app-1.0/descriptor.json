@@ -5,7 +5,7 @@
         "entry":
         {
             "path": "python3.6",
-            "name": "/panorama/wrapper-app.py"
+            "name": "/panorama/app.py"
         }
     }
 }
