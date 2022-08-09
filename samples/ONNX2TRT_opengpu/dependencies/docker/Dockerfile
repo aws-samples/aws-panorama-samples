@@ -108,7 +108,8 @@ ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
 
-# RUN python3.6 -m pip  install --upgrade pip
+# upgrade pip for opencv
+RUN python3.6 -m pip  install --upgrade pip
 RUN python3.6 -m pip install --no-cache-dir --verbose pycuda six
 
 #
