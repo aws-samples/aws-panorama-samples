@@ -1,8 +1,8 @@
 # Runing TF-TRT on Panorama - JetPack 4.4
 
-If your panorama device is still using device image v4.3.x (JetPack4.4), this is the right guide you are looking for. 
+If your panorama device is still using Panorama system software v4.3.x (JetPack4.4), this is the right guide you are looking for. 
 
-If your panorama device is using device image v4.4.x (Jetpack4.6.1), please refer to README_JP461.md
+If your panorama device is using Panorama system software v4.4.x (Jetpack4.6.2), please refer to README_JP462.md
 
 ## Brief
 In this guide, we show how to convert a Tensorflow SSD model to a TF-TRT model. This guide is derived from and the full version is available at : https://apivovarov.medium.com/run-tensorflow-2-object-detection-models-with-tensorrt-on-jetson-xavier-using-tf-c-api-e34548818ac6

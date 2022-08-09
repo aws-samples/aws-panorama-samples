@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # RUN apt-key add /etc/jetson-ota-public.key
 
 ARG CUDA=10.2
-# 32.7 for TRT8.2.1
+# r32.7 for JP4.6.2, with TRT8.2
 ARG RELEASE=r32.7
 
 RUN echo "deb https://repo.download.nvidia.com/jetson/common $RELEASE main" >> /etc/apt/sources.list

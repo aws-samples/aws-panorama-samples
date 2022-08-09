@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates
 
 ARG CUDA=10.2
-# r32.7 for JP4.6.1, with TRT8.2
+# r32.7 for JP4.6.2, with TRT8.2
 ARG RELEASE=r32.7
 
 RUN echo "deb https://repo.download.nvidia.com/jetson/common $RELEASE main" >> /etc/apt/sources.list

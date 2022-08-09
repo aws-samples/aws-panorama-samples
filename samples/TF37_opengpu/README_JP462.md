@@ -1,9 +1,9 @@
-# Runing TF-TRT on Panorama - JetPack 4.6.1
+# Runing TF-TRT on Panorama - JetPack 4.6.2
 
 
-If your panorama device is still using device image v4.3.x (JetPack4.4), please refer to README.md
+If your panorama device is still using Panorama system software v4.3.x (JetPack4.4), please refer to README.md
 
-If your panorama device is using device image v4.4.x (Jetpack4.6.1), this is the right guide you are looking for.
+If your panorama device is using Panorama system software v4.4.x (Jetpack4.6.2), this is the right guide you are looking for.
 
 In this readme, we will walk you through 
 - Export your tensorflow model to TF-TRT inside NGC. 
@@ -29,6 +29,7 @@ We will use TF2.5 and TF2.7 as an example to guide the user through exporting th
 With the help of NGC, we just need to choose the right Nvidia Jetson provided TF version (and wheel file), and export model with the corresponding NGC. For example:
 - Nvidia provides a [Jetson TF wheel file here](https://developer.download.nvidia.com/compute/redist/jp/v461/tensorflow/tensorflow-2.7.0+nv22.1-cp36-cp36m-linux_aarch64.whl). 
 - After we look up inside the table in [TensorFlow compatibility with NVIDIA containers and Jetpack](https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform-release-notes/tf-jetson-rel.html#tf-jetson-rel), one can realize that this is built with Jetpack4.6.1 (i.e. TF2.7 + TRT8.2). And NGC Tensorflow 22.01 also provides the similar environment (i.e. tensorflow 2.7 + TRT8.2)
+    -  > Note: Jetpack4.6.1 and Jetpack4.6.2 are mostly the same.
 - Then we can export our model under nvcr.io/nvidia/tensorflow:22.01-tf2-py3
 
 ### Exporting Model with TF2.7 + TRT8.2
@@ -162,8 +163,8 @@ Now we can copy the folder saved_model_trt_fp16 and put it inside our Panorama a
 
 ## Prepare The Docker Image
 
-- Please run the docker build insdie dependencies/docker_tf27_py36
-- This docker image will install the cuda, cudnn, trt that is compaitable with Jetpack 4.6.1 and also install tensorflow 2.7 
+- Please run the docker build insdie dependencies/docker_tf27_py36_jp462
+- This docker image will install the cuda, cudnn, trt that is compaitable with Jetpack 4.6.2 and also install tensorflow 2.7 
 
 ```
 docker build -t tf27:latest .

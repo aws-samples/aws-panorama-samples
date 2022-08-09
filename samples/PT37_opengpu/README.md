@@ -35,7 +35,9 @@ The dependencies folder included with this application has
 
 ## Steps for setting this up
 
-* Step 1: Navigate to ./dependencies/docker
+* Step 1: Navigate to ./dependencies/docker or ./dependencies/docker_jp462
+    * ./dependencies/docker is for Panorama system software v4.3.x and this corresponds to Jetpack 4.4
+    * ./dependencies/docker_jp462 is for Panorama system software v4.4.x and this corresponds to Jetpack 4.6.
 * Step 2 : ``` sudo docker build -t pt:37 . ```
 * Step 3 : Open pytorch_example.ipynb and make sure you configure the following
     * The Device ID
