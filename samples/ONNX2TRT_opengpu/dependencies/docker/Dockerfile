@@ -93,24 +93,22 @@ ENV PATH /usr/local/cuda-$CUDA/bin:/usr/local/cuda/bin:${PATH}
 ENV LD_LIBRARY_PATH /usr/local/cuda-$CUDA/targets/aarch64-linux/lib:${LD_LIBRARY_PATH}
 
 ENV DEBIAN_FRONTEND=noninteractive
-ARG HDF5_DIR="/usr/lib/aarch64-linux-gnu/hdf5/serial/"
-ARG MAKEFLAGS=-j$(nproc)
+# ARG HDF5_DIR="/usr/lib/aarch64-linux-gnu/hdf5/serial/"
+# ARG MAKEFLAGS=-j$(nproc)
 
-RUN printenv
+# RUN printenv
 
-#
-# Install tensorflow dependencies
-#
+##################
+# Install Pycuda #
+##################
 RUN python3.6 -m pip install --no-cache-dir setuptools Cython wheel
 RUN python3.6 -m pip install --no-cache-dir numpy
-#
-# PyCUDA
-#
+
 ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
 
-RUN python3.6 -m pip  install --upgrade pip
+# RUN python3.6 -m pip  install --upgrade pip
 RUN python3.6 -m pip install --no-cache-dir --verbose pycuda six
 
 #
@@ -176,7 +174,7 @@ RUN python3.6 -m pip install --no-cache-dir "${PILLOW_VERSION}"
 
 # # Install from whl
 ARG TORCHVISION_WHL=torchvision-0.10.0a0+300a8a4-cp36-cp36m-linux_aarch64.whl
-COPY ${TORCHVISION_WHL} .
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torchvision-0.10.0a0%2B300a8a4-cp36-cp36m-linux_aarch64.whl -O ${TORCHVISION_WHL}
 RUN python3.6 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
 
 # # note:  this was used on older torchvision versions (~0.4) to workaround a bug,
@@ -202,6 +200,7 @@ RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
 
 ARG PYTHON_EGG_CACHE="/panorama/.cache"
 RUN python3.6 -c "import torch; import torchvision"
+RUN python3.6 -m pip cache purge
 
 RUN mkdir -p /tmp/test && \
     mkdir -p /panorama/test && \
