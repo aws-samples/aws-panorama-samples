@@ -19,28 +19,6 @@ RUN apt-key adv --fetch-key http://repo.download.nvidia.com/jetson/jetson-ota-pu
 
 
 #
-# install prerequisites - https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html#prereqs
-#
-RUN apt-get update && \
- apt-get install -y --no-install-recommends \
-       python3-pip \
-       python3-dev \
-       gfortran \
-       build-essential \
-       liblapack-dev \
-       libblas-dev \
-       libhdf5-serial-dev \
-       hdf5-tools \
-       libhdf5-dev \
-       zlib1g-dev \
-       zip \
-       libjpeg8-dev \
-       wget
-
-#RUN mkdir -p /usr/lib/python3.6/lib-dynload
-#RUN cp /usr/lib/python3.7/lib-dynload/panoramasdk.so /usr/lib/python3.6/lib-dynload/panoramasdk.so
-
-#
 # Install Cuda, cuDNN, TensorRT
 #
 RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
@@ -98,6 +76,27 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # RUN printenv
 
+######################
+#      Pytorch       #
+######################
+
+# install prerequisites - https://elinux.org/Jetson_Zoo#PyTorch_.28Caffe2.29
+# python3 dev is for numpy
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libopenblas-base \
+        libopenmpi-dev \
+        libomp-dev \
+        python3-pip \
+        python3-dev \
+        wget
+
+ARG TORCH_WHL=torch-1.10.0-cp36-cp36m-linux_aarch64.whl
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torch-1.10.0-cp36-cp36m-linux_aarch64.whl \
+    && python3.6 -m pip install --pre --verbose ${TORCH_WHL} \
+    && rm ${TORCH_WHL}
+
+
 ##################
 # Install Pycuda #
 ##################
@@ -108,40 +107,34 @@ ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
 
-# upgrade pip for opencv
+# upgrade pip for opencv and other libs
 RUN python3.6 -m pip  install --upgrade pip
-RUN python3.6 -m pip install --no-cache-dir --verbose pycuda six
+RUN python3.6 -m pip install --no-cache-dir pycuda==2020.1 six
 
 #
 # Run ld config
 #
-RUN ldconfig
+# RUN ldconfig
 
-#
-# Set environment variables
-# Note: These environment variables don't get persisted for runtime.
-#
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES all
-
-CMD [ "/bin/bash" ]
-
-
-ARG TORCH_WHL=torch-1.10.0-cp36-cp36m-linux_aarch64.whl
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torch-1.10.0-cp36-cp36m-linux_aarch64.whl \
-    && python3.6 -m pip install --pre --verbose ${TORCH_WHL} \
-    && rm ${TORCH_WHL}
     
 
-RUN apt-get update -y && apt-get install -y libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+######################
+#      OpenCV        #
+######################
+
+# RUN apt-get update -y && apt-get install -y libglib2.0-0 \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && apt-get clean
 
 RUN python3.6 -m pip install --no-cache-dir opencv-python
 
-# TesnorRT
+
+######################
+#      TensorRT      #
+######################
+
 RUN apt-get update -y \
-    && apt-get install libopenblas-base libopenmpi-dev python3-libnvinfer-dev -y \
+    && apt-get install python3-libnvinfer-dev -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -173,7 +166,7 @@ RUN python3.6 -m pip install --no-cache-dir "${PILLOW_VERSION}"
 #     cd ../  && \
 #     rm -rf torchvision
 
-# # Install from whl
+# # Install from whl (we prebuilt this)
 ARG TORCHVISION_WHL=torchvision-0.10.0a0+300a8a4-cp36-cp36m-linux_aarch64.whl
 RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torchvision-0.10.0a0%2B300a8a4-cp36-cp36m-linux_aarch64.whl -O ${TORCHVISION_WHL}
 RUN python3.6 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
