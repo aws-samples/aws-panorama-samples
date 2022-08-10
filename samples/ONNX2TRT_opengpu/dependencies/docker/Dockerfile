@@ -20,15 +20,13 @@ RUN apt-key adv --fetch-key http://repo.download.nvidia.com/jetson/jetson-ota-pu
 
 #
 # Install Cuda, cuDNN, TensorRT
-#
+# nvtx is required my pytorch
 RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
     apt-get update && apt-get install -y --no-install-recommends \
 	cuda-libraries-$CUDAPKG \
 	cuda-nvtx-$CUDAPKG \
 	cuda-libraries-dev-$CUDAPKG \
 	cuda-minimal-build-$CUDAPKG \
-	cuda-license-$CUDAPKG \
-	cuda-command-line-tools-$CUDAPKG \
     libcudnn8 \
     tensorrt \
     && rm -rf /var/lib/apt/lists/* \
