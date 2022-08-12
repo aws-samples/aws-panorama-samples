@@ -33,7 +33,8 @@ RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
     && apt-get clean \
     && rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a \
     && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a \
-    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a
+    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/*static*
     #Remove static libraries to save space
 
 
@@ -127,9 +128,9 @@ RUN python3.6 -m pip install --no-cache-dir pycuda==2020.1 six
 RUN python3.6 -m pip install --no-cache-dir opencv-python
 
 
-######################
-#      TensorRT      #
-######################
+#################################
+#      TensorRT For Pytrhon     #
+#################################
 
 RUN apt-get update -y \
     && apt-get install python3-libnvinfer-dev -y \
