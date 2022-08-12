@@ -88,7 +88,9 @@ RUN apt-get update && \
         libomp-dev \
         python3-pip \
         python3-dev \
-        wget
+        wget \
+        && rm -rf /var/lib/apt/lists/* \
+        && apt-get clean
 
 ARG TORCH_WHL=torch-1.10.0-cp36-cp36m-linux_aarch64.whl
 RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torch-1.10.0-cp36-cp36m-linux_aarch64.whl \
@@ -129,7 +131,7 @@ RUN python3.6 -m pip install --no-cache-dir opencv-python
 
 
 #################################
-#      TensorRT For Pytrhon     #
+#      TensorRT For Python      #
 #################################
 
 RUN apt-get update -y \
