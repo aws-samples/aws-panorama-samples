@@ -5,6 +5,29 @@
         "version": "1.0",
         "description": "Default description for package tf2_4_trt_app",
         "assets": [
+            {
+                "name": "tf24_trt_app",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": ".tar.gz",
+                        "descriptorUri": ".json",
+                        "requirements": [
+                            {
+                                "type": "hardware_access",
+                                "inferenceAccelerators": [
+                                    {
+                                        "deviceType": "nvhost_gpu",
+                                        "sharedResourcePolicy": {
+                                            "policy": "allow_all"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
         ],
         "interfaces": [
             {
