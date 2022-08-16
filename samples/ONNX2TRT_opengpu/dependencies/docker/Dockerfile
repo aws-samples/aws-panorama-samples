@@ -169,8 +169,8 @@ RUN python3.6 -m pip install --no-cache-dir "${PILLOW_VERSION}"
 
 # # Install from whl (we prebuilt this)
 ARG TORCHVISION_WHL=torchvision-0.10.0a0+300a8a4-cp36-cp36m-linux_aarch64.whl
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torchvision-0.10.0a0%2B300a8a4-cp36-cp36m-linux_aarch64.whl -O ${TORCHVISION_WHL}
-RUN python3.6 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TRT_Sample/Docker/torchvision-0.10.0a0%2B300a8a4-cp36-cp36m-linux_aarch64.whl -O ${TORCHVISION_WHL} \
+    && python3.6 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
 
 # # note:  this was used on older torchvision versions (~0.4) to workaround a bug,
 # #       but has since started causing another bug as of torchvision 0.11.1

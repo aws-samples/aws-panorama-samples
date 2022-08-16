@@ -101,18 +101,17 @@ RUN apt-get update && \
 #
 RUN python3.7 -m pip install --no-cache-dir setuptools Cython wheel
 RUN python3.7 -m pip install --no-cache-dir --verbose numpy
-RUN python3.7 -m pip install --no-cache-dir --verbose h5py==2.10.0
 RUN python3.7 -m pip install --no-cache-dir --verbose future==0.18.2 mock==3.0.5 h5py==2.10.0 keras_preprocessing==1.1.1 keras_applications==1.0.8 gast==0.2.2 futures protobuf pybind11
 
 #
 # TensorFlow 2.4. See build instructions for building tensorflow wheel here: https://apivovarov.medium.com/run-tensorflow-2-object-detection-models-with-tensorrt-on-jetson-xavier-using-tf-c-api-e34548818ac6
 #
 
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TF_Sample/Docker/tensorflow-2.4.4-cp37-cp37m-linux_aarch64.whl
 ARG TENSORFLOW_WHL=tensorflow-2.4.4-cp37-cp37m-linux_aarch64.whl
-
-RUN python3.7 -m pip install --pre --verbose ${TENSORFLOW_WHL} && \
-    rm ${TENSORFLOW_WHL}
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/TF_Sample/Docker/tensorflow-2.4.4-cp37-cp37m-linux_aarch64.whl \
+    && python3.7 -m pip install --pre --verbose ${TENSORFLOW_WHL} \
+    && rm ${TENSORFLOW_WHL}
+    
 
 #
 # PyCUDA
@@ -122,18 +121,10 @@ RUN python3.7 -m pip install --pre --verbose ${TENSORFLOW_WHL} && \
 # RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
 
 # RUN python3.7 -m pip install --no-cache-dir --verbose pycuda six
-RUN python3.7 -m pip install --upgrade numpy
-#
-# Run ld config
-#
-# RUN ldconfig
+
+# Fix "Check failed: PyBfloat16_Type.tp_base != nullptr"
+RUN python3.7 -m pip install --upgrade --no-cache-dir numpy
 
 RUN python3.7 -c "import tensorflow; import numpy; from tensorflow.python.compiler.tensorrt import trt_convert as trt"
-#
-# Set environment variables
-# Note: These environment variables don't get persisted for runtime.
-#
-# ENV NVIDIA_VISIBLE_DEVICES all
-# ENV NVIDIA_DRIVER_CAPABILITIES all
 
 CMD [ "/bin/bash" ]

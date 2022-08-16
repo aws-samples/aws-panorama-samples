@@ -111,10 +111,9 @@ RUN apt-get update && \
         && rm -rf /var/lib/apt/lists/* \
         && apt-get clean
 
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/ONNX_Sample/Docker/onnxruntime_gpu-1.6.0-cp37-cp37m-linux_aarch64.whl
 ARG ONNX_WHL=onnxruntime_gpu-1.6.0-cp37-cp37m-linux_aarch64.whl
-RUN python3.7 -m pip install --pre --verbose ${ONNX_WHL} && \
-    rm ${ONNX_WHL}
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/ONNX_Sample/Docker/onnxruntime_gpu-1.6.0-cp37-cp37m-linux_aarch64.whl \
+    && python3.7 -m pip install --pre --verbose ${ONNX_WHL} && rm ${ONNX_WHL}
 
 #
 # PyCUDA
@@ -286,10 +285,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ######################
 
 # install prerequisites - https://elinux.org/Jetson_Zoo#PyTorch_.28Caffe2.29
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torch-1.10.0-cp37-cp37m-linux_aarch64.whl
 ARG PYTORCH_WHL=torch-1.10.0-cp37-cp37m-linux_aarch64.whl
-RUN python3.7 -m pip install --no-cache-dir --verbose ${PYTORCH_WHL} && \
-    rm ${PYTORCH_WHL}
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torch-1.10.0-cp37-cp37m-linux_aarch64.whl \
+    && python3.7 -m pip install --no-cache-dir --verbose ${PYTORCH_WHL} && rm ${PYTORCH_WHL}
 
 #######################
 # torchvision 0.10.0  #
@@ -325,8 +323,8 @@ RUN python3.7 -m pip install --no-cache-dir --verbose ${PYTORCH_WHL} && \
 
 # (Option3) Install from the wheel directly (We prebuilt it already)
 ARG TORCHVISION_WHL=torchvision-0.10.0a0+300a8a4-cp37-cp37m-linux_aarch64.whl
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torchvision-0.10.0a0%2B300a8a4-cp37-cp37m-linux_aarch64.whl -O ${TORCHVISION_WHL}
-RUN python3.7 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
+RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torchvision-0.10.0a0%2B300a8a4-cp37-cp37m-linux_aarch64.whl -O ${TORCHVISION_WHL} \
+    && python3.7 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
 
 # The built torch vision 
 # note:  this was used on older torchvision versions (~0.4) to workaround a bug,
