@@ -26,7 +26,7 @@ class download_from_labeling_job(object):
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
         for obj in bucket.objects.filter(Prefix=s3_folder):
-            if obj.key.split('/')[-1].split('.')[-1] in ['png','jpg','jpeg'] :
+            if obj.key.split('/')[-1].split('.')[-1].lower() in ['png','jpg','jpeg'] :
                 target = obj.key if local_dir is None \
                     else os.path.join(local_dir, os.path.relpath(obj.key, s3_folder))
                 if not os.path.exists(os.path.dirname(target)):
