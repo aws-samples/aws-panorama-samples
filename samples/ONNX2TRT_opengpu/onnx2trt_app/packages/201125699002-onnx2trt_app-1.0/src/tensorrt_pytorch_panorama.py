@@ -37,16 +37,15 @@ class ObjectDetectionApp(p.node):
 
     def __init__(self):
         self.model_batch_size = self.inputs.batch_size.get()
-        self.pre_processing_output_size = 640
+        self.pre_processing_output_size = self.inputs.image_size.get()
         self.onnx_file_path = None
         if trt.__version__[0] == '7':
-            self.onnx_file_path = "/panorama/yolov5s.onnx"
+            self.onnx_file_path = "/panorama/yolov5s_{}.onnx".format(self.pre_processing_output_size)
         elif trt.__version__[0] == '8':
-            self.onnx_file_path = "/panorama/yolov5s_opset13.onnx"
+            self.onnx_file_path = "/panorama/yolov5s_{}_opset13.onnx".format(self.pre_processing_output_size)
         else:
             raise ValueError("Currently only support TRT 7 and 8 but trt version {} found.".format(trt.__version__[0]))
 
-        
         self.engine_file_path = "/opt/aws/panorama/storage/yolov5s_dynamic_148.engine"
         self.fp = 16
         self.engine_batch_size = "1 4 8"
@@ -58,11 +57,13 @@ class ObjectDetectionApp(p.node):
         # (The process will die after building engine file, and thus release loaded library)
         # Another possible way is using Python inbuilt Process. However, Process under Panorama cannot access GPU.
         if not os.path.exists(self.engine_file_path):
-            os.system("python3 /panorama/onnx_tensorrt.py -i {} -o {} -p {} -b {}".format(
-                self.onnx_file_path, self.engine_file_path, self.fp, self.engine_batch_size
+            os.system("python3 /panorama/onnx_tensorrt.py -i {} -o {} -p {} -b {} -ih {} -iw {}".format(
+                self.onnx_file_path, self.engine_file_path, self.fp, self.engine_batch_size, 
+                self.pre_processing_output_size, self.pre_processing_output_size
             ))
         
-        self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, self.is_dynamic)
+        self.yolov5_wrapper = YoLov5TRT(self.engine_file_path, self.model_batch_size, self.is_dynamic, 
+            input_w=self.pre_processing_output_size, input_h=self.pre_processing_output_size)
 
         ########### CLOUD WATCH METRICS #################
         # Note: These are CW dimensions. Change as necessary
@@ -74,6 +75,7 @@ class ObjectDetectionApp(p.node):
         dimensions = list()
         stage_dimension = {'Name': 'Stage', 'Value': 'Gamma'}
         region_dimension = {'Name': 'Region', 'Value': 'us-east-1'}
+        image_dimension = {'Name': 'Image Size', 'Value': str(self.pre_processing_output_size)}
         model_name_dimension = {'Name': 'ModelName', 'Value': 'YoloV5s'}
         batch_size_dimention = {'Name': 'BatchSize', 'Value': str(self.model_batch_size)}
         app_function_dimension = {'Name': 'AppName', 'Value': 'TensorRTDemo'}
@@ -82,6 +84,7 @@ class ObjectDetectionApp(p.node):
         dimensions.append(app_function_dimension)
         dimensions.append(model_name_dimension)
         dimensions.append(batch_size_dimention)
+        dimensions.append(image_dimension)
         metrics_factory = MetricsFactory(dimensions)
         self.metrics_handler = MetricsHandler("TensorRTAppMetrics", metrics_factory)
         ########### CLOUD WATCH METRICS #################

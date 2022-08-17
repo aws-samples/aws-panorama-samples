@@ -47,6 +47,16 @@
                     "title": "Batch size",
                     "description": "The batch size for model inference. Dynamic batch size supprot 1~8"
                 }
+            },
+            {
+                "name": "image_size",
+                "interface": "int32",
+                "value": 640,
+                "overridable": true,
+                "decorator": {
+                    "title": "Image size",
+                    "description": "The image size only support 320x320 or 640x640"
+                }
             }
         ],
         "edges": [
@@ -61,6 +71,10 @@
             {
                 "producer": "batch_size",
                 "consumer": "onnx2trt_app_node.batch_size"
+            },
+            {
+                "producer": "image_size",
+                "consumer": "onnx2trt_app_node.image_size"
             }
         ]
     }
