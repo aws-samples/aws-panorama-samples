@@ -1,21 +1,11 @@
-# MLOps : Build a YoloV5s model using AWS SageMaker Ground Truth annotated files
+# MLOps : Automatically Build An Object Detection Model (YoloV5s) Using AWS SageMaker Ground Truth, AWS Sagemaker and AWS Code Pipelines
 
-This is an MLOps pipeline, that once set up will consistently build a custom Object Detection Model using YoloV5s
+This is an MLOps pipeline, that once set up will consistently build a Custom Object Detection Model using YoloV5s
 
 * Takes in as input an AWS SageMaker Ground Truth job manifest file
 * The pipeline automatically converts this into Yolov5s input format
 * The pipeline then builds the ECR image for Sagemaker Training
 * The training job is then kicked off with the data that is created
-
------
-
-## Why ML Ops
-
-Applying DevOps practices to Machine Learning (ML) workloads is a fundamental practice to ensure models are deployed using a reliable and consistent process as well as to increase overall quality.   DevOps is not about automating the deployment of a model.  DevOps is about applying practices such as Continuous Integration(CI) and Continuous Delivery(CD) to the model development lifecycle.  CI/CD relies on automation; however, automation alone is not synonymous with DevOps or CI/CD.  
-
-In this lab, you will create a deployment pipeline utilizing AWS Development Services and SageMaker to demonstrate how CI/CD practices can be applied to machine learning workloads.  There is no one-size-fits-all model for creating a pipeline; however, the same general concepts explored in this lab can be applied and extended across various services or tooling to meet the same end result.  
-
-In this lab, the use case we will focus on will be bring-your-own-algorithm for training and deploying on SageMaker.  We will combine this use case with implementing a base reference MLOps pipeline.
 
 -------
 ## Prerequisite
@@ -31,11 +21,12 @@ This MLOps pipeline builds a YoloV5s model with Ground Truth manifest file as an
 
 This ML Ops pipeline will
 
-• Setup a base pipeline responsible for orchestration of workflow to build and deploy custom ML models to target environments
+• Setup a base pipeline responsible for building a YoloV5s Object Detection model
 
-•	Create logic, in this case Lambda functions, to execute the necessary steps within the orchestrated pipeline required to build, train, and host ML models in an end-to-end pipeline
+•	Create logic, in this case Lambda functions, to execute the necessary steps within the orchestrated pipeline required to build and train CV models in an end-to-end pipeline
 
 For this pipeline, we will use the steps outlined in this document combined with two [CloudFormation](https://aws.amazon.com/cloudformation/) templates to create your pipeline.   CloudFormation is an AWS service that allows you to model your entire infrastructure using YAML/JSON templates.   The use of CloudFormation is included not only for  simplicity in lab setup but also to demonstrate the capabilities and benefits of Infrastructure-as-Code(IAC) and Configuration-as-Code(CAC).  We will also utilize SageMaker Notebook Instances to ensure a consistent experience.
+
 
 ## **IMPORTANT:  There are steps in this pipeline that assume you are using N.Virginia (us-east-1).  Please use us-east-1 for this pipeline for now** 
 
@@ -66,7 +57,7 @@ To launch the setup of the resources above using CloudFormation:
 5) Under **Select Template**:
     * Click radio button next to 'Upload a template to Amazon S3', then click **Browse...**
 
-    * From the local repository cloned to your machine in step 1, select the file called ./2-Bring-Your-Own/01.CF-MLOps-BYO-Lab-Prep.yml
+    * From the local repository cloned to your machine in step 1, select the file called ./01.CF-MLOps-BYO-Lab-Prep.yml
 
     * Click **Open**
 
@@ -101,10 +92,8 @@ In this step, you will need to upload pre-packaged Lambda functions to S3.  Thes
 
 The descriptions of each Lambda function are included below:
 
--	**MLOps-BYO-TrainModel.py.zip:**  This Lambda function is responsible for executing a function that will accept various user parameters from code pipeline (ex. ECR Repository, ECR Image Version, S3 Cleansed Training Data Bucket) and use that information to then setup a training job and train a custom model using SageMaker
--	**MLOps-BYO-GetStatus.py.zip:** This Lambda function is responsible for checking back in on the status of the previous Lambda function.  Because Lambda has an execution time limit, this function ensures that the status of the previous function is accurately capture before moving on to the next stage in the pipeline
--	**MLOps-BYO-DeployModel.py.zip:** This Lambda function is responsible for executing a function that will accept various user parameters from code pipeline (ex. target deployment environment) and use that information to then setup a Configuration Endpoint and Endpoint for hosting the trained model using SageMaker
--	**MLOps-BYO-EvaluateModel.py.zip:** This Lambda function is responsible for running predictions against the trained model by accepting an environment identifier as well as an S3 bucket with sample payload as input from code pipeline.  
+-	**MLOps-BYO-TrainModel.zip:**  This Lambda function is responsible for executing a function that will accept various user parameters from code pipeline (ex. ECR Repository, ECR Image Version, S3 Cleansed Training Data Bucket) and use that information to then setup a training job and train a custom model using SageMaker
+-	**MLOps-BYO-GetStatus.zip:** This Lambda function is responsible for checking back in on the status of the previous Lambda function.  Because Lambda has an execution time limit, this function ensures that the status of the previous function is accurately capture before moving on to the next stage in the pipeline
 
 ### Steps:
 
@@ -112,15 +101,15 @@ The descriptions of each Lambda function are included below:
 
 2. From the AWS console, go to **Services** and select **S3**
 
-3. Find and click on your bucket created in the previous step (mlops-lambda-code-*yourinitials-randomgeneratedID*)
+3. Find and click on your bucket created in the previous step (avastus-yolov5-lambda-code-*yourinitials-randomgeneratedID*)
 
-     Example: mlops-lambda-code-jdd-9d055090
+     Example: avastus-yolov5-lambda-code--jdd-9d055090
 
      **WARNING:** Make sure you are using the correct bucket that was created by the CloudFormation template with the naming standard above.
 
 4. Click **Upload** in the upper left corner to uploaded pre-packaged lambda functions to your bucket
 
-    * Click **Add files** and select all 4 lambda functions from the 2-Bring-Your-Own/lambda-code/MLOps-BYO*.zip directory in this repository that were download/cloned to your local laptop in step #1
+    * Click **Add files** and select all 4 lambda functions from the /lambda-code/MLOps-BYO*.zip directory in this repository that were download/cloned to your local laptop in step #1
 
     * Click **Next**
 
@@ -166,7 +155,7 @@ In this step, you will launch a CloudFormation template using the file 02.CF-MLO
 4) Under **Select Template**:
     * Click radio button next to 'Upload a template to Amazon S3', then click **Browse...**
 
-    * From the local repository cloned to your machine in step 1, select the file called ./2-Bring-Your-Own/02.CF-MLOps-BYO-BuildPipeline.yml
+    * From the local repository cloned to your machine in step 1, select the file called ./02.CF-MLOps-BYO-BuildPipeline.yml
 
     * Click **Open**
 
@@ -178,7 +167,7 @@ In this step, you will launch a CloudFormation template using the file 02.CF-MLO
 
    * **LambdaFunctionsBucket**: Enter the name of the existing S3 bucket that contains the lambda code we uploaded in the previous step 
 
-       (i.e. mlops-lambda-code-*yourinitials-uniqueid*) 
+       (i.e. avastus-Yolov5s-lambda-code-*yourinitials-uniqueid*) 
 
    *  **RepositoryBranch**: master
    *  **UniqueID**: Enter *yourinitials* in lower case (Example: jdd)
