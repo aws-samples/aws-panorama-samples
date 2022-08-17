@@ -40,9 +40,9 @@ class ObjectDetectionApp(p.node):
         self.pre_processing_output_size = self.inputs.image_size.get()
         self.onnx_file_path = None
         if trt.__version__[0] == '7':
-            self.onnx_file_path = "/panorama/yolov5s_{}.onnx".format(self.pre_processing_output_size)
+            self.onnx_file_path = "/panorama/onnx_model/yolov5s_{}.onnx".format(self.pre_processing_output_size)
         elif trt.__version__[0] == '8':
-            self.onnx_file_path = "/panorama/yolov5s_{}_opset13.onnx".format(self.pre_processing_output_size)
+            self.onnx_file_path = "/panorama/onnx_model/yolov5s_{}_opset13.onnx".format(self.pre_processing_output_size)
         else:
             raise ValueError("Currently only support TRT 7 and 8 but trt version {} found.".format(trt.__version__[0]))
 
