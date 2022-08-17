@@ -75,6 +75,9 @@ if __name__ == '__main__':
     parser.add_argument('-p','--fp', type=int, help='Floating Point Precision', required=True, default=16)
     parser.add_argument('-i','--input_path', type=str, help='Input. The onnx model path', required=True)
     parser.add_argument('-o','--output_path', type=str, help='Output. The engine path', required=True)
+    parser.add_argument('-ih','--image_height', type=int, help='The image height', required=False)
+    parser.add_argument('-iw','--image_width', type=int, help='The image width', required=False)
     args = parser.parse_args()
     args.batchsize = [ int(a) for a in args.batchsize]
-    onnx2tensorrt(args.input_path, args.output_path, fp=args.fp, dynamic_batch=args.batchsize)
+    onnx2tensorrt(args.input_path, args.output_path, fp=args.fp, dynamic_batch=args.batchsize, 
+        img_height=args.image_height, img_width=args.image_width)
