@@ -8,6 +8,8 @@ In this guide, we show how to runtime build a tensorrt engine file in panorama a
 - Convert ONNX model to TensorRT engine **in runtime**.
 - Finally, inference using the engine file.
 
+> Note we provided two models: one if for image size 320x320 and the other one is 640x640.
+> We will load the corresponding model and convert to TensorRT engine based on the image size you specify.
 ## Why Convert to ONNX First?
 ONNX is an open format built to represent machine learning models. ONNX defines a common set of operators - the building blocks of machine learning and deep learning models - and a common file format to enable AI developers to use models with a variety of frameworks, tools, runtimes, and compilers.
 
@@ -35,7 +37,10 @@ And thus the most common way to build engine file is build it runtime on target 
 
 ## Model
 
-* We have already included the yolov5s.onnx model in the packages/<app_name>-1.0/src/ folder.
+* We have already included the download_model.sh script in the packages/<app_name>-1.0/src/ folder.
+    * After executing the script, it will download 4 models
+    * yolov5s_320.onnx, yolov5s_640.onnx; the previous one is for image size 320x320 the later one is for 640x640
+    * yolov5s_320_opset13.onnx, yolov5s_640_opset13.onnx; Similar to the previous two, it is the version using opset13 for TRT8.
 * If you would like to convert any other model from any other framework to ONNX, please see the [ONNX.ai](https://onnx.ai/) website.
 
 ```
@@ -58,7 +63,7 @@ This application requires a Docker base image.
 
 **VERY IMPORTANT** : This example will build the engine file with dynamic batch size ranges from 1 to 8. If you decide to use batch size larger than 4, please use ATLEAST 2 CAMERAS for this example.
 
-**VERY IMPORTANT** : Batch size 8 is suitable for Jetson Xavier AGX. And for devices using Jetson Xavier NX module, please select at most batch size 4 instead of 8. please refer to this [link](https://aws.amazon.com/tw/panorama/appliance/) for more information about your device.
+**VERY IMPORTANT** : Batch size 8 is suitable for Jetson Xavier AGX. And for devices using Jetson Xavier NX module, please select at most batch size 6 instead of 8 for 640x640 image size and batch size 8 for 320x320 image size. Please refer to this [link](https://aws.amazon.com/tw/panorama/appliance/) for more information about your device.
 
 ## Steps for setting this up
 

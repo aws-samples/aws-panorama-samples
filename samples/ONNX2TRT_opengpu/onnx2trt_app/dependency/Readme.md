@@ -5,9 +5,10 @@
 - To training on custom dataset, please refer to the [ultralytics yolov5](https://github.com/ultralytics/yolov5/blob/master/export.py)
 - After training, please run the following code to export your yolov5 model to onnx before we start building and deploying our app to Panorama. 
     - The export_onnx.py is part of the export.py script in the ultralytics yolov5 repo. Thus the python environment setup is exactly the same as the yolov5 repo. Please place this export_onnx.py under the ultralytics yolov5 repo. And execute:
+    - If one want to export the model with image size 320, please set `--imgsz 320`
 
 ```
-python export_onnx.py --weights yolov5s.pt --target_trt_version <your target tensorrt version> --dynamic
+python export_onnx.py --weights yolov5s.pt --target_trt_version <your target tensorrt version> --dynamic --imgsz 640
 ```
 
 Currently it will export yolov5.pt r6.1 to ONNX. 
