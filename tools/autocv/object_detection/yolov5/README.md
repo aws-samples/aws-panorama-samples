@@ -163,7 +163,7 @@ In this step, you will launch a CloudFormation template using the file 02.CF-MLO
 
 3. Under **Specify Stack Details**, enter: 
 
-   * **Stack Name**: MLOps-BYO-BuildPipeline
+   * **Stack Name**: Avastus-Yolov5-BuildPipeline
 
    * **LambdaFunctionsBucket**: Enter the name of the existing S3 bucket that contains the lambda code we uploaded in the previous step 
 
