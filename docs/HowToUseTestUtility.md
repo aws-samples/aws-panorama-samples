@@ -8,7 +8,7 @@ Test Utility has a commandline interface. You can use the commandline interface 
 1. Make sure graph.json, package.json, descriptor.json, are prepared and edited correctly.
     * Test Utility uses these files to run the application.
 
-2. Change your working directory to the parent directory of your Panorama application directory. For example, if your application structured as beloe, you need to change your working directory to people_counter.
+2. Change your working directory to the parent directory of your Panorama application directory. For example, if your application structured as below, you need to change your working directory to people_counter.
     * people_counter/
         * people_counter_app/
             * assets/
