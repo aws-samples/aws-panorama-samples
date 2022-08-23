@@ -216,6 +216,8 @@ In this step, we will clone the YoloV5s Avastus repository and also install some
         mkdir /home/ec2-user/SageMaker/byo-staging
         cp -R /home/ec2-user/SageMaker/aws-panorama-samples/tools/autocv/object_detection/yolov5/* /home/ec2-user/SageMaker/byo-staging/
         sudo rm -r /home/ec2-user/SageMaker/aws-panorama-samples
+        pip3 install ipyplot
+
 
 
 ---
