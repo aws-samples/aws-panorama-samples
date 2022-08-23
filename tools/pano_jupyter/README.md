@@ -22,7 +22,7 @@
 
 ## How to build
 
-1. Prepare a Panorama application development environment on ARM-EC2 instance if you don't have. You can create it by following [Test Utility environment setup](https://github.com/aws-samples/aws-panorama-samples/blob/pano_jupyter/docs/EnvironmentSetup.md) document.
+1. Prepare a Panorama application development environment on ARM-EC2 instance if you don't have. You can create it by following [Test Utility environment setup](https://github.com/aws-samples/aws-panorama-samples/blob/main/docs/EnvironmentSetup.md) document.
 1. SSH to ARM-EC2 instance.
 1. Check out latest revision of this sample repository (https://github.com/aws-samples/aws-panorama-samples).
 1. Change directory to "aws-panorama-samples/tools/pano_jupyter/src/pano_jupyter_\*".
