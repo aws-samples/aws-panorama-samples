@@ -187,11 +187,39 @@ In this step, you will launch a CloudFormation template using the file 02.CF-MLO
 8. After a few minutes, you will see your stack Status change to '**CREATE_COMPLETE**'.  You're encouraged to go explore the resources created as part of this initial setup. 
 
 
-**NOTE: CodePipeline will automatically kickoff after this step; however, since we have not yet added data to the S3 bucket - it will error on the initial kickoff which is expected. Adding data to the S3 bucket is executed in Step 4 below. **
+**NOTE: CodePipeline will automatically kickoff after this step; however, since we have not yet added data to the S3 bucket - it will error on the initial kickoff which is expected. Adding data to the S3 bucket is executed in Step 5 below. **
 
 ---
+## Step 4: Clone Repository
 
-## Step 4: Trigger Pipeline Executions
+In this step, we will clone the YoloV5s Avastus repository and also install some dependencies we need
+
+1. Login to the [AWS Console](https://https://console.aws.amazon.com/) and enter your credentials
+
+2. Select **Services** from the top menu, and choose **Amazon SageMaker** 
+
+3. Click on **Notebook Instances**
+
+4. You should see a notebook instance, created by the CloudFormation template, called **Avastus-Yolov5-Notebook-*yourinitials***.  Click **Open Jupyter**
+
+5. From within your Jupyter notebook, click the **New** dropdown in the top right, then select **Terminal** 
+
+![Notebook Instance Terminal](images/SM-Notebook-Instance-1.png)
+
+6. Once the **Terminal** is launched,
+
+ *Run the following commands in the terminal* 
+
+        git clone -b autocv https://github.com/SuryaKari/aws-panorama-samples.git
+        pwd
+        ls -la
+        mkdir /home/ec2-user/SageMaker/byo-staging
+        cp -R /home/ec2-user/SageMaker/aws-panorama-samples/tools/autocv/object_detection/yolov5/* /home/ec2-user/SageMaker/byo-staging/
+        sudo rm -r /home/ec2-user/SageMaker/aws-panorama-samples
+
+
+---
+## Step 5: Trigger Pipeline Executions
 
 In this step, you will execute several activities within a SageMaker Notebook Instance to:
    
@@ -207,7 +235,7 @@ In this step, you will execute several activities within a SageMaker Notebook In
 
 3. Click on **Notebook Instances**
 
-4. You should see a notebook instance, created by the CloudFormation template, called **MLOps-BYO-Notebook-*yourinitials***.  Click **Open Jupyter**
+4. You should see a notebook instance, created by the CloudFormation template, called **Avastus-Yolov5-Notebook-*yourinitials***.  Click **Open Jupyter**
 
 5. From within your Jupyter notebook, click the **New** dropdown in the top right, then select **Terminal** 
 
@@ -218,10 +246,10 @@ In this step, you will execute several activities within a SageMaker Notebook In
 
     *Run the following commands in the terminal* 
 
-         cp -R /home/ec2-user/SageMaker/byo-staging/* /home/ec2-user/SageMaker/mlops-codecommit-byo/
+         cp -R /home/ec2-user/SageMaker/byo-staging/* /home/ec2-user/SageMaker/avastus-yolov5-codecommit/
 
 
-7. Go back to your notebook instance, and click on the 'mlops-codecommit-byo' file under **Files**.  You should now see several files (shown below) which we will use for lab activities.  Within that same folder is a notebook we will be using for the remainder of the workshop called **03.MLOps-BYO-LabNotebook.ipynb**.  
+7. Go back to your notebook instance, and click on the 'mlops-codecommit-byo' file under **Files**.  You should now see several files (shown below) which we will use for lab activities.  Within that same folder is a notebook we will be using for the remainder of the workshop called **Avastus_Pipelines_Object_Detection**.  
 
 ![SM Notebook](images/SM-Notebook-Instance-2.png)
 
