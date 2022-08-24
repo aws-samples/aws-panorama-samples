@@ -134,7 +134,8 @@ def trainingjob(account, region, job_name, bucket, datafolder, code_location, ou
     instance_count = 1
     do_spot_training = False
     max_wait = None
-    max_run = 1*60*60
+    #max_run = 1*60*60
+    max_run = 99999 # 27 hours+
     image_uri = None
     distribution = None
     train_job_name = 'sm'
@@ -280,7 +281,8 @@ def create_training_job(user_param, job_name, AccountID):
                 "S3OutputPath": "s3://{}/{}/output".format(model_artifact_bucket, job_name)
             },
             "StoppingCondition": {
-                "MaxRuntimeInSeconds": 60 * 60
+                #"MaxRuntimeInSeconds": 60 * 60
+                "MaxRuntimeInSeconds": 99999 # 27 hours+
             }
         }    
         
