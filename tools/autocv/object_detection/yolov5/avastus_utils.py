@@ -192,10 +192,23 @@ class download_from_labeling_job(object):
         #manifest  = pd.read_csv('./object_detection/prep_data/data/output.manifest',sep=" ", header=None)
         with open('./object_detection/prep_data/data/output.manifest') as f:
             lines = f.readlines()
+
+        """
         manifest = pd.DataFrame(lines)
         row = ast.literal_eval(manifest.iloc[0][0])
         output = [row[GT_Job_Name+'-metadata']['class-map'][str(x)] for x in row[GT_Job_Name+'-metadata']['class-map']]
-        return output
+        """
+        
+        class_map = {}
+        for line in lines:
+            d = json.loads(line)
+            class_map.update( d[f"{GT_Job_Name}-metadata"]["class-map"] )
+        
+        sorted_class_names = []
+        for k in sorted(class_map.keys()):
+            sorted_class_names.append(class_map[k])
+
+        return sorted_class_names
         
     def start(self):
         return self.download_s3_data()
