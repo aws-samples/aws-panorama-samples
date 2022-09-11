@@ -1,0 +1,91 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "201125699002::kinesis_video_streams_code",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "output_node",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": true,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "camera_node",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "kvs_region",
+                "interface": "string",
+                "value": "ap-southeast-1",
+                "overridable": true,
+                "decorator": {
+                    "title": "Kinesis Video Streams Service region",
+                    "description": "Actual service region for Kinesis Video Streams, other than panorama region"
+                }
+            },
+            {
+                "name": "kvs_stream_name",
+                "interface": "string",
+                "value": "PANORAMA_KVS_CAMERA1,PANORAMA_KVS_CAMERA2",
+                "overridable": true,
+                "decorator": {
+                    "title": "Kinesis Video Streams name to send video, we use camera name as kvs stream name here",
+                    "description": "Kinesis Video Streams name: support multi-camera, use comma without space"
+                }
+            },
+            {
+                "name": "iot_role_alias",
+                "interface": "string",
+                "value": "IOT_ROLE_ALIAS",
+                "overridable": true,
+                "decorator": {
+                    "title": "AWS IoT Role Alias for Kinesis Video Streams",
+                    "description": "Replace with you AWS IoT Role Alias for Kinesis Video Streams"
+                }
+            },
+            {
+                "name": "kinesis_video_streams_code_node",
+                "interface": "201125699002::kinesis_video_streams_code.kinesis_video_streams_code_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            }
+        ],
+        "edges": [
+            {
+                "producer": "camera_node.video_out",
+                "consumer": "kinesis_video_streams_code_node.video_in"
+            },
+            {
+                "producer": "kinesis_video_streams_code_node.video_out",
+                "consumer": "output_node.video_in"
+            },
+            {
+                "producer": "kvs_stream_name",
+                "consumer": "kinesis_video_streams_code_node.kvs_stream_name"
+            },
+            {
+                "producer": "iot_role_alias",
+                "consumer": "kinesis_video_streams_code_node.iot_role_alias"
+            },
+            {
+                "producer": "kvs_region",
+                "consumer": "kinesis_video_streams_code_node.kvs_region"
+            }
+        ]
+    }
+}

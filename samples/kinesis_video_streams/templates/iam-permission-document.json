@@ -1,0 +1,16 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "kinesisvideo:CreateStream",
+                "kinesisvideo:DescribeStream",
+                "kinesisvideo:PutMedia",
+                "kinesisvideo:TagStream",
+                "kinesisvideo:GetDataEndpoint"
+            ],
+            "Resource": "arn:aws:kinesisvideo:*:*:stream/${credentials-iot:ThingName}/*"
+        }
+    ]
+}
