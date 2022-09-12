@@ -1,0 +1,56 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "tf2_7_trt_app",
+        "version": "1.0",
+        "description": "Default description for package tf2_7_trt_app",
+        "assets": [
+            {
+                "name": "tf27_trt_app",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": "9706e35f025af67fd37659d177bcef37b61c276d77d24352b1831358bdb36598.tar.gz",
+                        "descriptorUri": "63a87b807a1a19dea23660a2e2ca168a9377b6dca80fb1bfb3e9e123702f26a8.json",
+                        "requirements": [
+                            {
+                                "type": "hardware_access",
+                                "inferenceAccelerators": [
+                                    {
+                                        "deviceType": "nvhost_gpu",
+                                        "sharedResourcePolicy": {
+                                            "policy": "allow_all"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "tf27_trt_app_interface",
+                "category": "business_logic",
+                "asset": "tf27_trt_app",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    },
+                    {
+                        "name": "batch_size",
+                        "type": "int32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
