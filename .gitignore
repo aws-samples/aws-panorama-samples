@@ -15,3 +15,5 @@ internal/
 /samples/pose_estimation/screenshot
 /tools/pano_jupyter/src/pano_jupyter_tf/assets/*
 *.DS_Store
+**/assets/*.tar.gz
+**/assets/*.json
