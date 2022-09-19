@@ -39,6 +39,72 @@
                             End date-time in UTC, in YYYYMMDD_HHMMSS format
     ```
 
+
+## Permission setting
+
+To use this tool, you need to have permissions to 1) create and describe log export tasks, 2) list and get S3 objects. Following is an example of IAM policy. (**Note** : please replace the account-id and bucket name parts.)
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "logs:DescribeExportTasks",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateExportTask",
+                "s3:GetObject",
+                "s3:GetObjectAttributes",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:logs:*:123456789012:log-group:/aws/panorama/*",
+                "arn:aws:s3:::your-bucket-name",
+                "arn:aws:s3:::your-bucket-name/*"
+            ]
+        }
+    ]
+}
+```
+
+In addition to IAM permission, you need to configure the S3 bucket policy to allow CloudWatch Logs can export logs to the bucket. (**Note** : please replace the region-name, bucket name parts.)
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "logs.us-east-1.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::your-bucket-name"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "logs.us-east-1.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::your-bucket-name/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+            }
+        }
+    ]
+}
+```
+
+For more details about permissions, please refer to [this document](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/S3ExportTasksConsole.html#S3PermissionsConsole).
+
+
 ## Sample usage
 
 With device-id only (application level logs are not exported) :
@@ -59,6 +125,18 @@ $ python3 panorama_export_logs.py \
   --start-datetime 20220621_000000 \
   --end-datetime 20220702_000000
 ```
+
+
+## Output structure
+
+This tool creates a Zip file at your current working directory, and the contents of the Zip file is structured as follows:
+
+- panorama_exported_logs_YYYYMMDD_HHMMSS.zip
+    - applicationInstance-* : directory for application level logs
+        - *.log : application level log files
+    - device-* : directory for device level logs
+        - *.log : device level log files
+    - info.json : associated information for exported logs (account-id, region-name)
 
 
 ## Limitations
