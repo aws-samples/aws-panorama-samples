@@ -55,6 +55,7 @@ Developer Guide](https://docs.aws.amazon.com/panorama/latest/dev/)
 List of tools for ease of development of panorama. Please see details at corresponding tool page.
 * [PanoJupyter](https://github.com/aws-samples/aws-panorama-samples/tree/main/tools/pano_jupyter)
 * [CameraStreamValidation](https://github.com/aws-samples/aws-panorama-samples/tree/main/tools/csv)
+* [Export logs](https://github.com/aws-samples/aws-panorama-samples/tree/main/tools/export_logs)
 
 
 ## Getting Help
