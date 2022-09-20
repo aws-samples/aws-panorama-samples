@@ -62,6 +62,6 @@
 
 ## Limitations
 
-* Your Panorama appliance device and your development host machine have to be in a sample network, as your browser needs to access your Panorama appliance device.
+* Your Panorama appliance device and your development host machine have to be in a same network, as your browser needs to access your Panorama appliance device.
 * If you reset Jupyter kernel and instantiate panoramasdk.node objects multiple times, panoramasdk APIs don't work as expected. You need to restart the device to clean start the pano_jupyter application. As a known issue, layoyt of HDMI output will break if you create panoramasdk.node instances multiple times without restarting.
 * You cannot install additional native libraries once PanoJupyter is deployed. All the native libaries have to be included in the code container image before deployment. Please refer to the "How to build" section above.
