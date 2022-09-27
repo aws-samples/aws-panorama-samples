@@ -1,0 +1,37 @@
+{
+    "nodeGraphOverrides": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [],
+        "nodes": [],
+        "nodeOverrides": [
+            {
+                "replace": "camera_node",
+                "with": []
+            },
+            {
+                "replace": "iot_role_alias",
+                "with": [
+                    {
+                        "name": "override_iot_role_alias"
+                    }
+                ]
+            },
+            {
+                "replace": "kvs_stream_name",
+                "with": [
+                    {
+                        "name": "override_kvs_stream_name"
+                    }
+                ]
+            },
+            {
+                "replace": "kvs_region",
+                "with": [
+                    {
+                        "name": "override_kvs_region"
+                    }
+                ]
+            }
+        ]
+    }
+}

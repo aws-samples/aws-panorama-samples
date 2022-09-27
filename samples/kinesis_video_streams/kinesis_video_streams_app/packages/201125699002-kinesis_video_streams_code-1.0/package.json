@@ -1,0 +1,52 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "kinesis_video_streams_code",
+        "version": "1.0",
+        "description": "Code package for app",
+        "assets": [
+            {
+                "name": "kinesis_video_streams_code",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": "1a929bbe89280941b1062ad9aa234ab38f5091074606defcbe597c6fe56198c1.tar.gz",
+                        "descriptorUri": "fdc6cdc6d7ca059ff990b37ea50a98d9f094b50cea61c790bdc3ed110469771d.json"
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "kinesis_video_streams_code_interface",
+                "category": "business_logic",
+                "asset": "kinesis_video_streams_code",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    },
+                    {
+                        "name": "iot_role_alias",
+                        "type": "string"
+                    },
+                    {
+                        "name": "kvs_stream_name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "kvs_region",
+                        "type": "string"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "description": "Video stream output",
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
