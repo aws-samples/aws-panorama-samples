@@ -17,9 +17,9 @@ Amazon Kinesis Video Streams makes it easy to securely stream video from connect
 
 ## Why AWS IoT and AWS IAM?
 
-Devices/camers can use AWS IAM role and policy to connect to Amazon Kinesis Video Streams services. However it is difficult to design the policy to allow multiple streamings accessibility. According to the resources in a policy document, users can determine which Amazon Kinesis Video Streams stream can be accessible. If the multiple streams are described, this policy is too open. If users describe single stream per policy, it will hit the IAM role and policy amount limitation(5000 maximum).
+Devices/cameras can use AWS IAM role and policy to connect to Amazon Kinesis Video Streams services. However it is difficult to design the policy to allow multiple streamings accessibility. According to the resources in a policy document, users can determine which Amazon Kinesis Video Streams stream can be accessible. If the multiple streams are described, this policy is too open. If users describe single stream per policy, it will hit the IAM role and policy amount limitation(5000 maximum).
 
-Devices/camers can use X.509 certificates to connect to AWS IoT using TLS mutual authentication protocols. Other AWS services (for example, Kinesis Video Streams) do not support certificate-based authentication, but they can be called using AWS credentials in AWS Signature Version 4 format. The Signature Version 4 algorithm normally requires the caller to have an access key ID and a secret access key. AWS IoT has a credentials provider that allows you to use the built-in X.509 certificate as the unique device identity to authenticate AWS requests (for example, requests to Kinesis Video Streams). This eliminates the need to store an access key ID and a secret access key on your device. 
+Devices/cameras can use X.509 certificates to connect to AWS IoT using TLS mutual authentication protocols. Other AWS services (for example, Kinesis Video Streams) do not support certificate-based authentication, but they can be called using AWS credentials in AWS Signature Version 4 format. The Signature Version 4 algorithm normally requires the caller to have an access key ID and a secret access key. AWS IoT has a credentials provider that allows you to use the built-in X.509 certificate as the unique device identity to authenticate AWS requests (for example, requests to Kinesis Video Streams). This eliminates the need to store an access key ID and a secret access key on your device.
 
 The credentials provider authenticates a client (in this case, a Kinesis Video Streams SDK that is running on the camera from which you want to send data to a video stream) using an X.509 certificate and issues a temporary, limited-privilege security token. The token can be used to sign and authenticate any AWS request (in this case, a call to the Kinesis Video Streams). For more information, see [Authorizing Direct Calls to AWS Services](https://docs.aws.amazon.com/iot/latest/developerguide/authorizing-direct-aws.html).
 
@@ -44,18 +44,22 @@ To learn more, please go to [Example: Kinesis Video Streams Producer SDK GStream
 
 ## Setup the application
 
-It is highly recommended to use a pre-built enviroment. 
-- To **set up your environment** for Test Utility, please refer to [Test Utility environment setup](https://github.com/aws-samples/aws-panorama-samples/blob/main/docs/EnvironmentSetup.md).
+It is highly recommended to use a pre-built enviroment.
+- To **set up your environment** for Test Utility, please refer to [Test Utility environment setup](https://github.com/aws-samples/aws-panorama-samples/blob/main/docs/EnvironmentSetup.md). It is highly recommended to use **ARM64 based EC2 instance**.
 - Create a role through IAM console and add **AWSIoTFullAccess** permission. This role will be used when the application is going to be deployed.
 - Open kinesis_video_streams.ipynb and follow the instructions.
 
 ## Deploy Panorama application and verify video streams
 
-After deploying Panorama application via execute all steps in notebook, users can check the video streams on Amazon Kinesis Video Streams console. The **Video streams** are same as camera names.
+After deploying Panorama application via execute all steps in notebook, users can check the video streams on Amazon Kinesis Video Streams console. The **Video streams** are same as camera names. **Chrome** browser is highly recommended for reviewing video playback on Amazon Kinesis Video Streams console. The alternative solution to verify video stream is to use players that support streaming in HLS format, such as **[hls.js](https://hls-js.netlify.app/demo/)**.
 
 ![kvs-check](./doc/kvs_check.png)
 
 
-## Debugging
+## Tips
 
-If you encounter issues with deploying from this, once the application is uploaded to the cloud, you can use the graph.json and deploy using the Panorama console as well
+If you encounter issues during application deployment phase, make sure that application is uploaded to the cloud. Then you can use the graph.json to deploy application in the Panorama console as well.
+
+## Todo
+
+In this sample, the video streams will be continuously delivered to Amazon Kinesis Video Streams. We would add the feature to control on/off for individual camera via AWS IoT to adopt the real use case.
