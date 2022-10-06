@@ -1,99 +1,65 @@
-# Runing TF-TRT on Panorama - JetPack 4.4
+# Runing TF-TRT on Panorama - JetPack 4.6.2
 
-If your panorama device is still using Panorama system software v4.3.x (JetPack4.4), this is the right guide you are looking for. 
 
-If your panorama device is using Panorama system software v4.4.x (Jetpack4.6.2), please refer to README_JP462.md
+If your panorama device is still using Panorama system software v4.3.x (JetPack4.4), please refer to README_JP44.md
 
-## Brief
-In this guide, we show how to convert a Tensorflow SSD model to a TF-TRT model. This guide is derived from and the full version is available at : https://apivovarov.medium.com/run-tensorflow-2-object-detection-models-with-tensorrt-on-jetson-xavier-using-tf-c-api-e34548818ac6
-To improve Object Detection model performance the model will be exported to inference model with combined NMS in the post-processing option. 
+If your panorama device is using Panorama system software v5.0+ (Jetpack4.6.2), this is the right guide you are looking for.
 
-## Setup
+In this readme, we will walk you through 
+- Export your tensorflow model to TF-TRT inside NGC. 
+- Prepare the docker base image.
 
-TF-TRT converter works correctly on a computer with NVIDIA GPU installed. We can use AWS g4dn.xlarge instance ($0.526/hr) to prepare TF-TRT model
-Launch AWS EC2 GPU instance with the following parameters:
-```
-    AMI: Ubuntu Server 18.04 LTS (HVM), SSD Volume Type, x86
-    Type: g4dn.xlarge
-    Root File system: 50 GiB
-```
-ssh to the instance
+## Exporting Model Using NGC
 
-Update existing packages
+The following works are done on g4dn.2xlarge + ami-0184e674549ab8432
+- g4dn.xlarge should be also workable.
+- ami-0184e674549ab8432 （Deep Learning AMI (Ubuntu 18.04) Version 60.4) which has cuda driver installed by default.
 
-```
-sudo apt update
-sudo apt upgrade
-sudo reboot
-```
+We will use TF2.5 and TF2.7 as an example to guide the user through exporting the ssd_mobilenet inside the NGC.
 
-We are going to install TensorRT-7.1.3 which is the same version as on Jetson Xavier JetPack 4.4.1. To export the model to TF-TRT we will use tensorflow-2.4.4 from pypi which needs cuda-11.0
+### Why Using NGC ?
+- By using NGC, we can spare the effort of installing the cuda cudnn and tensorrt on the host machine ourselves.
+- Tensorflow version 2.5 can be compiled with either TRT7 or TRT8. And NGC provides different containers that has prebuilt tensorflow 2.x + trt 7/8 inside the container.
+- Some of the version is even compaitable with the settings with Jetson released tensorflow wheel file.
+- For more information, please refer to
+  - [Installing Tensorflow on Jetson](https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html)
+  - [TensorFlow compatibility with NVIDIA containers and Jetpack](https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform-release-notes/tf-jetson-rel.html#tf-jetson-rel)
+  - [NGC Tensorflow List](https://docs.nvidia.com/deeplearning/frameworks/tensorflow-release-notes/rel_22-06.html#rel_22-06)
 
-### Install Cuda 11.0 from deb(local)
+With the help of NGC, we just need to choose the right Nvidia Jetson provided TF version (and wheel file), and export model with the corresponding NGC. For example:
+- Nvidia provides a [Jetson TF wheel file here](https://developer.download.nvidia.com/compute/redist/jp/v461/tensorflow/tensorflow-2.7.0+nv22.1-cp36-cp36m-linux_aarch64.whl). 
+- After we look up inside the table in [TensorFlow compatibility with NVIDIA containers and Jetpack](https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform-release-notes/tf-jetson-rel.html#tf-jetson-rel), one can realize that this is built with Jetpack4.6.1 (i.e. TF2.7 + TRT8.2). And NGC Tensorflow 22.01 also provides the similar environment (i.e. tensorflow 2.7 + TRT8.2)
+    -  > Note: Jetpack4.6.1 and Jetpack4.6.2 are mostly the same.
+- Then we can export our model under nvcr.io/nvidia/tensorflow:22.01-tf2-py3
 
-```
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
-sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
-wget http://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers/cuda-repo-ubuntu1804-11-0-local_11.0.2-450.51.05-1_amd64.deb
-sudo dpkg -i cuda-repo-ubuntu1804-11-0-local_11.0.2-450.51.05-1_amd64.deb
-sudo apt-key add /var/cuda-repo-ubuntu1804-11-0-local/7fa2af80.pub
-sudo apt-get update
-sudo apt-get -y install cuda
-```
-### Install pip
-```
-sudo apt install python3-pip
-sudo pip3 install -U pip setuptools
-```
-### Optionally install awscli in case you need to copy to/from S3
-```
-sudo pip3 install -U awscli
-aws configure
-```
+### Exporting Model with TF2.7 + TRT8.2
 
-## Install TensorRT 7.1.3 for Cuda 11.0
-
-Download TensorRT 7.1.3 for Cuda 11.0 deb(local) repo from NVIDIA developer website — file nv-tensorrt-repo-ubuntu1804-cuda11.0-trt7.1.3.4-ga-20200617_1-1_amd64.deb
+We will export the the model inside the NGC 22.01. Which has TF2.7 + TRT8.2 installed inside the contaienr.
 
 ```
-sudo dpkg -i nv-tensorrt-repo-ubuntu1804-cuda11.0-trt7.1.3.4-ga-20200617_1-1_amd64.deb
-sudo apt-key add /var/nv-tensorrt-repo-cuda11.0-trt7.1.3.4-ga-20200617/7fa2af80.pub
-sudo apt-get update
-sudo apt-get install tensorrtsudo pip3 install protobuf
-sudo apt-get install python3-libnvinfer-dev uff-converter-tf
+docker run --gpus all -it -w /tensorflow -v $PWD:/mnt -e HOST_PERMS="$(id -u):$(id -g)" \
+    nvcr.io/nvidia/tensorflow:22.01-tf2-py3 bash
 ```
 
-## Install Tensorflow 2.4.4
+Inside docker container
 ```
-Install Tensorflow 2.4.4
-```
-
-Verify that tensorflow can load Cuda libraries
-```
-#!python3
-import tensorflow as tf
-tf.test.is_gpu_available()
-```
-
-## Install Tensorflow Models object_detection project
-
-```
-sudo apt install protobuf-compiler
+apt-get update
+apt-get install protobuf-compiler
 git clone https://github.com/tensorflow/models.git tensorflow_models
-cd tensorflow_models/research# Compile protos.
-protoc object_detection/protos/*.proto --python_out=.# Install TensorFlow Object Detection API.
-cp object_detection/packages/tf2/setup.py .# Edit setup.py and modufy REQUIRED_PACKAGES list
-# - add tfensorflow==2.4.4
-# - change tf-models-official>=2.4.0python3 -m pip install .
-```
+cd tensorflow_models/research
+protoc object_detection/protos/*.proto --python_out=.
+cp object_detection/packages/tf2/setup.py .
 
-## Export SSD Mobilenet model to inference saved model
-Download SSD Mobilenet model from TF2 model zoo
+# manual edit setup.py
+# - add tensorflow==2.7.0
+# - change tf-models-official>=2.7.0
+# - change tensorflow_io==0.23.0
+python3 -m pip install .
 
-```
 wget http://download.tensorflow.org/models/object_detection/tf2/20200711/ssd_mobilenet_v2_320x320_coco17_tpu-8.tar.gz
 tar zxf ssd_mobilenet_v2_320x320_coco17_tpu-8.tar.gz
 ```
+
 To improve the model performance we are going to enable combined NMS in the post-processing
 
 Edit ssd_mobilenet_v2_320x320_coco17_tpu-8/pipeline.config and add change_coordinate_frame: false and use_combined_nms: true to post_processing -> batch_non_max_suppression block.
@@ -124,26 +90,40 @@ python3 object_detection/exporter_main_v2.py \
     --output_directory=output/ssd_mobilenet_v2_320x320_coco17_tpu-8_float_batchN_nms
 ```
 
-Validate the exported model
+
+### Test the Exported Model and Convert it to TF-TRT
+
+Test the exported model and calculate the FPS
+Let's cd to the model directory first.
+
+`cd output/ssd_mobilenet_v2_320x320_coco17_tpu-8_float_batchN_nms`
+
+And execute the following python3 script.
+
 ```
-cd output/ssd_mobilenet_v2_320x320_coco17_tpu-8_float_batchN_nms#!python3
-import tensorflow as tfm = tf.saved_model.load("saved_model")
+import tensorflow as tf
+import time
+m = tf.saved_model.load("saved_model")
 ff = m.signatures['serving_default']
 x = tf.ones(shape=(8,300,300,3))
-y = ff(x)import time
+y = ff(x)
 N = 1000
 t1 = time.time()
 for i in range(N):
-  out = ff(x)
+    out = ff(x)
 tt = time.time() - t1
 print("exec time:", tt)
 print(8*N/tt, "fps")
 ```
 
-Convert the model to TF-TensorRT model
+Lets convert the model using the following python3 script. This will export two model:
+- TF-TRT with FP16
+- TF-TRT with FP32
+
 ```
 import tensorflow as tf
 from tensorflow.python.compiler.tensorrt import trt_convert as trt
+import time
 # FP16
 conversion_params = trt.TrtConversionParams(precision_mode=trt.TrtPrecisionMode.FP16)
 converter = trt.TrtGraphConverterV2(
@@ -159,17 +139,15 @@ converter.convert()
 converter.save("saved_model_trt_fp32")
 ```
 
-Validate the exported TF-TRT models
+After the conversion, lets try the TF-TRT, to see if the FPS is better
+
 ```
-#!python3
-import tensorflow as tfm = tf.saved_model.load("saved_model_trt_fp32")
+import tensorflow as tf
+import time
+m = tf.saved_model.load("saved_model_trt_fp16")
 ff = m.signatures['serving_default']
 x = tf.ones(shape=(8,300,300,3))
-y = ff(x)# It should print the following indicating that TensorRT infer libraries are loaded
-# Linked TensorRT version: 7.1.3
-# Successfully opened dynamic library libnvinfer.so.7
-# Loaded TensorRT version: 7.1.3
-# Successfully opened dynamic library libnvinfer_plugin.so.7import time
+y = ff(x)
 N = 1000
 t1 = time.time()
 for i in range(N):
@@ -178,6 +156,25 @@ tt = time.time() - t1
 print("exec time:", tt)
 print(8*N/tt, "fps")
 ```
+
+Now we can copy the folder saved_model_trt_fp16 and put it inside our Panorama app.
+- We have provided the model for you already. We will downalod the model inside the ipynb
+
+
+## Prepare The Docker Image
+
+- Please run the docker build insdie dependencies/docker_tf27_py36_jp462
+- This docker image will install the cuda, cudnn, trt that is compaitable with Jetpack 4.6.2 and also install tensorflow 2.7 
+
+```
+docker build -t tf27:latest .
+```
+
+## Prepare the App with Jupyter Notebook
+
+Let's prepare our tf27 app using the jupyter notebook.
+
+Please open the TF27_opengpu.ipynb and follow along.
 
 ## Special flags in package.json
 

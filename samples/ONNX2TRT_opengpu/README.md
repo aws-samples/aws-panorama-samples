@@ -64,7 +64,7 @@ This application requires a Docker base image.
 
 * Step 1: Navigate to ./dependencies/docker or ./dependencies/docker_jp462 and build the base docker image.
     * ./dependencies/docker is for Panorama system software v4.3.x and this corresponds to Jetpack 4.4
-    * ./dependencies/docker_jp462 is for Panorama system software v4.4.x and this corresponds to Jetpack 4.6.2
+    * ./dependencies/docker_jp462 is for Panorama system software v5.0+ and this corresponds to Jetpack 4.6.2
 * Step 2 : Open ONNX2TRT_opengpu.ipynb and follow along.
 
 ## Special flags in package.json
