@@ -28,6 +28,7 @@ RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
 	cuda-nvtx-$CUDAPKG \
 	cuda-libraries-dev-$CUDAPKG \
 	cuda-minimal-build-$CUDAPKG \
+    cuda-command-line-tools-$CUDAPKG \
     libcudnn8 \
     tensorrt \
     && rm -rf /var/lib/apt/lists/* \
@@ -37,6 +38,42 @@ RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
     && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a \
     && rm -rf /usr/lib/aarch64-linux-gnu/*static*
     #Remove static libraries to save space
+
+#################################
+#      TensorRT For Python      #
+#################################
+
+RUN apt-get update -y \
+    && apt-get install -y python3-libnvinfer-dev zip \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# patching for JP4.6.2 for Jetson NX 16GB
+COPY TensorRT8.2FixforJetsonNX16GB.zip .
+RUN mkdir /jp46_patch && mv TensorRT8.2FixforJetsonNX16GB.zip /jp46_patch \
+    && cd /jp46_patch && unzip TensorRT8.2FixforJetsonNX16GB.zip 
+
+RUN dpkg -i /jp46_patch/libnvinfer8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-plugin8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-plugin-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvonnxparsers8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvonnxparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvparsers8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-bin_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-doc_8.2.1-1+cuda10.2_all.deb \
+    && dpkg -i /jp46_patch/libnvinfer-samples_8.2.1-1+cuda10.2_all.deb \
+    && dpkg -i /jp46_patch/tensorrt_8.2.1.9-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/python3-libnvinfer_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/python3-libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/graphsurgeon-tf_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/uff-converter-tf_8.2.1-1+cuda10.2_arm64.deb \
+    && rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/*static* \
+    && rm -r /jp46_patch
 
 
 ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
@@ -131,15 +168,6 @@ RUN python3.6 -m pip install --no-cache-dir pycuda==2020.1 six
 RUN python3.6 -m pip install --no-cache-dir opencv-python
 
 
-#################################
-#      TensorRT For Python      #
-#################################
-
-RUN apt-get update -y \
-    && apt-get install python3-libnvinfer-dev -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
 ######################
 # torchvision 0.10.0 #
 ######################
@@ -195,8 +223,10 @@ RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
 
 
 ARG PYTHON_EGG_CACHE="/panorama/.cache"
-RUN python3.6 -c "import torch; import torchvision"
+RUN nm -D /usr/lib/aarch64-linux-gnu/libnvinfer.so | grep tensorrt_version
+RUN python3.6 -c "import torch; import torchvision;"
 RUN python3.6 -m pip cache purge
+
 
 RUN mkdir -p /tmp/test && \
     mkdir -p /panorama/test && \
