@@ -8,7 +8,9 @@ RUN python3.7 -m pip uninstall -y numpy \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg2 \
-    ca-certificates
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean 
 
 # COPY jetson-ota-public.key /etc/jetson-ota-public.key
 # RUN apt-key add /etc/jetson-ota-public.key
@@ -40,7 +42,11 @@ RUN apt-get update && \
        libhdf5-dev \
        zlib1g-dev \
        zip \
-       libjpeg8-dev
+       libjpeg8-dev \
+       wget \
+       unzip \
+       && rm -rf /var/lib/apt/lists/* \
+       && apt-get clean
 
 #RUN mkdir -p /usr/lib/python3.7/lib-dynload
 #RUN cp /usr/lib/python3.7/lib-dynload/panoramasdk.so /usr/lib/python3.7/lib-dynload/panoramasdk.so
@@ -59,13 +65,37 @@ RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
     libcudnn8 \
     tensorrt \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/*static*
 
-#Remove static libraries to save space
-RUN rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a
-RUN rm -rf /usr/local/cuda-$CUDA/lib64/*.a
-RUN rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a
-RUN rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a
+COPY TensorRT8.2FixforJetsonNX16GB.zip .
+RUN mkdir /jp46_patch && mv TensorRT8.2FixforJetsonNX16GB.zip /jp46_patch \
+    && cd /jp46_patch && unzip TensorRT8.2FixforJetsonNX16GB.zip 
+
+RUN dpkg -i /jp46_patch/libnvinfer8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-plugin8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-plugin-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvonnxparsers8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvonnxparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvparsers8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-bin_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/libnvinfer-doc_8.2.1-1+cuda10.2_all.deb \
+    && dpkg -i /jp46_patch/libnvinfer-samples_8.2.1-1+cuda10.2_all.deb \
+    && dpkg -i /jp46_patch/tensorrt_8.2.1.9-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/python3-libnvinfer_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/python3-libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/graphsurgeon-tf_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/uff-converter-tf_8.2.1-1+cuda10.2_arm64.deb \
+    && rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a \
+    && rm -rf /usr/lib/aarch64-linux-gnu/*static* \
+    && rm -r /jp46_patch
 
 ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
 
@@ -100,8 +130,6 @@ ENV LD_LIBRARY_PATH /usr/local/cuda-$CUDA/targets/aarch64-linux/lib:${LD_LIBRARY
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG HDF5_DIR="/usr/lib/aarch64-linux-gnu/hdf5/serial/"
-ARG MAKEFLAGS=-j$(nproc)
-
 RUN printenv
 
 #
@@ -115,9 +143,6 @@ RUN env H5PY_SETUP_REQUIRES=0 python3.6 -m pip install -U --no-cache-dir --verbo
 #
 # TensorFlow 2.4. See build instructions for building tensorflow wheel here: https://apivovarov.medium.com/run-tensorflow-2-object-detection-models-with-tensorrt-on-jetson-xavier-using-tf-c-api-e34548818ac6
 #
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget
-
 ARG TENSORFLOW_WHL=tensorflow-2.7.0+nv22.1-cp36-cp36m-linux_aarch64.whl
 RUN wget "https://developer.download.nvidia.com/compute/redist/jp/v461/tensorflow/${TENSORFLOW_WHL}" -O ${TENSORFLOW_WHL} \
     && python3.6 -m pip install --pre --verbose ${TENSORFLOW_WHL} \
@@ -125,6 +150,7 @@ RUN wget "https://developer.download.nvidia.com/compute/redist/jp/v461/tensorflo
 
 
 RUN python3 -c "import tensorflow as tf; print(tf.__version__)"
+RUN nm -D /usr/lib/aarch64-linux-gnu/libnvinfer.so | grep tensorrt_version
 
 
 #
