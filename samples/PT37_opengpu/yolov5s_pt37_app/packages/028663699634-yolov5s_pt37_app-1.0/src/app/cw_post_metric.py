@@ -150,7 +150,12 @@ class MetricsHandler:
         self.fifo = os.open(IPC_FIFO_NAME, os.O_WRONLY)
 
     def terminate(self):
+        log.info("Terminating CW PostPorcess")
         self.post_process.terminate()
+    
+    def kill(self):
+        log.info("Killing CW PostPorcess")
+        self.post_process.kill()
 
     def get_metric(self, name):
         return self.metrics_factory.get_metric_object(name)
