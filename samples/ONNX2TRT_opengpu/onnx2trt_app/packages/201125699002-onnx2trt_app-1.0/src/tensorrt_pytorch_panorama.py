@@ -158,4 +158,5 @@ if __name__ == '__main__':
         app.run()
     except Exception as err:
         log.exception('App Did not Start {}'.format(err))
+        app.metrics_handler.kill()
         sys.exit(1)
