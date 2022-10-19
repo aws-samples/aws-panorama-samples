@@ -143,6 +143,9 @@ class MetricsHandler:
     def terminate(self):
         self.post_process.terminate()
 
+    def kill(self):
+        self.post_process.kill()
+
     def get_metric(self, name):
         return self.metrics_factory.get_metric_object(name)
 
