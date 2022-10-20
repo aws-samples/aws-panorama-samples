@@ -36,18 +36,8 @@ def install_certs_keys():
     copy_file_and_permission( "sideloading_server.key.pem",  args.app_src_dir )
     copy_file_and_permission( "sideloading_client.cert.pem", args.app_src_dir )
 
-    # Install cert and key to client side (Development host side)
-    client_cert_key_installation_dir = os.path.expanduser("~/.panorama/sideloading")
-    os.makedirs( client_cert_key_installation_dir, exist_ok = True )
-    copy_file_and_permission( "sideloading_client.cert.pem", client_cert_key_installation_dir )
-    copy_file_and_permission( "sideloading_client.key.pem",  client_cert_key_installation_dir )
-    copy_file_and_permission( "sideloading_server.cert.pem", client_cert_key_installation_dir )
-
-    # Delete unnecessary files
-    delete_file( "sideloading_server.cert.pem" )
+    # Delete unnecessary files (Other pem files are needed by CLI)
     delete_file( "sideloading_server.key.pem" )
-    delete_file( "sideloading_client.cert.pem" )
-    delete_file( "sideloading_client.key.pem" )
 
 def install_agent_script():
 

@@ -20,11 +20,22 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
 ## How to use
 
-1. Run the "install.py" script to install necessary files (certificate files, key files, and sideloading_agent.py).
+1. Under the top directory of your application (where assets / graphs / packages directory exist), run the "install.py" script to generate and install necessary files.
 
     ``` bash
-    python3 ./install.py --expiry 30 --app-src-dir {path-to-your-app}/packages/123456789012-code-1.0/src
+    python3 aws-panorama-samples/tools/sideloading/install.py --expiry 30 --app-src-dir ./packages/123456789012-code-1.0/src
     ```
+
+    This script creates / installs following files.
+
+    * `sideloading_agent.py` under code package src directory.
+    * `sideloading_server.cert.pem`, `sideloading_server.key.pem`, `sideloading_client.cert.pem` under code package src directory.
+    * `sideloading_client.cert.pem`, `sideloading_client.key.pem`, `sideloading_server.cert.pem` under current directory.
+
+    **Important:** Generated PEM files are used for authentication between Sideloading agent and Sideloading CLI. Please keep the them secure, and don't share them widely.
+
+    **Important:** In the example above, expiry of certificate files is set 30 days ("--expiry 30"). This parameter is configurable, but please use minimum necessary length of expiry, and avoid using unncessary long expiry.
+
 
 1. Modify your Panorama application entry point script (e.g. "app.py") as follows:
     ``` python
@@ -111,18 +122,18 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
 1. Identify the IP address of your appliance device. You can use the Management Console UI or "aws panorama describe-device" command.
 
-1. In your terminal window, hit "`sideloading_cli.py sync`" command to transfer updated files. Following is an example:
+1. Under the top directory of your application (where assets / graphs / packages directory exist), hit "`sideloading_cli.py sync`" command to transfer updated files. Following is an example:
 
     ```bash
-    $ python3 aws-panorama-samples/sideloading/sideloading_cli.py sync --addr 10.0.0.245 --port 8123 --src-top packages/123456789012-mycode-1.0/src
+    $ python3 aws-panorama-samples/tools/sideloading/sideloading_cli.py sync --addr 10.0.0.245 --port 8123 --src-top packages/123456789012-mycode-1.0/src
     ```
 
     **Note:** This is an example. Please replace script path, IP address of the device, port number, and path to the "src" directory according to your environment.
 
-1. Hit "`sideloading_cli.py run-app`" command to run application with transfered files. Following is an example:
+1. Under the top directory of your application (where assets / graphs / packages directory exist), hit "`sideloading_cli.py run-app`" command to run application with transfered files. Following is an example:
 
     ```bash
-    $ python3 aws-panorama-samples/sideloading/sideloading_cli.py run-app --addr 10.0.0.245 --port 8123
+    $ python3 aws-panorama-samples/tools/sideloading/sideloading_cli.py run-app --addr 10.0.0.245 --port 8123
     ```
 
 1. Reboot the device, and repeat "sync" and "run-app".
@@ -148,7 +159,7 @@ When you completed the development and are ready to deploy to production system,
 
 ## How it works
 
-1. Transfered files are stored under `/opt/aws/panorama/storage/sideloaded/`. This is a different directory from Panorama application's standard application directory `/panorama/`.
+1. Transfered files are stored under `/opt/aws/panorama/storage/sideloaded/`. This is a different directory from Panorama application's standard application directory - `/panorama/`.
 
 1. `run-app` command tries to find application script in the following priority order. The first script found is executed as a child process.
 

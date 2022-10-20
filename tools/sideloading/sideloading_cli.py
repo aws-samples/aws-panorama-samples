@@ -9,8 +9,7 @@ import ssl
 import argparse
 
 
-cert_key_dir = os.path.expanduser("~/.panorama/sideloading")
-print(cert_key_dir)
+cert_key_dir = "."
 
 
 class SideloadingClient:
