@@ -20,12 +20,11 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
 ## How to use
 
-1. Run the "install.py" script to generate certificate / key files and install them:
+1. Run the "install.py" script to install necessary files (certificate files, key files, and sideloading_agent.py).
+
     ``` bash
     python3 ./install.py --expiry 30 --app-src-dir {path-to-your-app}/packages/123456789012-code-1.0/src
     ```
-
-1. Copy "sideloading_agent.py" to your Panorama application's code asset `src` directory. (e.g. packages/123456789012-mycode-1.0/src/)
 
 1. Modify your Panorama application entry point script (e.g. "app.py") as follows:
     ``` python
@@ -37,7 +36,8 @@ This solution comes with 1) sideloading agent module you can import in your Pano
         port = 8123,
     )
     ```
-1. Enable inbound networking by modifying following JSON files.
+
+1. Enable inbound networking by modifying JSON files as follows.
     - Add "inboundPorts" element at the following place in the code package.json.
         ``` json
         {
@@ -79,7 +79,8 @@ This solution comes with 1) sideloading agent module you can import in your Pano
             }
         }
         ```
-1. With regular panorama application building & packaging steps, build and package the side liading enabled application. (`panorama-cli build-container` command, `panorama-cli package-application` command ).
+1. With regular panorama application building & packaging steps, build and package the side liading enabled application. (`panorama-cli build-container` command, `panorama-cli package-application` command).
+
 1. Deploy the application onto your device.
     * Option 1 (basic) : Deploy using Management Console UI.
         1. At the "Configure" step in the deployment wizard, click the "Configure application" button. ![](images/configure_inbound_port_1.png)
@@ -105,8 +106,11 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
 1. Confirm the completion of deployment.
     * **Note** : After the deployment completed, you will see `Error` or `Not available` status. You can safely ignore these errors. It just means the application hasn't started regular computer vision process yet.
+
 1. Check "console_output" log stream on CloudWatch Logs, and confirm "SideloadingAgent started" message.
+
 1. Identify the IP address of your appliance device. You can use the Management Console UI or "aws panorama describe-device" command.
+
 1. In your terminal window, hit "`sideloading_cli.py sync`" command to transfer updated files. Following is an example:
 
     ```bash
