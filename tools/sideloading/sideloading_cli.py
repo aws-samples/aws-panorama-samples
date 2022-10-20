@@ -9,32 +9,39 @@ import ssl
 import argparse
 
 
+cert_key_dir = os.path.expanduser("~/.panorama/sideloading")
+print(cert_key_dir)
+
+
 class SideloadingClient:
 
-    def __init__( self, server_address, port, src_top ):
+    def __init__( self, server_address, port ):
     
-        self.src_top = os.path.normpath(src_top)
-
         self.ssl_context = ssl.create_default_context( purpose=ssl.Purpose.SERVER_AUTH )
 
         self.ssl_context.check_hostname = False
         self.ssl_context.verify_mode = ssl.CERT_REQUIRED
 
         # Server certificate
-        self.ssl_context.load_verify_locations( "./certs_keys/server.pem.cert" )
+        self.ssl_context.load_verify_locations( os.path.join( cert_key_dir, "sideloading_server.cert.pem" ) )
 
         # Client certificate & secret-key
-        self.ssl_context.load_cert_chain( "./certs_keys/client.pem.cert", "./certs_keys/client.pem.key" )
+        self.ssl_context.load_cert_chain( 
+            os.path.join( cert_key_dir, "sideloading_client.cert.pem" ), 
+            os.path.join( cert_key_dir, "sideloading_client.key.pem" ), 
+        )
 
         self.https_conn = http.client.HTTPSConnection( server_address, port, context=self.ssl_context)
 
-    def sendFile( self, src_filename ):
+    def sendFile( self, src_top, src_filename ):
+    
+        src_top = os.path.normpath(src_top).replace("\\","/")
     
         src_filename = src_filename.replace("\\","/")
 
-        src_fullpath = os.path.join( self.src_top, src_filename )
+        src_fullpath = os.path.join( src_top, src_filename )
         src_fullpath = os.path.normpath(src_fullpath).replace("\\","/")
-        assert src_fullpath.startswith(self.src_top)
+        assert src_fullpath.startswith(src_top), f"{src_fullpath} doesn't start with {src_top}"
         
         st = os.stat(src_fullpath)
         dt_mtime = datetime.datetime.fromtimestamp( st.st_mtime )
@@ -74,19 +81,21 @@ class SideloadingClient:
         d = json.loads(response.read())
         return d
 
-    def sync(self):
+    def sync( self, src_top ):
         
+        src_top = os.path.normpath(src_top).replace("\\","/")
+
         # List all files in destination
         dst_files_list = self.listFiles()
 
         # List all files in source
         src_files_list = []
-        for place, dirs, files in os.walk( self.src_top ):
+        for place, dirs, files in os.walk( src_top ):
             for filename in files:
                 
                 filepath = os.path.join( place, filename ).replace("\\","/")
-                assert filepath.startswith(self.src_top)
-                filepath_relative = filepath[ len(self.src_top) : ]
+                assert filepath.startswith(src_top)
+                filepath_relative = filepath[ len(src_top) : ]
                 filepath_relative = filepath_relative.lstrip("/\\")
                 filepath_relative = filepath_relative.replace("\\","/")
                 
@@ -125,7 +134,7 @@ class SideloadingClient:
                     continue
                 
             # Send changed file
-            self.sendFile( filepath )
+            self.sendFile( src_top, filepath )
                 
         # Delete files which disappeard in source
         for dst_file in dst_files_list:
@@ -162,16 +171,16 @@ def send_file( argv ):
     argparser = argparse.ArgumentParser( description='Send single file' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
-    argparser.add_argument('filepath', action='store', type=str, help='Relative filepath ')
+    argparser.add_argument('--src-top', dest='src_top', action='store', type=str, required=True, help='Top directory (where main.py / main.sh exists) in development host.')
+    argparser.add_argument('filepath', action='store', type=str, help='Relative filepath from src-top directory')
     args = argparser.parse_args( argv )
     
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
-        src_top = "./src",
     )
 
-    sideloading_client.sendFile( args.filepath )
+    sideloading_client.sendFile( src_top = args.src_top, src_filename = args.filepath )
     
 
 def delete_file( argv ):
@@ -185,7 +194,6 @@ def delete_file( argv ):
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
-        src_top = "./src",
     )
 
     sideloading_client.deleteFile( args.filepath )
@@ -201,7 +209,6 @@ def list_files( argv ):
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
-        src_top = "./src",
     )
 
     files = sideloading_client.listFiles()
@@ -223,15 +230,15 @@ def sync( argv ):
     argparser = argparse.ArgumentParser( description='List all sideloaded files' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
+    argparser.add_argument('--src-top', dest='src_top', action='store', type=str, required=True, help='Top directory (where main.py / main.sh exists) in development host.')
     args = argparser.parse_args( argv )
     
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
-        src_top = "./src",
     )
 
-    sideloading_client.sync()
+    sideloading_client.sync( src_top = args.src_top )
     
     
 def run_app( argv ):
@@ -244,7 +251,6 @@ def run_app( argv ):
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
-        src_top = "./src",
     )
 
     sideloading_client.runApplication()
@@ -260,7 +266,6 @@ def kill_app( argv ):
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
-        src_top = "./src",
     )
 
     sideloading_client.killApplication()

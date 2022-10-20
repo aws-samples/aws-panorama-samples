@@ -9,8 +9,10 @@ import http.server
 import ssl
 import subprocess
 
-sideloaded_dir = "./sideloaded"
-#sideloaded_dir = "/opt/aws/panorama/storage/sideloaded"
+
+# ---
+
+sideloaded_dir = "/opt/aws/panorama/storage/sideloaded"
 
 panorama_default_dir = "/panorama"
 
@@ -21,9 +23,9 @@ entrypoints = [
     os.path.join( panorama_default_dir, "main.py" ).replace("\\","/"),
 ]
 
-python = "c:/Python39/python.exe"
-#python = "python3.7"
+cert_key_dir = "/panorama"
 
+# ---
 
 class ApplicationProcessManager:
 
@@ -47,7 +49,7 @@ class ApplicationProcessManager:
         if ext == ".sh":
             cmd = [ "/bin/sh", filename ]
         elif ext == ".py":
-            cmd = [ python, filename ]
+            cmd = [ sys.executable, filename ]
         
         ApplicationProcessManager.p = subprocess.Popen( cmd, cwd=dirname )
 
@@ -64,7 +66,7 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
     
     def do_GET(self):
 
-        print( "GET :", self.path, flush=True )
+        #print( "GET :", self.path, flush=True )
         
         if self.path=="/files":
             
@@ -111,7 +113,7 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         content_length = int(self.headers['Content-Length'])
         
-        print( f"PUT : {self.path} : {content_length} bytes", flush=True )
+        #print( f"PUT : {self.path} : {content_length} bytes", flush=True )
         
         if self.path.startswith("/files/"):
 
@@ -120,6 +122,8 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
 
             dst_filename = os.path.join( sideloaded_dir, path.lstrip("/\\") ).replace("\\","/")
             print( f"Writing {dst_filename}" )
+            
+            os.makedirs( os.path.dirname(dst_filename), exist_ok=True )
         
             # Write file
             with open( dst_filename, "wb" ) as dst_fd:
@@ -149,7 +153,7 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
 
-        print( "POST :", self.path, flush=True )
+        #print( "POST :", self.path, flush=True )
         
         if self.path=="/application":
         
@@ -175,7 +179,7 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_DELETE(self):
 
-        print( f"DELETE : {self.path}", flush=True )
+        #print( f"DELETE : {self.path}", flush=True )
 
         if self.path.startswith("/files/"):
 
@@ -239,11 +243,14 @@ class SideloadingAgent(threading.Thread):
         ssl_context = ssl.create_default_context( purpose=ssl.Purpose.CLIENT_AUTH )
 
         # Server certificate & secret-key
-        ssl_context.load_cert_chain( "./certs_keys/server.pem.cert", "./certs_keys/server.pem.key" )
+        ssl_context.load_cert_chain( 
+            os.path.join(cert_key_dir,"sideloading_server.cert.pem"),
+            os.path.join(cert_key_dir,"sideloading_server.key.pem"),
+        )
 
         # Client certificate
         ssl_context.verify_mode = ssl.CERT_REQUIRED
-        ssl_context.load_verify_locations( "./certs_keys/client.pem.cert" )
+        ssl_context.load_verify_locations( os.path.join(cert_key_dir,"sideloading_client.cert.pem") )
 
         with http.server.HTTPServer(("", self.port), SideloadingRequestHandler) as httpd:
             httpd.socket = ssl_context.wrap_socket(httpd.socket, server_side=True)
@@ -254,11 +261,15 @@ class SideloadingAgent(threading.Thread):
 
 #---
 
-def main():
-    sideloading_agent = SideloadingAgent( port = 8123 )
-    sideloading_agent.start()
+def run( enable_sideloading, run_app_immediately, port=8123 ):
+
+    if enable_sideloading:
+        sideloading_agent = SideloadingAgent( port = port )
+        sideloading_agent.start()
+
+    if run_app_immediately:
+        ApplicationProcessManager.run()
 
     while True:
         time.sleep(1)
 
-main()
