@@ -53,10 +53,8 @@ This solution comes with 1) sideloading agent module you can import in your Pano
         ``` json
         {
             "nodePackage": {
-                    :
                 "interfaces": [
                     {
-                            :
                         "network": {
                             "inboundPorts": [
                                 {
@@ -75,7 +73,6 @@ This solution comes with 1) sideloading agent module you can import in your Pano
         ``` json
         {
             "nodeGraph": {
-                    :
                 "networkRoutingRules": [
                     {
                         "node": "code_node",
@@ -102,7 +99,6 @@ This solution comes with 1) sideloading agent module you can import in your Pano
             ``` json
             {
                 "nodeGraphOverrides":{
-                        :
                     "networkRoutingRules":[
                         {
                             "node": "code_node",
