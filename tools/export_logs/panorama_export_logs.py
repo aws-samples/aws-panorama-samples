@@ -151,7 +151,7 @@ def convertToPlainTextAndNormalize( src_dirname, dst_dirname ):
                     if re_result is not None:
                         line_group_list.append( [ line ] )
                     else:
-                        assert len(line)==0 or line.startswith(b"\t"), str([ line ])
+                        #assert len(line)==0 or line.startswith(b"\t") or line.startswith(b" "), str([ line ])
                         line_group_list[-1].append(line)
 
         # sort lines and write a log file at log stream level
