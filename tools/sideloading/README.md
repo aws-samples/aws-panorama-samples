@@ -36,18 +36,47 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
     **Important:** In the example above, expiry of certificate files is set 30 days ("--expiry 30"). This parameter is configurable, but please use minimum necessary length of expiry, and avoid using unncessary long expiry.
 
+1. Create two Python scripts, 1) Parent process which runs sideloading agent thread, 2) Child process which runs Computer Vision tasks. You can decide the names of those scripts, but in the following example, we use `boot.py` as the Parent process, and `cv_app.py` as the Child process.
 
-1. Modify your Panorama application entry point script (e.g. "app.py") as follows:
-    ``` python
-    import sideloading_agent
+    1. Under the code package src directory, create a Python script (`boot.py`) for the Parent process which runs the sideloading agent. Also modify the descriptor.json of the code asset with the created script file name. 
 
-    sideloading_agent.run(
-        entrypoint_filename = "main.py",
-        enable_sideloading = True,
-        run_app_immediately = False,
-        port = 8123,
-    )
-    ```
+        boot.py :
+        ``` python
+        import sideloading_agent
+
+        sideloading_agent.run(
+            entrypoint_filename = "cv_app.py",
+            enable_sideloading = True,
+            run_app_immediately = False,
+            port = 8123,
+        )
+        ```
+
+        descriptor.json :
+        ```json
+        {
+            "runtimeDescriptor": {
+                "envelopeVersion": "2021-01-01"
+                "entry": {
+                    "name": "/panorama/boot.py",
+                    "path": "python3"
+                },
+            }
+        }
+        ```
+
+        **Note:** Please note that you need to specify the file name of the Parent process in the code descriptor file.
+
+    1. Under the code package src directory, create a Python script (`cv_app.py`) for the Child process which runs the Computer Vision tasks. The file name has to be same as the `entrypoint_filename` argument you specified in the `boot.py`.
+
+        cv_app.py :
+        ``` python
+        import panoramasdk
+
+        class Application(panoramasdk.node):
+            def __init__(self):
+                ... snip ...
+        ```
 
 1. Enable inbound networking by modifying JSON files as follows.
     - Add "inboundPorts" element at the following place in the code package.json.
