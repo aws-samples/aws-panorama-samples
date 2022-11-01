@@ -11,6 +11,13 @@ import argparse
 
 cert_key_dir = "."
 
+ignore_patterns = [
+    "sideloading_server.cert.pem",
+    "sideloading_server.key.pem",
+    "sideloading_client.cert.pem",
+    "sideloading_client.key.pem",
+    "sideloading_agent.py",
+]
 
 class SideloadingClient:
 
@@ -97,6 +104,15 @@ class SideloadingClient:
                 filepath_relative = filepath[ len(src_top) : ]
                 filepath_relative = filepath_relative.lstrip("/\\")
                 filepath_relative = filepath_relative.replace("\\","/")
+
+                ignore = False
+                for ignore_pattern in ignore_patterns:
+                    if fnmatch.fnmatch( filepath_relative, ignore_pattern ):
+                        ignore = True
+                        break
+                if ignore:
+                    print( f"Ignore {filepath_relative}" )
+                    continue
                 
                 st = os.stat(filepath)
                 dt_mtime = datetime.datetime.fromtimestamp( st.st_mtime )
