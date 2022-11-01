@@ -18,6 +18,13 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 * > Opening a port to create a webserver could but doesn't necessarily create a security vulnerability and you will be relying on the security of the downloaded environment to protect your development environment.
 
 
+## Security best practices
+
+* > This sideloading solution uses certificate files and private key files for mutual authentication. Please keep the them secure, use them only for sideloading to your device, and don't share them widely.
+* > When creating cerficiate & private key files, use the appropriate expiry (default : 30 days) and avoid using unncessary long expiry. As needed, please implement peridic rotation of the certificate and key files so that they don't expire.
+* > When you deploy your application to Production environment, close the Inbound networking port for sideloading. Also delete the certificate files and key files.
+
+
 ## How to use
 
 1. Under the top directory of your application (where assets / graphs / packages directory exist), run the "install.py" script to generate and install necessary files.
@@ -31,10 +38,6 @@ This solution comes with 1) sideloading agent module you can import in your Pano
     * `sideloading_agent.py` under code package src directory.
     * `sideloading_server.cert.pem`, `sideloading_server.key.pem`, `sideloading_client.cert.pem` under code package src directory.
     * `sideloading_client.cert.pem`, `sideloading_client.key.pem`, `sideloading_server.cert.pem` under current directory.
-
-    **Important:** Generated PEM files are used for authentication between Sideloading agent and Sideloading CLI. Please keep the them secure, and don't share them widely.
-
-    **Important:** In the example above, expiry of certificate files is set 30 days ("--expiry 30"). This parameter is configurable, but please use minimum necessary length of expiry, and avoid using unncessary long expiry.
 
 1. Create two Python scripts, 1) Parent process which runs sideloading agent thread, 2) Child process which runs Computer Vision tasks. You can decide the names of those scripts, but in the following example, we use `boot.py` as the Parent process, and `cv_app.py` as the Child process.
 
@@ -188,14 +191,13 @@ When you completed the development and are ready to deploy to production system,
     import sideloading_agent
 
     sideloading_agent.run(
-        entrypoint_filename = "main.py",
+        entrypoint_filename = "cv_app.py",
         enable_sideloading = False,
         run_app_immediately = True,
     )
     ```
 1. With regular panorama application building & packaging steps.
 1. Deploy the application onto your device without enabling inbound networking port. (keep the "Open port" checkbox disabled when deploying.)
-
 
 
 ## How it works
@@ -209,7 +211,12 @@ When you completed the development and are ready to deploy to production system,
 
     **Note:** `entrypoint_filename` is the file name specified as the argument for `sideloading_agent.run()`. The extension of the file name has to be either `.py` or `.sh`.
 
-1. When running the child process, current working directory of the process is set at the directory of the script found - `/opt/aws/panorama/storage/sideloaded/` or `/panorama/`. This is different from Panorama applications' standard behavior where working directory is set at `"/"` (root directory). In order for your application to accesses sideloaded files, you can use relative paths such as "./config.json". If you use absolute paths such as "/panorama/config.json", it doesn't refer to sideloaded files.
+    ![](images/directory.png)
+
+
+1. When running the child process, working directory of the process is set at the directory of the script found - `/opt/aws/panorama/storage/sideloaded/` or `/panorama/`. This is different from Panorama applications' standard behavior where working directory is set at `"/"` (root directory). 
+    
+    * In order for your application to accesses sideloaded files (model data, configuration file, etc), you can use relative paths such as "./model.bin", "./config.json". If you use absolute paths such as "/panorama/config.json", it doesn't refer to sideloaded files.
 
 
 ## Limitations
