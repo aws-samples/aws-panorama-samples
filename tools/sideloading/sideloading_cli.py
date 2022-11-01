@@ -9,6 +9,12 @@ import ssl
 import argparse
 
 
+python_version_tuple = ( sys.version_info.major, sys.version_info.minor, sys.version_info.micro )
+min_python_version_tuple = (3,7,0)
+if python_version_tuple < min_python_version_tuple:
+    print( "Warning : Python versions older than {min_python_version_tuple[0]}.{min_python_version_tuple[1]} is not supported." )
+
+
 ignore_patterns = [
     "sideloading_server.cert.pem",
     "sideloading_server.key.pem",
@@ -137,9 +143,10 @@ class SideloadingClient:
             if filepath in dst_files_table:
                 
                 dst_file = dst_files_table[filepath]
-                
-                src_mtime = datetime.datetime.fromisoformat( src_file["mtime"] ).timestamp()
-                dst_mtime = datetime.datetime.fromisoformat( dst_file["mtime"] ).timestamp()
+
+                datetime_isoformat = "%Y-%m-%dT%H:%M:%S.%f"
+                src_mtime = datetime.datetime.strptime( src_file["mtime"], datetime_isoformat ).timestamp()
+                dst_mtime = datetime.datetime.strptime( dst_file["mtime"], datetime_isoformat ).timestamp()
 
                 # Skip unchanged file
                 if abs(src_mtime - dst_mtime)<1 and src_file["size"]==dst_file["size"]:
