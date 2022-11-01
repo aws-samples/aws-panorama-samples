@@ -168,6 +168,8 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
     **Note:** This is an example. Please replace script path, IP address of the device, port number, and path to the "src" directory according to your environment.
 
+    **Note:** By default, sideloading_cli.py tries to find PEM files from current directory. Alternatively you can specify the path with `--cert_key_dir` option.
+
 1. Under the top directory of your application (where assets / graphs / packages directory exist), hit "`sideloading_cli.py run-app`" command to run application with transfered files. Following is an example:
 
     ```bash
