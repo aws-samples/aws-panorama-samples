@@ -9,8 +9,6 @@ import ssl
 import argparse
 
 
-cert_key_dir = "."
-
 ignore_patterns = [
     "sideloading_server.cert.pem",
     "sideloading_server.key.pem",
@@ -21,7 +19,7 @@ ignore_patterns = [
 
 class SideloadingClient:
 
-    def __init__( self, server_address, port ):
+    def __init__( self, server_address, port, cert_key_dir="." ):
     
         self.ssl_context = ssl.create_default_context( purpose=ssl.Purpose.SERVER_AUTH )
 
@@ -186,6 +184,7 @@ def send_file( argv ):
     argparser = argparse.ArgumentParser( description='Send single file' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
+    argparser.add_argument('--cert-key-dir', dest='cert_key_dir', action='store', default=".", help='Directory where PEM files are stored (default: current directory)')
     argparser.add_argument('--src-top', dest='src_top', action='store', type=str, required=True, help='Top directory (where main.py / main.sh exists) in development host.')
     argparser.add_argument('filepath', action='store', type=str, help='Relative filepath from src-top directory')
     args = argparser.parse_args( argv )
@@ -193,6 +192,7 @@ def send_file( argv ):
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
+        cert_key_dir = args.cert_key_dir,
     )
 
     sideloading_client.sendFile( src_top = args.src_top, src_filename = args.filepath )
@@ -203,12 +203,14 @@ def delete_file( argv ):
     argparser = argparse.ArgumentParser( description='Delete single file' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
+    argparser.add_argument('--cert-key-dir', dest='cert_key_dir', action='store', default=".", help='Directory where PEM files are stored (default: current directory)')
     argparser.add_argument('filepath', action='store', type=str, help='Relative filepath ')
     args = argparser.parse_args( argv )
     
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
+        cert_key_dir = args.cert_key_dir,
     )
 
     sideloading_client.deleteFile( args.filepath )
@@ -219,11 +221,13 @@ def list_files( argv ):
     argparser = argparse.ArgumentParser( description='List all sideloaded files' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
+    argparser.add_argument('--cert-key-dir', dest='cert_key_dir', action='store', default=".", help='Directory where PEM files are stored (default: current directory)')
     args = argparser.parse_args( argv )
     
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
+        cert_key_dir = args.cert_key_dir,
     )
 
     files = sideloading_client.listFiles()
@@ -245,12 +249,14 @@ def sync( argv ):
     argparser = argparse.ArgumentParser( description='List all sideloaded files' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
+    argparser.add_argument('--cert-key-dir', dest='cert_key_dir', action='store', default=".", help='Directory where PEM files are stored (default: current directory)')
     argparser.add_argument('--src-top', dest='src_top', action='store', type=str, required=True, help='Top directory (where main.py / main.sh exists) in development host.')
     args = argparser.parse_args( argv )
     
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
+        cert_key_dir = args.cert_key_dir,
     )
 
     sideloading_client.sync( src_top = args.src_top )
@@ -266,6 +272,7 @@ def run_app( argv ):
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
+        cert_key_dir = args.cert_key_dir,
     )
 
     sideloading_client.runApplication()
@@ -276,11 +283,13 @@ def kill_app( argv ):
     argparser = argparse.ArgumentParser( description='List all sideloaded files' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
+    argparser.add_argument('--cert-key-dir', dest='cert_key_dir', action='store', default=".", help='Directory where PEM files are stored (default: current directory)')
     args = argparser.parse_args( argv )
     
     sideloading_client = SideloadingClient(
         server_address = args.addr,
         port = args.port,
+        cert_key_dir = args.cert_key_dir,
     )
 
     sideloading_client.killApplication()
