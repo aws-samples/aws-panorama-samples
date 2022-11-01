@@ -15,7 +15,8 @@ import subprocess
 sideloaded_dir = "/opt/aws/panorama/storage/sideloaded"
 panorama_default_dir = "/panorama"
 
-cert_key_dir = "/panorama"
+# cert / key files have to be located at the same directory as this script.
+cert_key_dir = os.path.dirname(__file__)
 
 # ---
 
@@ -37,7 +38,7 @@ class ApplicationProcessManager:
         if ApplicationProcessManager.p is not None:
             raise ValueError("Application process already exists.")
 
-        for entrypoint in updateEntrypointFilenames.entrypoint_filenames:
+        for entrypoint in ApplicationProcessManager.entrypoint_filenames:
             if os.path.exists(entrypoint):
                 break
         else:
