@@ -42,6 +42,7 @@ This solution comes with 1) sideloading agent module you can import in your Pano
     import sideloading_agent
 
     sideloading_agent.run(
+        entrypoint_filename = "main.py",
         enable_sideloading = True,
         run_app_immediately = False,
         port = 8123,
@@ -148,6 +149,7 @@ When you completed the development and are ready to deploy to production system,
     import sideloading_agent
 
     sideloading_agent.run(
+        entrypoint_filename = "main.py",
         enable_sideloading = False,
         run_app_immediately = True,
     )
@@ -161,12 +163,12 @@ When you completed the development and are ready to deploy to production system,
 
 1. Transfered files are stored under `/opt/aws/panorama/storage/sideloaded/`. This is a different directory from Panorama application's standard application directory - `/panorama/`.
 
-1. `run-app` command tries to find application script in the following priority order. The first script found is executed as a child process.
+1. `run-app` command tries to find application script file in the following priority order. The first script found is executed as a child process.
 
-    1. `/opt/aws/panorama/storage/sideloaded/main.sh`
-    1. `/opt/aws/panorama/storage/sideloaded/main.py`
-    1. `/panorama/main.sh`
-    1. `/panorama/main.py`
+    1. `/opt/aws/panorama/storage/sideloaded/{entrypoint_filename}`
+    1. `/panorama/{entrypoint_filename}`
+
+    **Note:** `entrypoint_filename` is the file name specified as the argument for `sideloading_agent.run()`. The extension of the file name has to be either `.py` or `.sh`.
 
 1. When running the child process, current working directory of the process is set at the directory of the script found - `/opt/aws/panorama/storage/sideloaded/` or `/panorama/`. This is different from Panorama applications' standard behavior where working directory is set at `"/"` (root directory). In order for your application to accesses sideloaded files, you can use relative paths such as "./config.json". If you use absolute paths such as "/panorama/config.json", it doesn't refer to sideloaded files.
 

@@ -13,15 +13,7 @@ import subprocess
 # ---
 
 sideloaded_dir = "/opt/aws/panorama/storage/sideloaded"
-
 panorama_default_dir = "/panorama"
-
-entrypoints = [
-    os.path.join( sideloaded_dir, "main.sh" ).replace("\\","/"),
-    os.path.join( sideloaded_dir, "main.py" ).replace("\\","/"),
-    os.path.join( panorama_default_dir, "main.sh" ).replace("\\","/"),
-    os.path.join( panorama_default_dir, "main.py" ).replace("\\","/"),
-]
 
 cert_key_dir = "/panorama"
 
@@ -30,6 +22,14 @@ cert_key_dir = "/panorama"
 class ApplicationProcessManager:
 
     p = None
+    entrypoint_filenames = []
+
+    @staticmethod
+    def updateEntrypointFilenames( filename ):
+        ApplicationProcessManager.entrypoint_filenames = [
+            os.path.join( sideloaded_dir, filename ).replace("\\","/"),
+            os.path.join( panorama_default_dir, filename ).replace("\\","/"),
+        ]
 
     @staticmethod
     def run():
@@ -37,11 +37,11 @@ class ApplicationProcessManager:
         if ApplicationProcessManager.p is not None:
             raise ValueError("Application process already exists.")
 
-        for entrypoint in entrypoints:
+        for entrypoint in updateEntrypointFilenames.entrypoint_filenames:
             if os.path.exists(entrypoint):
                 break
         else:
-            raise ValueError("Entrypoint scrip not found.")
+            raise ValueError(f"Entrypoint script file not found - {updateEntrypointFilenames.entrypoint_filenames}")
 
         dirname, filename = os.path.split(entrypoint)
         ext = os.path.splitext(filename)[1].lower()
@@ -50,6 +50,8 @@ class ApplicationProcessManager:
             cmd = [ "/bin/sh", filename ]
         elif ext == ".py":
             cmd = [ sys.executable, filename ]
+        else:
+            raise ValueError(f"Unknown entrypoint filename extension - {ext}")
         
         ApplicationProcessManager.p = subprocess.Popen( cmd, cwd=dirname )
 
@@ -261,7 +263,9 @@ class SideloadingAgent(threading.Thread):
 
 #---
 
-def run( enable_sideloading, run_app_immediately, port=8123 ):
+def run( entrypoint_filename, enable_sideloading, run_app_immediately, port=8123 ):
+
+    ApplicationProcessManager.updateEntrypointFilenames(entrypoint_filename)
 
     if enable_sideloading:
         sideloading_agent = SideloadingAgent( port = port )
