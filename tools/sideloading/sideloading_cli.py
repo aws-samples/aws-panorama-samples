@@ -4,6 +4,7 @@ import json
 import urllib
 import pprint
 import datetime
+import fnmatch
 import http.client
 import ssl
 import argparse
@@ -115,7 +116,6 @@ class SideloadingClient:
                         ignore = True
                         break
                 if ignore:
-                    print( f"Ignore {filepath_relative}" )
                     continue
                 
                 st = os.stat(filepath)
@@ -274,6 +274,7 @@ def run_app( argv ):
     argparser = argparse.ArgumentParser( description='List all sideloaded files' )
     argparser.add_argument('--addr', dest='addr', action='store', required=True, help='IP address or hostname of Panorama device')
     argparser.add_argument('--port', dest='port', action='store', default=8123, help='Port number (default:8123)')
+    argparser.add_argument('--cert-key-dir', dest='cert_key_dir', action='store', default=".", help='Directory where PEM files are stored (default: current directory)')
     args = argparser.parse_args( argv )
     
     sideloading_client = SideloadingClient(
