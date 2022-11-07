@@ -135,6 +135,19 @@ class SideloadingClient:
         for dst_file in dst_files_list:
             dst_files_table[ dst_file["filepath"] ] = dst_file
         
+        # Helper function for < Python3.7
+        def datetime_fromisoformat(s):
+            
+            datetime_isoformat1 = "%Y-%m-%dT%H:%M:%S.%f"
+            datetime_isoformat2 = "%Y-%m-%dT%H:%M:%S"
+            
+            try:
+                dt = datetime.datetime.strptime( s, datetime_isoformat1 )
+            except ValueError:
+                dt = datetime.datetime.strptime( s, datetime_isoformat2 )
+            
+            return dt
+        
         # Copy all files            
         for src_file in src_files_list:
             
@@ -144,9 +157,8 @@ class SideloadingClient:
                 
                 dst_file = dst_files_table[filepath]
 
-                datetime_isoformat = "%Y-%m-%dT%H:%M:%S.%f"
-                src_mtime = datetime.datetime.strptime( src_file["mtime"], datetime_isoformat ).timestamp()
-                dst_mtime = datetime.datetime.strptime( dst_file["mtime"], datetime_isoformat ).timestamp()
+                src_mtime = datetime_fromisoformat( src_file["mtime"] ).timestamp()
+                dst_mtime = datetime_fromisoformat( dst_file["mtime"] ).timestamp()
 
                 # Skip unchanged file
                 if abs(src_mtime - dst_mtime)<1 and src_file["size"]==dst_file["size"]:
