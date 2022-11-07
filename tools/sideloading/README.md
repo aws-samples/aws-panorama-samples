@@ -1,6 +1,6 @@
 ## Overview
 
-**Sideloading** tool is a sample solution to add side-loading capability to your Panorama application. With this solution, you can modify scripts & models, transfer them to the device, and run the updated scripts without re-deploying the entire application. It gives you quicker development iteration experience.
+**Sideloading** tool is a sample solution to add side-loading capability to your Panorama application. With this solution, you can modify script files & model files, transfer them to the application code container on the device, and run the updated scripts without re-deploying the entire application. It gives you quicker development iteration experience.
 
 This solution comes with 1) sideloading agent module you can import in your Panorama application, 2) sideloading commandline interface you can use on your development host.
 
@@ -21,13 +21,13 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 ## Security best practices
 
 * > This sideloading solution uses certificate files and private key files for mutual authentication. Please keep the them secure, use them only for sideloading to your device, and don't share them widely.
-* > When creating cerficiate & private key files, use the appropriate expiry (default : 30 days) and avoid using unncessary long expiry. As needed, please implement peridic rotation of the certificate and key files so that they don't expire.
+* > When creating certificate & private key files, use the appropriate expiry (default : 30 days) and avoid using unncessary long expiry. As needed, please implement periodic rotation of the certificate and key files so that they don't expire.
 * > When you deploy your application to Production environment, close the Inbound networking port for sideloading. Also delete the certificate files and key files.
 
 
 ## How to use
 
-1. Under the top directory of your application (where assets / graphs / packages directory exist), run the "install.py" script to generate and install necessary files.
+1. Under the top directory of your application (where assets / graphs / packages directories exist), run the "install.py" script to generate and install necessary files.
 
     ``` bash
     python3 aws-panorama-samples/tools/sideloading/install.py --expiry 30 --app-src-dir ./packages/123456789012-code-1.0/src
@@ -39,9 +39,9 @@ This solution comes with 1) sideloading agent module you can import in your Pano
     * `sideloading_server.cert.pem`, `sideloading_server.key.pem`, `sideloading_client.cert.pem` under code package src directory.
     * `sideloading_client.cert.pem`, `sideloading_client.key.pem`, `sideloading_server.cert.pem` under current directory.
 
-1. Create two Python scripts, 1) Parent process which runs sideloading agent thread, 2) Child process which runs Computer Vision tasks. You can decide the names of those scripts, but in the following example, we use `boot.py` as the Parent process, and `cv_app.py` as the Child process.
+1. Create two Python scripts, 1) parent process which runs sideloading agent thread, 2) child process which runs computer vision tasks. You can decide the names of those scripts, but in the following example, we use `boot.py` as the parent process, and `cv_app.py` as the child process.
 
-    1. Under the code package src directory, create a Python script (`boot.py`) for the Parent process which runs the sideloading agent. Also modify the descriptor.json of the code asset with the created script file name. 
+    1. Under the code package src directory, create a Python script (`boot.py`) for the parent process which runs the sideloading agent. Also modify the descriptor.json of the code asset with the created script file name. 
 
         boot.py :
         ``` python
@@ -68,9 +68,9 @@ This solution comes with 1) sideloading agent module you can import in your Pano
         }
         ```
 
-        **Note:** Please note that you need to specify the file name of the Parent process in the code descriptor file.
+        **Note:** Please note that you need to specify the file name of the parent process in the code descriptor file.
 
-    1. Under the code package src directory, create a Python script (`cv_app.py`) for the Child process which runs the Computer Vision tasks. The file name has to be same as the `entrypoint_filename` argument you specified in the `boot.py`.
+    1. Under the code package src directory, create a Python script (`cv_app.py`) for the child process which runs the computer vision tasks. The file name has to be same as the `entrypoint_filename` argument you specified in the `boot.py`.
 
         cv_app.py :
         ``` python
@@ -108,7 +108,7 @@ This solution comes with 1) sideloading agent module you can import in your Pano
         }
         ```
 
-    - Add "networkRoutingRules" element at the following place in manifest file.
+    - Add "networkRoutingRules" element at the following place in manifest file. 
         ``` json
         {
             "nodeGraph": {
@@ -129,6 +129,8 @@ This solution comes with 1) sideloading agent module you can import in your Pano
             }
         }
         ```
+        **Note:** Please make sure you use right code node name. In this example, "code_node" is specified as the code node name, but it can be different in your manifest file.
+
 1. With regular panorama application building & packaging steps, build and package the side liading enabled application. (`panorama-cli build-container` command, `panorama-cli package-application` command).
 
 1. Deploy the application onto your device.
@@ -154,7 +156,9 @@ This solution comes with 1) sideloading agent module you can import in your Pano
                 }
             }
             ```
-        1. Deploy pano_jupyter_\* programmatically using boto3's create_application_instance() API or AWSCLI's "aws panorama create-application-instance" command. Specify contents of graph.json as the manifest payload, and contents of override.json as the override manifest payload. (See also : [CLI document](https://docs.aws.amazon.com/cli/latest/reference/panorama/create-application-instance.html), [Boto3 document](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/panorama.html#Panorama.Client.create_application_instance)).
+            **Note:** Please make sure you use right code node name. In this example, "code_node" is specified as the code node name, but it can be different in your manifest file.
+
+        1. Deploy the application programmatically using boto3's create_application_instance() API or AWSCLI's "aws panorama create-application-instance" command. Specify contents of graph.json as the manifest payload, and contents of override.json as the override manifest payload. (See also : [Automate application deployment](https://docs.aws.amazon.com/panorama/latest/dev/api-deploy.html)).
 
 1. Confirm the completion of deployment.
     * **Note** : After the deployment completed, you will see `Error` or `Not available` status. You can safely ignore these errors. It just means the application hasn't started regular computer vision process yet.
@@ -163,7 +167,7 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
 1. Identify the IP address of your appliance device. You can use the Management Console UI or "aws panorama describe-device" command.
 
-1. Under the top directory of your application (where assets / graphs / packages directory exist), hit "`sideloading_cli.py sync`" command to transfer updated files. Following is an example:
+1. Under the top directory of your application (where assets / graphs / packages directories exist), hit "`sideloading_cli.py sync`" command to transfer updated files. Following is an example:
 
     ```bash
     $ python3 aws-panorama-samples/tools/sideloading/sideloading_cli.py sync --addr 10.0.0.245 --port 8123 --src-top packages/123456789012-mycode-1.0/src
@@ -186,7 +190,7 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
 When you completed the development and are ready to deploy to production system, please take following steps.
 
-1. Modify your Panorama application entry point script (e.g. "app.py") as follows:
+1. Modify your Panorama application entry point script (e.g. "boot.py") as follows:
     ``` python
     import sideloading_agent
 
@@ -196,8 +200,7 @@ When you completed the development and are ready to deploy to production system,
         run_app_immediately = True,
     )
     ```
-1. With regular panorama application building & packaging steps.
-1. Deploy the application onto your device without enabling inbound networking port. (keep the "Open port" checkbox disabled when deploying.)
+1. With regular panorama application building & packaging steps, build and deploy the application onto your device without enabling inbound networking port. (keep the "Open port" checkbox disabled when deploying.)
 
 
 ## How it works
