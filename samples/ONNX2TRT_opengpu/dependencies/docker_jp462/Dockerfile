@@ -44,31 +44,30 @@ RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
 #################################
 
 RUN apt-get update -y \
-    && apt-get install -y python3-libnvinfer-dev zip \
+    && apt-get install -y python3-libnvinfer-dev zip wget \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 # patching for JP4.6.2 for Jetson NX 16GB
-COPY TensorRT8.2FixforJetsonNX16GB.zip .
-RUN mkdir /jp46_patch && mv TensorRT8.2FixforJetsonNX16GB.zip /jp46_patch \
-    && cd /jp46_patch && unzip TensorRT8.2FixforJetsonNX16GB.zip 
-
-RUN dpkg -i /jp46_patch/libnvinfer8_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvinfer-plugin8_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvinfer-plugin-dev_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvonnxparsers8_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvonnxparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvparsers8_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvinfer-bin_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/libnvinfer-doc_8.2.1-1+cuda10.2_all.deb \
-    && dpkg -i /jp46_patch/libnvinfer-samples_8.2.1-1+cuda10.2_all.deb \
-    && dpkg -i /jp46_patch/tensorrt_8.2.1.9-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/python3-libnvinfer_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/python3-libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/graphsurgeon-tf_8.2.1-1+cuda10.2_arm64.deb \
-    && dpkg -i /jp46_patch/uff-converter-tf_8.2.1-1+cuda10.2_arm64.deb \
+RUN mkdir /jp46_patch && cd /jp46_patch \
+    && wget https://developer.nvidia.com/tensorrt-8219-patch-jetpack46-jetson-nx-16gbtargz -O  TensorRT8.2FixforJetsonNX16GB.tar.gz  \
+    && tar zxvf TensorRT8.2FixforJetsonNX16GB.tar.gz \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvinfer8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvinfer-plugin8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvinfer-plugin-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvonnxparsers8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvonnxparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvparsers8_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvparsers-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvinfer-bin_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvinfer-doc_8.2.1-1+cuda10.2_all.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/libnvinfer-samples_8.2.1-1+cuda10.2_all.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/tensorrt_8.2.1.9-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/python3-libnvinfer_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/python3-libnvinfer-dev_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/graphsurgeon-tf_8.2.1-1+cuda10.2_arm64.deb \
+    && dpkg -i /jp46_patch/TensorRT_8.2.1.9_Patch_for_Jetpack4.6_Jetson_NX_16GB/uff-converter-tf_8.2.1-1+cuda10.2_arm64.deb \
     && rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a \
     && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a \
     && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a \
@@ -126,7 +125,6 @@ RUN apt-get update && \
         libomp-dev \
         python3-pip \
         python3-dev \
-        wget \
         && rm -rf /var/lib/apt/lists/* \
         && apt-get clean
 
@@ -224,7 +222,7 @@ RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
 
 ARG PYTHON_EGG_CACHE="/panorama/.cache"
 RUN nm -D /usr/lib/aarch64-linux-gnu/libnvinfer.so | grep tensorrt_version
-RUN python3.6 -c "import torch; import torchvision;"
+RUN python3.6 -c "import torch; import torchvision; import pycuda;"
 RUN python3.6 -m pip cache purge
 
 
