@@ -67,6 +67,10 @@ class ApplicationProcessManager:
 
 class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
     
+    # suppress default logging to stderr
+    def log_message(self, format, *args):
+        print( "SideloadingRequest : %s : %s" % ( (format % args), self.client_address[0] ), flush=True )
+        
     def do_GET(self):
 
         #print( "GET :", self.path, flush=True )
@@ -124,14 +128,14 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
             path = urllib.parse.unquote(path)
 
             dst_filename = os.path.join( sideloaded_dir, path.lstrip("/\\") ).replace("\\","/")
-            print( f"Writing {dst_filename}" )
+            #print( f"Writing {dst_filename}", flush=True )
             
             os.makedirs( os.path.dirname(dst_filename), exist_ok=True )
         
             # Write file
             with open( dst_filename, "wb" ) as dst_fd:
                 d = self.rfile.read(content_length)
-                print(f"Received {len(d)} bytes")
+                #print(f"Received {len(d)} bytes", flush=True)
                 dst_fd.write(d)
 
             # Update timestamp
@@ -163,7 +167,7 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 ApplicationProcessManager.run()
             except ValueError as e:
-                print(e,flush=True)
+                print( e, flush=True )
                 # FIXME : return error to cli
             
             self.send_response(200)
@@ -191,10 +195,11 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
         
             dst_filename = os.path.join( sideloaded_dir, path.lstrip("/\\") ).replace("\\","/")
             if os.path.exists(dst_filename):
-                print( f"Deleting {dst_filename}" )
+                #print( f"Deleting {dst_filename}", flush=True )
                 os.unlink(dst_filename)
             else:
-                print( f"Deleting file not found : {dst_filename}" )
+                #print( f"Deleting file not found : {dst_filename}", flush=True )
+                pass
         
             self.send_response(200)
             self.send_header('Content-Type', 'text/plain')
@@ -211,7 +216,7 @@ class SideloadingRequestHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 ApplicationProcessManager.kill()
             except ValueError as e:
-                print(e,flush=True)
+                print( e, flush=True )
                 # FIXME : return error to cli
             
             self.send_response(200)
