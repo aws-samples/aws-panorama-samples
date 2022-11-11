@@ -14,20 +14,20 @@ This solution comes with 1) sideloading agent module you can import in your Pano
 
 ## Security notice
 
-* > We do not recommend doing this on a production system because this creates a security vulnerability and might disrupt the normal operation of your device.
+* > We do not recommend doing this on a production system because this is a development feature that has not been AWS Security validated for use in production systems.
 * > Opening a port to create a webserver could but doesn't necessarily create a security vulnerability and you will be relying on the security of the downloaded environment to protect your development environment.
 
 
 ## Security best practices
 
-* > This sideloading solution uses certificate files and private key files for mutual authentication. Please keep the them secure, use them only for sideloading to your device, and don't share them widely.
-* > When creating certificate & private key files, use the appropriate expiry (default : 30 days) and avoid using unncessary long expiry. As needed, please implement periodic rotation of the certificate and key files so that they don't expire.
-* > When you deploy your application to Production environment, close the Inbound networking port for sideloading. Also delete the certificate files and key files.
+* > This sideloading solution uses certificate files and private key files for mutual authentication. Please keep the them secure, use them only for sideloading to your device, and don't share them widely such as adding those files in the version control system, or sharing files from public S3 bucket.
+* > When creating certificate & private key files, use the minimum required expiry at longest 30 days. As needed, please implement periodic rotation of the certificate and key files so that they don't expire.
+* > When you deploy your application to Production environment, follow the steps in [How to switch to Production mode](#how-to-switch-to-production-mode) in this docment.
 
 
 ## How to use
 
-1. Under the top directory of your application (where assets / graphs / packages directories exist), run the "install.py" script to generate and install necessary files.
+1. Open a terminal window on your development host. Under the top directory of your application (where assets / graphs / packages directories exist), run the "install.py" script to generate and install necessary files.
 
     ``` bash
     python3 aws-panorama-samples/tools/sideloading/install.py --expiry 30 --app-src-dir ./packages/123456789012-code-1.0/src
@@ -38,6 +38,8 @@ This solution comes with 1) sideloading agent module you can import in your Pano
     * `sideloading_agent.py` under code package src directory.
     * `sideloading_server.cert.pem`, `sideloading_server.key.pem`, `sideloading_client.cert.pem` under code package src directory.
     * `sideloading_client.cert.pem`, `sideloading_client.key.pem`, `sideloading_server.cert.pem` under current directory.
+
+    **Note:** Please don't include these `*.pem` files in your source code version control system. In case of Git, please edit the .gitignore file to ignore these files.
 
 1. Create two Python scripts, 1) parent process which runs sideloading agent thread, 2) child process which runs computer vision tasks. You can decide the names of those scripts, but in the following example, we use `boot.py` as the parent process, and `cv_app.py` as the child process.
 
@@ -200,6 +202,7 @@ When you completed the development and are ready to deploy to production system,
         run_app_immediately = True,
     )
     ```
+1. Remove `sideloading_*.pem` files from the code package src directory.
 1. With regular panorama application building & packaging steps, build and deploy the application onto your device without enabling inbound networking port. (keep the "Open port" checkbox disabled when deploying.)
 
 
