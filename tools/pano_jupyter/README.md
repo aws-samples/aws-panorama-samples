@@ -50,7 +50,7 @@
         1. Choose "Inbound ports" tab. ![](images/configure_inbound_port_2.png)
         1. Enable "Open port", configure "Device port" (default: 8888), and "Save" ![](images/configure_inbound_port_3.png)
     * Option 2 (advanced) : Deploy using AWSCLI or API. 
-        1. This Edit the override manifest file "pano_jupyter_\*/graphs/pano_jupyter_\*/override.json", include cameras you want to use, and specify the inbound network port.
+        1. Edit the override manifest file "pano_jupyter_\*/graphs/pano_jupyter_\*/override.json", include cameras you want to use, and specify the inbound network port.
         1. Deploy pano_jupyter_\* programmatically using boto3's create_application_instance() API or AWSCLI's "aws panorama create-application-instance" command. Specify contents of graph.json as the manifest payload, and contents of override.json as the override manifest payload. (See also : [CLI document](https://docs.aws.amazon.com/cli/latest/reference/panorama/create-application-instance.html), [Boto3 document](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/panorama.html#Panorama.Client.create_application_instance)).
 1. Confirm the completion of deployment.
     * **Note** : After the deployment completed, you will see `Error` or `Not available` status. You can safely ignore these errors. It just means the application hasn't started regular computer vision process yet.
