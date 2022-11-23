@@ -13,7 +13,7 @@ import argparse
 python_version_tuple = ( sys.version_info.major, sys.version_info.minor, sys.version_info.micro )
 min_python_version_tuple = (3,7,0)
 if python_version_tuple < min_python_version_tuple:
-    print( "Warning : Python versions older than {min_python_version_tuple[0]}.{min_python_version_tuple[1]} is not supported." )
+    print( f"Warning : Python versions older than {min_python_version_tuple[0]}.{min_python_version_tuple[1]} is not supported." )
 
 
 ignore_patterns = [
