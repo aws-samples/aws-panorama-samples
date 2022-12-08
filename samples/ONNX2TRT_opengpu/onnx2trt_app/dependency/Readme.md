@@ -37,7 +37,7 @@ Currently it will export yolov5.pt r6.1 to ONNX.
 - Tested under this [commit](https://github.com/ultralytics/yolov5/tree/fd004f56485d44c9c65b37c47d0e5f6165e1d944)
 - Exporting onnx alone does not depends on Cuda and TensorRT. As long as one can install the requirements.txt, one should be able to finish the export_onnx.py with no issue. Unless one would like to test the tensorrt compile as well (please see the next section)
 
-## Export The Model with Nvidia NGC & Compile the Model to Engine File (TRT8 only, Recommended)
+## (Option2) Export The Model with Nvidia NGC & Compile the Model to Engine File (TRT8 only, Recommended)
 
 We can export the yolo model to onnx file and test compile the model to engine file all inside Nvidia's NGC Pytorch Docker Image.
 
