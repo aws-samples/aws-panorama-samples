@@ -6,8 +6,12 @@
 
 - To training on custom dataset, please refer to the [ultralytics yolov5](https://github.com/ultralytics/yolov5/blob/master/export.py)
 
-## Export The Model with Conda Env
-- After training, please run the following code to set up the environment to export the model. 
+- After training, please run of the following ways to export the model.
+    - Option1 use conda env to install the env. And support export only.
+    - Option2 requires a GPU machine. Using Nvidia NGC docker image to do export, compile and testing.
+
+## (Option1) Export The Model with Conda Env
+- 
 
 ```
 # Set up a python3.7 virtualenv
@@ -67,7 +71,10 @@ python3 onnx_tensorrt.py -i ../yolov5/yolov5s.onnx -o yolov5s.engine
 
 # Install pycuda for executing the engine file. Takes time.
 pip3 install pycuda
+
 # Inference with the sample images provided in ./samples
+# So that we can debug before we do deployment.
+
 python3 tensorrt_pytorch_panorama.py -i yolov5s.engine
 
 ```
