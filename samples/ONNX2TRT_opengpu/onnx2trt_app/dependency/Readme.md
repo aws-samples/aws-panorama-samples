@@ -48,7 +48,9 @@ Testing the TensorRT compile before we deploy our model is a good idea to filter
 
 ```
 # use the NGC to save the time of installing pytorch, tensorrt ourselves.
-docker run --gpus all -v /home:/home -it --rm nvcr.io/nvidia/pytorch:21.08-py3
+# mount the dependency folder to the /code folder inside docker.
+docker run --gpus all -v $(pwd):/code -it --rm nvcr.io/nvidia/pytorch:21.08-py3
+cd /code/
 
 # however the docker opencv version is too old.
 rm -rf /opt/conda/lib/python3.8/site-packages/cv2/
@@ -58,13 +60,16 @@ apt-get update && apt-get install -y python3-opencv
 # clone the yolov5 repo with specific git commit. 
 git clone https://github.com/ultralytics/yolov5.git
 cd yolov5 && git checkout fd004f56485d44c9c65b37c47d0e5f6165e1d944
+
+# install the original requirements.txt instead of the one provided in the dependency folder.
 pip3 install -r requirements.txt 
 cp ../export_onnx.py .
 
 # export the yolov5 model from pt to onnx, with image size 640
 python3 export_onnx.py --weights yolov5s.pt --target_trt_version 8 --dynamic --imgsz 640
 
-# Test if your onnx can be converted to TensorRT engine successfully. This require GPU.
+# Test if your onnx can be converted to TensorRT engine successfully. This requires GPU.
+# This takes time.
 
 cd ../engine_test/
 python3 onnx_tensorrt.py -i ../yolov5/yolov5s.onnx -o yolov5s.engine
@@ -76,6 +81,9 @@ pip3 install pycuda
 # So that we can debug before we do deployment.
 
 python3 tensorrt_pytorch_panorama.py -i yolov5s.engine
+
+# You should see 0.jpg inside current folder, that is the result of using engine file to do inference.
+# That's it!
 
 ```
 
