@@ -104,7 +104,8 @@ class YoLov5TRT(object):
         """
         self.org_image_list = org_image_list
         t1 = time.time()
-        self.preprocessed_images = np.vstack([utils.preprocess(image) for image in org_image_list])
+        self.preprocessed_images = np.vstack([
+            utils.preprocess(image, self.input_h, self.input_w) for image in org_image_list])
 
         t2 = time.time()
         # Copy input image to host buffer

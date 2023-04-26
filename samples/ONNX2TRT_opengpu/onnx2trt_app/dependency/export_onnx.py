@@ -207,7 +207,9 @@ def run(
     for k, m in model.named_modules():
         if isinstance(m, Detect):
             m.inplace = inplace
-            m.onnx_dynamic = dynamic
+            # set to false for avoiding Assertion failed: inputs.at(0).isInt32() && "For range operator with dynamic inputs, this version of TensorRT only supports INT32!"
+            # This is an error when building engine in TRT7.
+            m.onnx_dynamic = False 
             m.export = True
 
     for _ in range(2):
