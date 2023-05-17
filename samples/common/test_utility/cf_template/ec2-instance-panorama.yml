@@ -5,7 +5,6 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
-    Default: Surya_Arm64_key
   InstanceType:
     Description: WebServer EC2 instance type
     Type: String
@@ -36,6 +35,13 @@ Mappings:
       id: ami-01747bf371bd30817
     ap-northeast-1:
       id: ami-01747bf371bd30817
+    ap-southeast-1:
+      id: ami-0981694bf98b9afc3
+    ap-southeast-2:
+      id: ami-0e8a397bcbe9f9bfe
+    ca-central-1:
+      id: ami-02406f712ec60968d
+
 Resources:
   ec2Instance:
     Type: AWS::EC2::Instance
