@@ -21,18 +21,18 @@ To know **how to use Test Utility**, please refer to [How to use Test Utility](d
 
 ## List of Samples
 
-| Application | Description | Framework | Usecase | Complexity | Model
+| Application | Description | Framework | Usecase | Complexity | Model | Python Version
 | ------ | ------ |------ |------ |------ |------ |
-| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz)
-| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)
-| **Pose estimation**| This is a sample computer vision application that can detect people and estimate pose of them | MXNet | Pose estimation | Advanced | yolo3_mobilenet1.0_coco, simple_pose_resnet152_v1d
+| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz) | 3.8
+| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz) | 3.6
+| **Pose estimation**| This is a sample computer vision application that can detect people and estimate pose of them | MXNet | Pose estimation | Advanced | yolo3_mobilenet1.0_coco, simple_pose_resnet152_v1d | 3.6
 | **Object Detection Tensorflow SSD**| This example shows how to run a TF SSD Mobilenet Model using Tensorflow | Tensorflow (Open GPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Object Detection PyTorch Yolov5s**| This example shows how to run your own YoloV5s model using PyTorch | PyTorch (Open GPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Object Detection ONNX Runtime Yolov5s**| This example shows how to run your own YoloV5s model using ONNX Runtime | ONNX Runtime (Open GPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Object Detection using TensorRT network definition APIs**| This example shows how to get infernece from a YoloV5s model optimized using TensorRT Network definition API's | TensorRT (OpenGPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Inbound networking**| This sample explains how to enable inbound networking port on Panorama device, and how to run a simple HTTP server wihtin a Panorama application. | N/A | Network | Easy | N/A
-| **MOT Analysis**| This sample shows how to build end to end multi object tracking solution using pretrained YOLOX model, kinesis video upstream by gstreamer and dashboard | PyTorch | Object Tracking | Advanced | YOLOX
-| **Kinesis Video Streams**| This sample shows how to build an application to push multiple video streams from Panoram to Amazon Kinesis Video Streams service with AWS IoT. | N/A | Media | Advanced | N/A
+| **Object Detection PyTorch Yolov5s**| This example shows how to run your own YoloV5s model using PyTorch | PyTorch (Open GPU) | Object Detection (BYO Container) | Advanced | N/A | 3.6
+| **Object Detection ONNX Runtime Yolov5s**| This example shows how to run your own YoloV5s model using ONNX Runtime | ONNX Runtime (Open GPU) | Object Detection (BYO Container) | Advanced | N/A | 3.8
+| **Object Detection using TensorRT network definition APIs**| This example shows how to get infernece from a YoloV5s model optimized using TensorRT Network definition API's | TensorRT (OpenGPU) | Object Detection (BYO Container) | Advanced | N/A | 3.6
+| **Inbound networking**| This sample explains how to enable inbound networking port on Panorama device, and how to run a simple HTTP server wihtin a Panorama application. | N/A | Network | Easy | N/A | 3.6
+| **MOT Analysis**| This sample shows how to build end to end multi object tracking solution using pretrained YOLOX model, kinesis video upstream by gstreamer and dashboard | PyTorch | Object Tracking | Advanced | YOLOX | 3.6
+| **Kinesis Video Streams**| This sample shows how to build an application to push multiple video streams from Panoram to Amazon Kinesis Video Streams service with AWS IoT. | N/A | Media | Advanced | N/A | 3.8
 
 
 ## Running the Samples

@@ -52,7 +52,11 @@
                 "name": "camera_node",
                 "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
                 "overridable": true,
-                "launch": "onAppStart"
+                "launch": "onAppStart",
+                "decorator": {
+                    "title": "Camera front_door_camera",
+                    "description": "Default description for camera front_door_camera"
+                }
             }
         ],
         "edges": [

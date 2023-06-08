@@ -1,10 +1,23 @@
-FROM public.ecr.aws/panorama/panorama-application
+FROM public.ecr.aws/panorama/panorama-application/sdkv1/python3.8/aarch64:latest
 COPY src /panorama
+
+# set Python3.8 as default
+RUN apt-get update -y && apt-get install -y python3.8-dev libpython3.8 python3.8 python3.8-venv python3-pip 
+RUN python3.8 -m pip install --user --upgrade pip
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
+RUN update-alternatives --set python3 /usr/bin/python3.8
+
+RUN apt-get update -y && apt-get install -y libcairo2 libcairo2-dev 
+RUN python3.8 -m pip install --ignore-installed pycairo 
+
+RUN python3.8 -m pip install opencv-python boto3
+
+RUN apt-get update -y && apt-get -y install libgirepository1.0-dev
+RUN python3.8 -m pip install --ignore-installed PyGObject
 
 RUN apt-get update && \
 	apt-get install -y \
-	python3.7-dev \
-	libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 \
+	libgirepository1.0-dev gcc libcairo2-dev pkg-config gir1.2-gtk-3.0 \
 	cmake \
 	curl \
 	g++ \
@@ -29,11 +42,6 @@ RUN apt-get update && \
 	pkg-config \
 	vim \
 	ninja-build
-
-RUN python3 -m pip install --upgrade pip
-RUN pip3 install opencv-python boto3
-RUN python3 -m pip install --ignore-installed pycairo
-RUN python3 -m pip install --ignore-installed PyGObject
 
 WORKDIR /opt/
 RUN	git clone https://github.com/awslabs/amazon-kinesis-video-streams-producer-sdk-cpp.git

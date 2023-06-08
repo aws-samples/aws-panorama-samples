@@ -2,8 +2,8 @@ import os
 os.environ["PYTHON_EGG_CACHE"] = "/panorama/.cache"
 import site
 
-site.addsitedir('/usr/local/lib/python3.7/site-packages')
-site.addsitedir('/usr/lib/python3.7/site-packages/')
+site.addsitedir('/usr/local/lib/python3.8/site-packages')
+site.addsitedir('/usr/lib/python3.8/site-packages/')
 
 import cv2
 import onnxruntime as ort
