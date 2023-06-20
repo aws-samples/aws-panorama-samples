@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean 
 ARG CUDA=10.2
-ARG RELEASE=r32.4
+ARG RELEASE=r32.7
 RUN echo "deb https://repo.download.nvidia.com/jetson/common $RELEASE main" >> /etc/apt/sources.list
 RUN echo "deb https://repo.download.nvidia.com/jetson/t194 $RELEASE main" >> /etc/apt/sources.list
 RUN apt-key adv --fetch-key http://repo.download.nvidia.com/jetson/jetson-ota-public.asc
@@ -254,12 +254,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 ######################
 # install prerequisites - https://elinux.org/Jetson_Zoo#PyTorch_.28Caffe2.29
 RUN python3.8 -m pip install --no-cache-dir setuptools
-ARG TORCH_WHL=torch-1.10.0-cp38-cp38-manylinux2014_aarch64.whl
-RUN wget https://download.pytorch.org/whl/cpu/torch-1.10.0-cp38-cp38-manylinux2014_aarch64.whl \
-    && python3.8 -m pip install --pre --verbose ${TORCH_WHL} \
-    && rm ${TORCH_WHL}
+#ARG TORCH_WHL=torch-1.10.0-cp38-cp38-manylinux2014_aarch64.whl
+#RUN wget https://download.pytorch.org/whl/cpu/torch-1.10.0-cp38-cp38-manylinux2014_aarch64.whl \
+#    && python3.8 -m pip install --pre --verbose ${TORCH_WHL} \
+#    && rm ${TORCH_WHL}
 # test
-RUN python3.8 -c "import torch"
+#RUN python3.8 -c "import torch"
 #######################
 # torchvision 0.10.0  #
 #######################
@@ -290,9 +290,9 @@ RUN python3.8 -c "import torch"
 # RUN cd torchvision && \
 #     python3.7 setup.py bdist_wheel
 # (Option3) Install from the wheel directly (We prebuilt it already)
-ARG TORCHVISION_WHL=torchvision-0.10.0-cp38-cp38-manylinux2014_aarch64.whl
-RUN wget https://download.pytorch.org/whl/cpu/torchvision-0.10.0-cp38-cp38-manylinux2014_aarch64.whl -O ${TORCHVISION_WHL} \
-    && python3.8 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
+#ARG TORCHVISION_WHL=torchvision-0.10.0-cp38-cp38-manylinux2014_aarch64.whl
+#RUN wget https://download.pytorch.org/whl/cpu/torchvision-0.10.0-cp38-cp38-manylinux2014_aarch64.whl -O ${TORCHVISION_WHL} \
+#    && python3.8 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
 # The built torch vision 
 # note:  this was used on older torchvision versions (~0.4) to workaround a bug,
 #        but has since started causing another bug as of torchvision 0.11.1
@@ -306,13 +306,13 @@ RUN wget https://download.pytorch.org/whl/cpu/torchvision-0.10.0-cp38-cp38-manyl
 #     && rm -rf /var/lib/apt/lists/* \
 #     && apt-get clean
 # patch for https://github.com/pytorch/pytorch/issues/45323
-ARG TORCH_CMAKE_CONFIG=/usr/local/lib/python3.8/dist-packages/torch/share/cmake/Torch/TorchConfig.cmake
-RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
-    echo "contents of ${TORCH_CMAKE_CONFIG} before patching..." && \
-    cat ${TORCH_CMAKE_CONFIG} && \
-    sed -i 's/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=")/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")/g' ${TORCH_CMAKE_CONFIG} && \
-    echo "contents of ${TORCH_CMAKE_CONFIG} after patching..." && \
-    cat ${TORCH_CMAKE_CONFIG}
+#ARG TORCH_CMAKE_CONFIG=/usr/local/lib/python3.8/dist-packages/torch/share/cmake/Torch/TorchConfig.cmake
+#RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
+#    echo "contents of ${TORCH_CMAKE_CONFIG} before patching..." && \
+#    cat ${TORCH_CMAKE_CONFIG} && \
+#    sed -i 's/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=")/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")/g' ${TORCH_CMAKE_CONFIG} && \
+#    echo "contents of ${TORCH_CMAKE_CONFIG} after patching..." && \
+#    cat ${TORCH_CMAKE_CONFIG}
 #Required to run to create the Python_egg cache. May get a numpy initialization warning. 
 #RUN python3.7 -c "import torch; import torchvision"
 # RUN python3.7 -m pip install -U matplotlib && \ 
@@ -320,11 +320,16 @@ RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
 # RUN pip3 install --upgrade numpy
 #Required to run to create the Python_egg cache, since panorama is a read-only container. 
 # RUN python3.7 -c "import torch; import torchvision"
+RUN pip3 install torch torchvision
+
 ARG PYTHON_EGG_CACHE="/panorama/.cache"
 RUN python3.8 -c "import torch; \
 import site; \
 site.addsitedir('/usr/lib/python3.8/site-packages/'); \
 import torchvision"
+
+RUN python3 -c "from torchvision.extension import _assert_has_ops; _assert_has_ops()"
+
 # RUN mkdir -p /tmp
 # RUN ln -s /tmp /panorama
 # 4.8GB
