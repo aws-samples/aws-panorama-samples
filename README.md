@@ -18,21 +18,21 @@ To **set up your environment** for Test Utility, please refer to [Test Utility e
 
 To know **how to use Test Utility**, please refer to [How to use Test Utility](docs/HowToUseTestUtility.md).
 
-
 ## List of Samples
 
-| Application | Description | Framework | Usecase | Complexity | Model
-| ------ | ------ |------ |------ |------ |------ |
-| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz)
-| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz)
-| **Pose estimation**| This is a sample computer vision application that can detect people and estimate pose of them | MXNet | Pose estimation | Advanced | yolo3_mobilenet1.0_coco, simple_pose_resnet152_v1d
-| **Object Detection Tensorflow SSD**| This example shows how to run a TF SSD Mobilenet Model using Tensorflow | Tensorflow (Open GPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Object Detection PyTorch Yolov5s**| This example shows how to run your own YoloV5s model using PyTorch | PyTorch (Open GPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Object Detection ONNX Runtime Yolov5s**| This example shows how to run your own YoloV5s model using ONNX Runtime | ONNX Runtime (Open GPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Object Detection using TensorRT network definition APIs**| This example shows how to get infernece from a YoloV5s model optimized using TensorRT Network definition API's | TensorRT (OpenGPU) | Object Detection (BYO Container) | Advanced | N/A
-| **Inbound networking**| This sample explains how to enable inbound networking port on Panorama device, and how to run a simple HTTP server wihtin a Panorama application. | N/A | Network | Easy | N/A
-| **MOT Analysis**| This sample shows how to build end to end multi object tracking solution using pretrained YOLOX model, kinesis video upstream by gstreamer and dashboard | PyTorch | Object Tracking | Advanced | YOLOX
-| **Kinesis Video Streams**| This sample shows how to build an application to push multiple video streams from Panoram to Amazon Kinesis Video Streams service with AWS IoT. | N/A | Media | Advanced | N/A
+| Application | Description | Framework | Usecase | Complexity | Model |  Python Version
+| ------ | ---------- |------ |------ |------ |------ | ------ |
+| **People Counter**| This is a sample computer vision application that can count the number of people in each frame of a streaming video (**Start with this**) | MXNet | Object Detection | Easy | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_512_resnet50_v1_voc.tar.gz) | 3.8
+| **Car Detector and Tracker**| This is a sample computer vision application that can detect and track cars | Tensorflow | Object Detection | Medium | [Download](https://panorama-starter-kit.s3.amazonaws.com/public/v2/Models/ssd_mobilenet_v2_coco.tar.gz) | 3.7
+| **Pose estimation**| This is a sample computer vision application that can detect people and estimate pose of them | MXNet | Pose estimation | Advanced | yolo3_mobilenet1.0_coco, simple_pose_resnet152_v1d | 3.7
+| **Object Detection Tensorflow SSD (TF37_opengpu)**| This example shows how to run a TF SSD Mobilenet Model using Tensorflow | Tensorflow (Open GPU) | Object Detection (BYO Container) | Advanced | N/A |3.7
+| **Object Detection PyTorch Yolov5s (PT37_opengpu)**| This example shows how to run your own YoloV5s model using PyTorch | PyTorch (Open GPU) | Object Detection (BYO Container) | Advanced | N/A | 3.7
+| **Object Detection ONNX Runtime Yolov5s (ONNX_opengpu)**| This example shows how to run your own YoloV5s model using ONNX Runtime | ONNX Runtime (Open GPU) | Object Detection (BYO Container) | Advanced | N/A | 3.8
+| **Object Detection with Yolov5 ONNX model optimized for TensorRT (ONNX2TRT_opengpu)**| This sample shows how to run a Yolov5 ONNX model optimized for TensorRT | TensorRT Runtime (Open GPU) | Object Detection (BYO Container) | Advanced | N/A | 3.6
+| **Object Detection using TensorRT network definition APIs (TRTPT36_opengpu)**| This example shows how to get infernece from a YoloV6s model optimized using TensorRT Network definition API's | TensorRT (OpenGPU) | Object Detection (BYO Container) | Advanced | N/A | 3.6
+| **Inbound networking**| This sample explains how to enable inbound networking port on Panorama device, and how to run a simple HTTP server wihtin a Panorama application. | N/A | Network | Easy | N/A | 3.7
+| **MOT Analysis**| This sample shows how to build end to end multi object tracking solution using pretrained YOLOX model, kinesis video upstream by gstreamer and dashboard | PyTorch | Object Tracking | Advanced | YOLOX | 3.7
+| **Kinesis Video Streams**| This sample shows how to build an application to push multiple video streams from Panoram to Amazon Kinesis Video Streams service with AWS IoT. | N/A | Media | Advanced | N/A| 3.8
 
 
 ## Running the Samples

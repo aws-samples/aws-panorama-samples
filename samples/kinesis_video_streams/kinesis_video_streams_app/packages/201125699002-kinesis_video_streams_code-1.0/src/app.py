@@ -2,6 +2,7 @@ import json
 import logging
 import time
 import os
+import re
 from logging.handlers import RotatingFileHandler
 
 import boto3
@@ -81,7 +82,14 @@ class Application(panoramasdk.node):
         # Loop through attached video streams
             streams = self.inputs.video_in.get()
             for stream in streams:
-                self.push_to_pipeline(self.app_src[stream.stream_id], stream.image)
+                
+                # media.stream_id can contain UUID at the end. Remove it.
+                stream_name = stream.stream_id
+                re_result = re.fullmatch( "(.*)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", stream_name )
+                if re_result is not None:
+                    stream_name = re_result.group(1)
+                
+                self.push_to_pipeline(self.app_src[stream_name], stream.image)
 
             self.outputs.video_out.put(streams)
 

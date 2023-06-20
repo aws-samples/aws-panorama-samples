@@ -43,7 +43,7 @@ The dependencies folder included with this application has
 ## Steps for setting this up
 
 * Step 1: Navigate to ./dependencies
-* Step 2 : ``` sudo docker build -t onnx37:latest . ```
+* Step 2 : ``` sudo docker build -t onnx38:latest . ```
 * Step 3 : Open onnx_example.ipynb and make sure you configure the following
     * The Device ID
     * The Camera node information
@@ -51,7 +51,7 @@ The dependencies folder included with this application has
 
 ## Special flags in package.json
 
-* Step 1 : Before you deploy the application, open ONNX37_opengpu/onnx_37_app/packages/(account-id)-onnx_37_app-1.0/package.json
+* Step 1 : Before you deploy the application, open ONNX_opengpu/onnx_app/packages/(account-id)-onnx_app-1.0/package.json
 * Step 2 : Add the following flags to the package.json
 
 ```
@@ -74,7 +74,7 @@ The assets should look something like this
 ```
 "assets": [
     {
-        "name": "onnx_37_app",
+        "name": "onnx_app",
         "implementations": [
             {
                 "type": "container",

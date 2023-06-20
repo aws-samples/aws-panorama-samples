@@ -1,20 +1,20 @@
-FROM public.ecr.aws/panorama/panorama-application:latest
-
+FROM public.ecr.aws/panorama/panorama-application/sdkv1/python3.8/aarch64:latest
+# set Python3.8 as default
+RUN apt-get update -y && apt-get install -y python3.8-dev libpython3.8 python3.8 python3.8-venv python3-pip git
+RUN python3.8 -m pip install --user --upgrade pip
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
+RUN update-alternatives --set python3 /usr/bin/python3.8
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg2 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean 
-
 ARG CUDA=10.2
-ARG RELEASE=r32.4
-
+ARG RELEASE=r32.7
 RUN echo "deb https://repo.download.nvidia.com/jetson/common $RELEASE main" >> /etc/apt/sources.list
 RUN echo "deb https://repo.download.nvidia.com/jetson/t194 $RELEASE main" >> /etc/apt/sources.list
 RUN apt-key adv --fetch-key http://repo.download.nvidia.com/jetson/jetson-ota-public.asc
-
 ENV DEBIAN_FRONTEND noninteractive
-
 #####
 # RUN apt-get -y update \
 #     && apt-get -y install apt-utils \
@@ -29,17 +29,15 @@ ENV DEBIAN_FRONTEND noninteractive
 # install prerequisites - https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html#prereqs
 #
 # RUN apt-get update && apt-get install -y --no-install-recommends gfortran build-essential liblapack-dev libblas-dev libhdf5-serial-dev hdf5-tools libhdf5-dev zlib1g-dev zip libjpeg8-dev
-
-
 #
 # Install Cuda, cuDNN
 #
 RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
     apt-get update && apt-get install -y --no-install-recommends \
-	cuda-libraries-$CUDAPKG \
-	cuda-nvtx-$CUDAPKG \
-	cuda-libraries-dev-$CUDAPKG \
-	cuda-minimal-build-$CUDAPKG \
+    cuda-libraries-$CUDAPKG \
+    cuda-nvtx-$CUDAPKG \
+    cuda-libraries-dev-$CUDAPKG \
+    cuda-minimal-build-$CUDAPKG \
     libcudnn8 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
@@ -47,21 +45,16 @@ RUN CUDAPKG=$(echo $CUDA | sed 's/\./-/'); \
     && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a \
     && rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a \
     && rm -rf /usr/lib/aarch64-linux-gnu/*static*
-
 # Install libnvinfer required for tensorrt
 # RUN apt-get update && apt-get install python3-libnvinfer-dev -y
-
 #Remove static libraries to save space
 # RUN rm -rf /usr/local/cuda-$CUDA/targets/aarch64-linux/lib/*.a
 # RUN rm -rf /usr/local/cuda-$CUDA/lib64/*.a
 # RUN rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_static.a
 # RUN rm -rf /usr/lib/aarch64-linux-gnu/libnvinfer_plugin_static.a
-
 ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
-
 RUN echo "/usr/lib/aarch64-linux-gnu/tegra" >> /etc/ld.so.conf.d/nvidia-tegra.conf && \
     echo "/usr/lib/aarch64-linux-gnu/tegra-egl" >> /etc/ld.so.conf.d/nvidia-tegra.conf
-
 #RUN rm /usr/share/glvnd/egl_vendor.d/50_mesa.json
 RUN mkdir -p /usr/share/glvnd/egl_vendor.d/ && echo '\
 {\
@@ -70,7 +63,6 @@ RUN mkdir -p /usr/share/glvnd/egl_vendor.d/ && echo '\
         "library_path" : "libEGL_nvidia.so.0"\
     }\
 }' > /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-
 RUN mkdir -p /usr/share/egl/egl_external_platform.d/ && echo '\
 {\
     "file_format_version" : "1.0.0",\
@@ -78,21 +70,15 @@ RUN mkdir -p /usr/share/egl/egl_external_platform.d/ && echo '\
         "library_path" : "libnvidia-egl-wayland.so.1"\
     }\
 }' > /usr/share/egl/egl_external_platform.d/nvidia_wayland.json
-
 RUN echo "/usr/local/cuda-10.2/targets/aarch64-linux/lib" >> /etc/ld.so.conf.d/nvidia.conf
-
 RUN ln -s /usr/local/cuda-$CUDA /usr/local/cuda && \
     ln -s /usr/local/cuda-$CUDA/targets/aarch64-linux/include /usr/local/cuda/include && \
     ln -s /usr/local/cuda-$CUDA/targets/aarch64-linux/lib /usr/local/cuda/lib64
-
 ENV PATH /usr/local/cuda-$CUDA/bin:/usr/local/cuda/bin:${PATH}
 ENV LD_LIBRARY_PATH /usr/local/cuda-$CUDA/targets/aarch64-linux/lib:${LD_LIBRARY_PATH}
-
 # ARG HDF5_DIR="/usr/lib/aarch64-linux-gnu/hdf5/serial/"
 # ARG MAKEFLAGS=-j$(nproc)
-
 # RUN printenv
-
 #
 # Install tensorflow dependencies
 #
@@ -100,7 +86,6 @@ ENV LD_LIBRARY_PATH /usr/local/cuda-$CUDA/targets/aarch64-linux/lib:${LD_LIBRARY
 # RUN python3.7 -m pip install --no-cache-dir --verbose numpy==1.19.4
 # RUN python3.7 -m pip install --no-cache-dir --verbose h5py==2.10.0
 # RUN python3.7 -m pip install --no-cache-dir --verbose future==0.18.2 mock==3.0.5 h5py==2.10.0 keras_preprocessing==1.1.1 keras_applications==1.0.8 gast==0.2.2 futures protobuf pybind11
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libopenblas-base \
@@ -108,26 +93,26 @@ RUN apt-get update && \
         libomp-dev \
         python3-pip \
         wget \
+        awscli \
         && rm -rf /var/lib/apt/lists/* \
         && apt-get clean
-
-ARG ONNX_WHL=onnxruntime_gpu-1.6.0-cp37-cp37m-linux_aarch64.whl
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/ONNX_Sample/Docker/onnxruntime_gpu-1.6.0-cp37-cp37m-linux_aarch64.whl \
-    && python3.7 -m pip install --pre --verbose ${ONNX_WHL} && rm ${ONNX_WHL}
-
+######################
+#    OnnxRuntime     #
+######################        
+# the whl file can be found from https://elinux.org/Jetson_Zoo#ONNX_Runtime
+ARG ONNX_WHL=onnxruntime_gpu-1.6.0-cp38-cp38-linux_aarch64.whl
+RUN wget https://nvidia.app.box.com/shared/static/0hn1biilqnhii8dx6ojatdgjbd30ni0i.whl -O ${ONNX_WHL} \
+    && python3.8 -m pip install --pre --verbose ${ONNX_WHL} && rm ${ONNX_WHL}
 #
 # PyCUDA
 #
 # ENV PATH="/usr/local/cuda/bin:${PATH}"
 # ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
-
 # RUN python3.7 -m pip install --no-cache-dir --verbose pycuda six
-
 #
 # Run ld config
 #
 # RUN ldconfig
-
 # RUN apt-get update
 # RUN apt install libcudnn8-dev -y
 #
@@ -136,26 +121,23 @@ RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/
 ENV CUDA_HOME="/usr/local/cuda"
 ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
-
 # WORKDIR /opt
-
 #
 # OpenCV - https://github.com/mdegans/nano_build_opencv/blob/master/build_opencv.sh
 #
 # ARG OPENCV_VERSION="4.4.0"
-
 # RUN apt-get update && \
 #     apt-get install -y --no-install-recommends \
 #         build-essential \
-# 	   gfortran \
+#      gfortran \
 #         cmake \
 #         git \
-# 	   file \
-# 	   tar \
-# 	   python3-pip \
-# 	   python3-dev \
-# 	   python3-distutils \
-# 	   python3-setuptools \
+#      file \
+#      tar \
+#      python3-pip \
+#      python3-dev \
+#      python3-distutils \
+#      python3-setuptools \
 #         libatlas-base-dev \
 #         libavcodec-dev \
 #         libavformat-dev \
@@ -185,8 +167,8 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 #         libxine2-dev \
 #         libxvidcore-dev \
 #         libx264-dev \
-# 	   libgtkglext1 \
-# 	   libgtkglext1-dev \
+#      libgtkglext1 \
+#      libgtkglext1-dev \
 #         pkg-config \
 #         qv4l2 \
 #         v4l-utils \
@@ -194,10 +176,8 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 #         zlib1g-dev \
 #     && rm -rf /var/lib/apt/lists/* \
 #     && apt-get clean
-
 # # OpenCV looks for the cuDNN version in cudnn_version.h, but it's been renamed to cudnn_version_v8.h
 # RUN ln -s /usr/include/aarch64-linux-gnu/cudnn_version_v8.h /usr/include/aarch64-linux-gnu/cudnn_version.h
-
 # RUN git clone --depth 1 --branch ${OPENCV_VERSION} https://github.com/opencv/opencv.git && \
 #     git clone --depth 1 --branch ${OPENCV_VERSION} https://github.com/opencv/opencv_contrib.git && \
 #     cd opencv && \
@@ -205,10 +185,10 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 #     cd build && \
 #     cmake \
 #         -D CPACK_BINARY_DEB=ON \
-# 	   -D BUILD_EXAMPLES=OFF \
+#      -D BUILD_EXAMPLES=OFF \
 #         -D BUILD_opencv_python2=OFF \
 #         -D BUILD_opencv_python3=ON \
-# 	   -D BUILD_opencv_java=OFF \
+#      -D BUILD_opencv_java=OFF \
 #         -D CMAKE_BUILD_TYPE=RELEASE \
 #         -D CMAKE_INSTALL_PREFIX=/usr/local \
 #         -D CUDA_ARCH_BIN=5.3,6.2,7.2 \
@@ -216,7 +196,7 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 #         -D CUDA_FAST_MATH=ON \
 #         -D CUDNN_INCLUDE_DIR=/usr/include/aarch64-linux-gnu \
 #         -D EIGEN_INCLUDE_PATH=/usr/include/eigen3 \
-# 	   -D WITH_EIGEN=ON \
+#      -D WITH_EIGEN=ON \
 #         -D ENABLE_NEON=ON \
 #         -D OPENCV_DNN_CUDA=ON \
 #         -D OPENCV_ENABLE_NONFREE=ON \
@@ -228,32 +208,24 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 #         -D WITH_GSTREAMER=ON \
 #         -D WITH_LIBV4L=ON \
 #         -D WITH_OPENGL=ON \
-# 	   -D WITH_OPENCL=OFF \
-# 	   -D WITH_IPP=OFF \
+#      -D WITH_OPENCL=OFF \
+#      -D WITH_IPP=OFF \
 #         -D WITH_TBB=ON \
-# 	   -D BUILD_TIFF=ON \
-# 	   -D BUILD_PERF_TESTS=OFF \
-# 	   -D BUILD_TESTS=OFF \
-# 	   ../
-
+#      -D BUILD_TIFF=ON \
+#      -D BUILD_PERF_TESTS=OFF \
+#      -D BUILD_TESTS=OFF \
+#      ../
 # RUN cd opencv/build && make -j$(nproc)
 # RUN cd opencv/build && make install
 # RUN cd opencv/build && make package
-
 # RUN cd opencv/build && tar -czvf OpenCV-${OPENCV_VERSION}-aarch64.tar.gz *.deb
-
-
 ######################
 #      OpenCV        #
 ######################
-
 # RUN apt-get update -y && apt-get install -y libglib2.0-0 \
 #     && rm -rf /var/lib/apt/lists/* \
 #     && apt-get clean
-
-RUN python3.7 -m pip install --no-cache-dir opencv-python
-
-
+RUN python3.8 -m pip install --no-cache-dir opencv-python
 # Install Pytorch cuda
 RUN echo "install Torch and Torchvision Cuda"
 ENV DEBIAN_FRONTEND=noninteractive
@@ -272,23 +244,22 @@ ENV DEBIAN_FRONTEND=noninteractive
 #         libomp-dev \
 #     && rm -rf /var/lib/apt/lists/* \
 #     && apt-get clean
-
 # RUN python3.7 -m pip install --no-cache-dir setuptools Cython wheel
-
 # RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torch-1.10.0-cp37-cp37m-linux_aarch64.whl
 # ARG PYTORCH_WHL=torch-1.10.0-cp37-cp37m-linux_aarch64.whl
 # RUN python3.7 -m pip install --no-cache-dir --verbose ${PYTORCH_WHL} && \
 #     rm ${PYTORCH_WHL}
-
 ######################
 #      Pytorch       #
 ######################
-
 # install prerequisites - https://elinux.org/Jetson_Zoo#PyTorch_.28Caffe2.29
-ARG PYTORCH_WHL=torch-1.10.0-cp37-cp37m-linux_aarch64.whl
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torch-1.10.0-cp37-cp37m-linux_aarch64.whl \
-    && python3.7 -m pip install --no-cache-dir --verbose ${PYTORCH_WHL} && rm ${PYTORCH_WHL}
-
+RUN python3.8 -m pip install --no-cache-dir setuptools
+#ARG TORCH_WHL=torch-1.10.0-cp38-cp38-manylinux2014_aarch64.whl
+#RUN wget https://download.pytorch.org/whl/cpu/torch-1.10.0-cp38-cp38-manylinux2014_aarch64.whl \
+#    && python3.8 -m pip install --pre --verbose ${TORCH_WHL} \
+#    && rm ${TORCH_WHL}
+# test
+#RUN python3.8 -c "import torch"
 #######################
 # torchvision 0.10.0  #
 #######################
@@ -308,24 +279,20 @@ RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/
 #     && rm -rf /var/lib/apt/lists/* \
 #     && apt-get clean
 # RUN git clone -b ${TORCHVISION_VERSION} https://github.com/pytorch/vision torchvision
-
 ## There are three options:
 # (Option1) Install Torchvision
 # RUN cd torchvision && \
 #     python3.7 setup.py install && \
 #     cd ../  && \
 #     rm -rf torchvision
-
 # (Option2) Build Torchvision wheel & Install
 # You can get the wheel from /torchvision/dist/torchvision-0.10.0a0+300a8a4-cp37-cp37m-linux_aarch64.whl
 # RUN cd torchvision && \
 #     python3.7 setup.py bdist_wheel
-
 # (Option3) Install from the wheel directly (We prebuilt it already)
-ARG TORCHVISION_WHL=torchvision-0.10.0a0+300a8a4-cp37-cp37m-linux_aarch64.whl
-RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/PT_Sample/Docker/torchvision-0.10.0a0%2B300a8a4-cp37-cp37m-linux_aarch64.whl -O ${TORCHVISION_WHL} \
-    && python3.7 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
-
+#ARG TORCHVISION_WHL=torchvision-0.10.0-cp38-cp38-manylinux2014_aarch64.whl
+#RUN wget https://download.pytorch.org/whl/cpu/torchvision-0.10.0-cp38-cp38-manylinux2014_aarch64.whl -O ${TORCHVISION_WHL} \
+#    && python3.8 -m pip install --pre --verbose ${TORCHVISION_WHL} && rm ${TORCHVISION_WHL}
 # The built torch vision 
 # note:  this was used on older torchvision versions (~0.4) to workaround a bug,
 #        but has since started causing another bug as of torchvision 0.11.1
@@ -338,34 +305,31 @@ RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/
 #         gnupg \
 #     && rm -rf /var/lib/apt/lists/* \
 #     && apt-get clean
-
 # patch for https://github.com/pytorch/pytorch/issues/45323
-ARG TORCH_CMAKE_CONFIG=/usr/local/lib/python3.7/dist-packages/torch/share/cmake/Torch/TorchConfig.cmake
-RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
-    echo "contents of ${TORCH_CMAKE_CONFIG} before patching..." && \
-    cat ${TORCH_CMAKE_CONFIG} && \
-    sed -i 's/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=")/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")/g' ${TORCH_CMAKE_CONFIG} && \
-    echo "contents of ${TORCH_CMAKE_CONFIG} after patching..." && \
-    cat ${TORCH_CMAKE_CONFIG}
-
+#ARG TORCH_CMAKE_CONFIG=/usr/local/lib/python3.8/dist-packages/torch/share/cmake/Torch/TorchConfig.cmake
+#RUN echo "patching _GLIBCXX_USE_CXX11_ABI in ${TORCH_CMAKE_CONFIG}" && \
+#    echo "contents of ${TORCH_CMAKE_CONFIG} before patching..." && \
+#    cat ${TORCH_CMAKE_CONFIG} && \
+#    sed -i 's/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=")/  set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")/g' ${TORCH_CMAKE_CONFIG} && \
+#    echo "contents of ${TORCH_CMAKE_CONFIG} after patching..." && \
+#    cat ${TORCH_CMAKE_CONFIG}
 #Required to run to create the Python_egg cache. May get a numpy initialization warning. 
 #RUN python3.7 -c "import torch; import torchvision"
-
 # RUN python3.7 -m pip install -U matplotlib && \ 
-# 	pip3 install pyyaml scipy tqdm pandas requests seaborn
-
+#   pip3 install pyyaml scipy tqdm pandas requests seaborn
 # RUN pip3 install --upgrade numpy
-
 #Required to run to create the Python_egg cache, since panorama is a read-only container. 
 # RUN python3.7 -c "import torch; import torchvision"
+RUN pip3 install torch torchvision
 
 ARG PYTHON_EGG_CACHE="/panorama/.cache"
-RUN python3.7 -c "import torch; \
+RUN python3.8 -c "import torch; \
 import site; \
-site.addsitedir('/usr/lib/python3.7/site-packages/'); \
+site.addsitedir('/usr/lib/python3.8/site-packages/'); \
 import torchvision"
+
+RUN python3 -c "from torchvision.extension import _assert_has_ops; _assert_has_ops()"
 
 # RUN mkdir -p /tmp
 # RUN ln -s /tmp /panorama
-
 # 4.8GB

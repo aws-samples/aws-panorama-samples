@@ -1,12 +1,12 @@
 {
     "nodePackage": {
         "envelopeVersion": "2021-01-01",
-        "name": "onnx_37_app",
+        "name": "onnx_app",
         "version": "1.0",
-        "description": "Default description for package onnx_37_app",
+        "description": "Default description for package onnx_app",
         "assets": [
             {
-                "name": "onnx_37_app",
+                "name": "onnx_app",
                 "implementations": [
                     {
                         "type": "container",
@@ -31,9 +31,9 @@
         ],
         "interfaces": [
             {
-                "name": "onnx_37_app_interface",
+                "name": "onnx_app_interface",
                 "category": "business_logic",
-                "asset": "onnx_37_app",
+                "asset": "onnx_app",
                 "inputs": [
                     {
                         "name": "video_in",

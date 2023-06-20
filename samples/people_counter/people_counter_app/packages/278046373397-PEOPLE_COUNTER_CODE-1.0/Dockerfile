@@ -1,3 +1,3 @@
-FROM public.ecr.aws/panorama/panorama-application
+FROM public.ecr.aws/panorama/panorama-application/sdkv1/python3.8/aarch64:latest
 COPY src /panorama
-RUN pip3 install opencv-python boto3
+RUN python3.8 -m pip install opencv-python boto3

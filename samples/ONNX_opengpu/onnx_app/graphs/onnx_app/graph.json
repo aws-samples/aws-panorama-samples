@@ -3,7 +3,7 @@
         "envelopeVersion": "2021-01-01",
         "packages": [
             {
-                "name": "028663699634::onnx_37_app",
+                "name": "028663699634::onnx_app",
                 "version": "1.0"
             },
             {
@@ -23,8 +23,8 @@
                 }
             },
             {
-                "name": "onnx_37_app_node",
-                "interface": "028663699634::onnx_37_app.onnx_37_app_interface",
+                "name": "onnx_app_node",
+                "interface": "028663699634::onnx_app.onnx_app_interface",
                 "overridable": false,
                 "launch": "onAppStart"
             },
@@ -42,11 +42,11 @@
         "edges": [
             {
                 "producer": "front_door_camera.video_out",
-                "consumer": "onnx_37_app_node.video_in"
+                "consumer": "onnx_app_node.video_in"
             },
             {
                 "producer": "batch_size",
-                "consumer": "onnx_37_app_node.batch_size"
+                "consumer": "onnx_app_node.batch_size"
             }
         ]
     }
