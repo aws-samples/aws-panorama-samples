@@ -1,0 +1,30 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "easyocr_37_2_app",
+        "version": "1.0",
+        "description": "Default description for package easyocr_37_app",
+        "assets": [
+
+        ],
+        "interfaces": [
+            {
+                "name": "easyocr_37_2_app_interface",
+                "category": "business_logic",
+                "asset": "easyocr_37_2_app",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}
