@@ -137,15 +137,15 @@ RUN wget https://panorama-starter-kit.s3.amazonaws.com/public/v2/opengpusamples/
 ##################
 # Install Pycuda #
 ##################
+# upgrade pip for opencv, numpy and other libs
+RUN python3.6 -m pip  install --upgrade pip
 RUN python3.6 -m pip install --no-cache-dir setuptools Cython wheel
-RUN python3.6 -m pip install --no-cache-dir numpy
+RUN python3.6 -m pip install --no-cache-dir numpy==1.19.4
 
 ENV PATH="/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
 
-# upgrade pip for opencv and other libs
-RUN python3.6 -m pip  install --upgrade pip
 RUN python3.6 -m pip install --no-cache-dir pycuda==2020.1 six
 
 #
@@ -163,7 +163,7 @@ RUN python3.6 -m pip install --no-cache-dir pycuda==2020.1 six
 #     && rm -rf /var/lib/apt/lists/* \
 #     && apt-get clean
 
-RUN python3.6 -m pip install --no-cache-dir opencv-python
+RUN python3.6 -m pip install --no-cache-dir opencv-python==4.6.0.66
 
 
 ######################
