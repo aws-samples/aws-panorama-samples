@@ -10,8 +10,21 @@
                 "implementations": [
                     {
                         "type": "container",
-                        "assetUri": "0c07644156445534138b89b5dbb329d5098fb803fbea2a8b44c4ebf0d93afb0c.tar.gz",
-                        "descriptorUri": "577ccf8b6cff24dc1f90cc2af22644ee9d0c81b5a22e771287bf3630e1b7b8fb.json"
+                        "assetUri": "e2b9a2aea5d5d7568204196123c97ccb4130c39defeca02362ab542b62b09e63.tar.gz",
+                        "descriptorUri": "577ccf8b6cff24dc1f90cc2af22644ee9d0c81b5a22e771287bf3630e1b7b8fb.json",
+                        "requirements" : [
+                            {
+                                "type" : "hardware_access",
+                                "nvAccelerators" : [
+                                    {
+                                        "deviceType" : "nvhost_gpu",
+                                        "sharedResourcePolicy" : {
+                                            "policy" : "allow_all"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
