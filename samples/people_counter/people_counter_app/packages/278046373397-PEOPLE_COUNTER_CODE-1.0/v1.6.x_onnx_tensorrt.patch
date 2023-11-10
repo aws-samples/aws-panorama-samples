@@ -1,0 +1,52 @@
+diff --git a/getSupportedAPITest.cpp b/getSupportedAPITest.cpp
+index cb290fc..5c6f327 100644
+--- a/getSupportedAPITest.cpp
++++ b/getSupportedAPITest.cpp
+@@ -103,7 +103,8 @@ int main(int argc, char* argv[]) {
+ 
+     common::TRT_Logger trt_logger((nvinfer1::ILogger::Severity)verbosity);
+     auto trt_builder = common::infer_object(nvinfer1::createInferBuilder(trt_logger));
+-    auto trt_network = common::infer_object(trt_builder->createNetwork());
++    const auto explicitBatch = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
++    auto trt_network = common::infer_object(trt_builder->createNetworkV2(explicitBatch));
+     auto trt_parser  = common::infer_object(nvonnxparser::createParser(*trt_network, trt_logger));
+ 
+     cout << "Parsing model: " << onnx_filename << endl;
+diff --git a/main.cpp b/main.cpp
+index ba75207..612d8ab 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -167,7 +167,8 @@ int main(int argc, char* argv[]) {
+ 
+   common::TRT_Logger trt_logger((nvinfer1::ILogger::Severity)verbosity);
+   auto trt_builder = common::infer_object(nvinfer1::createInferBuilder(trt_logger));
+-  auto trt_network = common::infer_object(trt_builder->createNetwork());
++  const auto explicitBatch = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
++  auto trt_network = common::infer_object(trt_builder->createNetworkV2(explicitBatch));
+   auto trt_parser  = common::infer_object(nvonnxparser::createParser(
+                                       *trt_network, trt_logger));
+ 
+diff --git a/onnx_trt_backend.cpp b/onnx_trt_backend.cpp
+index 14e3ea1..c7e702e 100644
+--- a/onnx_trt_backend.cpp
++++ b/onnx_trt_backend.cpp
+@@ -183,7 +183,8 @@ public:
+     trt_builder_ = common::infer_object(nvinfer1::createInferBuilder(trt_logger_));
+     trt_builder_->setMaxBatchSize(max_batch_size_);
+     trt_builder_->setMaxWorkspaceSize(max_workspace_size_);
+-    trt_network_ = common::infer_object(trt_builder_->createNetwork());
++    const auto explicitBatch = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
++    trt_network_ = common::infer_object(trt_builder_->createNetworkV2(explicitBatch));
+     parser_ = common::infer_object(
+         nvonnxparser::createParser(*trt_network_, trt_logger_));
+     CudaDeviceGuard guard(device_id_);
+@@ -793,7 +794,8 @@ onnxGetBackendCompatibility(onnxBackendID backendID, size_t onnxModelSize,
+     }
+     common::TRT_Logger trt_logger;
+     auto trt_builder = common::infer_object(nvinfer1::createInferBuilder(trt_logger));
+-    auto trt_network = common::infer_object(trt_builder->createNetwork());
++    const auto explicitBatch = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
++    auto trt_network = common::infer_object(trt_builder->createNetworkV2(explicitBatch));
+     auto parser = common::infer_object(nvonnxparser::createParser(*trt_network, trt_logger));
+     SubGraphCollection_t subgraphcollection;
+     if (parser->supportsModel(onnxModel, onnxModelSize, subgraphcollection)) {

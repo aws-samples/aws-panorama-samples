@@ -7,10 +7,6 @@
                 "version": "1.0"
             },
             {
-                "name": "278046373397::SSD_MODEL",
-                "version": "1.0"
-            },
-            {
                 "name": "panorama::hdmi_data_sink",
                 "version": "1.0"
             },
@@ -23,12 +19,6 @@
             {
                 "name": "code_node",
                 "interface": "278046373397::PEOPLE_COUNTER_CODE.interface",
-                "overridable": false,
-                "launch": "onAppStart"
-            },
-            {
-                "name": "model_node",
-                "interface": "278046373397::SSD_MODEL.interface",
                 "overridable": false,
                 "launch": "onAppStart"
             },
