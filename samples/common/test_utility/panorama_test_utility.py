@@ -147,7 +147,8 @@ def resolve_sm_role():
                         "Service": [
                             "sagemaker.amazonaws.com",
                             "s3.amazonaws.com",
-                            "cloudwatch.amazonaws.com"]},
+                            "cloudwatch.amazonaws.com",
+                            "panorama.amazonaws.com"]},
                     "Action": "sts:AssumeRole"}]}
 
         rolename = 'AWSPanoramaSMRole' + \
