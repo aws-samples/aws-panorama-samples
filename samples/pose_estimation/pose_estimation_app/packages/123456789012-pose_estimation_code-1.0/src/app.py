@@ -6,8 +6,7 @@ import cProfile
 import cv2
 import numpy as np
 import panoramasdk
-
-# ---
+import mxnet
 
 people_detection_input_resolution = (600,480)
 pose_estimation_input_resolution = (192,256)
@@ -23,8 +22,6 @@ box_thickness = 1
 skip_people_detection = False
 skip_pose_estimation = False
 
-# ---
-
 def trace( s ):
     print( s, flush=True )
     pass
@@ -39,7 +36,19 @@ class Application:
         self.screenshot_requested_frames = 0
         self.screenshot_current_frame = 0
         self.target_pose_batch_size = 4
-        
+
+        people_sym, people_arg_params, people_aux_params = mxnet.model.load_checkpoint('/panorama/yolo3_mobilenet1.0_coco_person', 0)
+        people_trt_sym = people_sym.get_backend_symbol('TensorRT')
+        people_arg_params, people_aux_params = mxnet.contrib.tensorrt.init_tensorrt_params(people_trt_sym, people_arg_params, people_aux_params)
+        self.people_executor = people_trt_sym.simple_bind(ctx=mxnet.gpu(), data=(1, 3, 480, 600), grad_req='null', force_rebind=True)
+        self.people_executor.copy_params_from(people_arg_params, people_aux_params)
+
+        pose_sym, pose_arg_params, pose_aux_params = mxnet.model.load_checkpoint('/panorama/simple_pose_resnet152_v1d', 0)
+        pose_trt_sym = pose_sym.get_backend_symbol('TensorRT')
+        pose_arg_params, pose_aux_params = mxnet.contrib.tensorrt.init_tensorrt_params(pose_trt_sym, pose_arg_params, pose_aux_params)
+        self.pose_executor = pose_trt_sym.simple_bind(ctx=mxnet.gpu(), data=(4, 3, 256, 192), grad_req='null', force_rebind=True)
+        self.pose_executor.copy_params_from(pose_arg_params, pose_aux_params)
+
         if launcher:
             launcher.registerCommandHandler( "profile", self.command_Profile, in_main_thread = False )
             launcher.registerCommandHandler( "screenshot", self.command_Screenshot, in_main_thread = False )
@@ -118,14 +127,17 @@ class Application:
         if not skip_people_detection:
         
             trace("detect_people 1")
-            people_detection_results = self.node.call({"data":image}, "people_detection_model" )
+            y_gen = self.people_executor.forward(is_train=False, data=image)
+            for x in y_gen:
+                x.wait_to_read()
+            people_detection_results = tuple([x.asnumpy() for x in y_gen])
             trace("detect_people 2")
 
             if people_detection_results is None:
                 print( "people_detection_results is None", flush=True )
                 return
 
-            assert isinstance(people_detection_results,tuple) and len(people_detection_results)==3
+            assert isinstance(people_detection_results,tuple) and len(people_detection_results)==3, f"type: {type(people_detection_results)} ; len: {len(people_detection_results)}"
         
             classes, scores, boxes = people_detection_results
 
@@ -154,7 +166,7 @@ class Application:
 
         trace( "People detection scores : %s" % (scores[0][top4_index]) )
 
-        pose_esimation_input = []
+        pose_estimation_input = []
 
         for i_high_score in top4_index:
 
@@ -187,19 +199,19 @@ class Application:
             sub_image_resized_b = cv2.resize( sub_image[0][2], pose_estimation_input_resolution )
             sub_image_resized = np.array( [ sub_image_resized_r, sub_image_resized_g, sub_image_resized_b ] )
             
-            pose_esimation_input.append( sub_image_resized )
+            pose_estimation_input.append( sub_image_resized )
 
         # Padding to batch 4 for pose estimation model    
         target_boxes = boxes[0][top4_index]
-        pose_esimation_input = np.array( pose_esimation_input )
+        pose_estimation_input = np.array( pose_estimation_input )
 
-        b, _, _, _ = np.shape(pose_esimation_input)
+        b, _, _, _ = np.shape(pose_estimation_input)
         image_padding = [[0, self.target_pose_batch_size-b], [0,0], [0,0], [0,0]]
         box_padding = [[0, self.target_pose_batch_size-b], [0,0]]
-        pose_esimation_input = np.pad(pose_esimation_input, image_padding, 'constant', constant_values=0)
+        pose_estimation_input = np.pad(pose_estimation_input, image_padding, 'constant', constant_values=0)
         target_boxes = np.pad(target_boxes, box_padding, 'constant', constant_values=0)
         
-        self.estimate_pose( i_stream, stream, target_boxes, pose_esimation_input )
+        self.estimate_pose( i_stream, stream, target_boxes, pose_estimation_input )
 
     # Estimate poses of 1~4 people, and visualize the result
     def estimate_pose( self, i_stream, stream, boxes, images ):
@@ -215,18 +227,19 @@ class Application:
         
         assert images.shape[0] == boxes.shape[0]
         assert images.shape[1:] == (3,pose_estimation_input_resolution[1],pose_estimation_input_resolution[0])
-        
-        model_name = "pose_estimation_model_%d" % images.shape[0]
 
         trace("estimate_pose 1")
-        estimate_pose_results = self.node.call({"data":images}, model_name )
+        y_gen = self.pose_executor.forward(is_train=False, data=images)
+        for x in y_gen:
+            x.wait_to_read()
+        estimate_pose_results = tuple([x.asnumpy() for x in y_gen])
         trace("estimate_pose 2")
         
         if estimate_pose_results is None:
             print( "estimate_pose_results is None", flush=True )
             return
         
-        assert isinstance(estimate_pose_results,tuple) and len(estimate_pose_results)==1
+        assert isinstance(estimate_pose_results,tuple) and len(estimate_pose_results)==1, f"type: {type(estimate_pose_results)} ; len: {len(estimate_pose_results)}"
         assert estimate_pose_results[0].shape[0] == boxes.shape[0]
 
         for pose, box in zip( estimate_pose_results[0], boxes):
@@ -317,4 +330,3 @@ def main():
 
 
 main()
-
