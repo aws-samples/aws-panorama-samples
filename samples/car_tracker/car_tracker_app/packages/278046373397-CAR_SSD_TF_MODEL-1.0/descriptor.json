@@ -1,0 +1,12 @@
+{
+    "mlModelDescriptor": {
+        "envelopeVersion": "2021-01-01",
+        "framework": "TENSORFLOW",
+        "inputs": [
+            {
+                "name": "image_tensor",
+                "shape": [1,300,300,3]
+            }
+        ]
+    }
+}

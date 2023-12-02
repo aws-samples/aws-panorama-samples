@@ -7,6 +7,10 @@
                 "version": "1.0"
             },
             {
+                "name": "123456789012::pose_estimation_models",
+                "version": "1.0"
+            },
+            {
                 "name": "panorama::abstract_rtsp_media_source",
                 "version": "1.0"
             },
@@ -26,6 +30,18 @@
                 "name": "output_node",
                 "interface": "panorama::hdmi_data_sink.hdmi0",
                 "overridable": true,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "people_detection_model",
+                "interface": "123456789012::pose_estimation_models.people_detection_model_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "pose_estimation_model_4",
+                "interface": "123456789012::pose_estimation_models.pose_estimation_model_4_interface",
+                "overridable": false,
                 "launch": "onAppStart"
             },
             {

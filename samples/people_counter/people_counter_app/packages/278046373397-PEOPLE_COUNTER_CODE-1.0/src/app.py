@@ -5,26 +5,19 @@ import time
 from logging.handlers import RotatingFileHandler
 
 import boto3
-import mxnet
-
 from botocore.exceptions import ClientError
 import cv2
 import numpy as np
 import panoramasdk
 
+
 class Application(panoramasdk.node):
     def __init__(self):
         """Initializes the application's attributes with parameters from the interface, and default values."""
+        self.MODEL_NODE = "model_node"
         self.MODEL_DIM = 512
         self.frame_num = 0
         self.threshold = 50.
-
-        batch_shape = (1, 3, 512, 512)
-        sym, arg_params, aux_params = mxnet.model.load_checkpoint('/panorama/ssd_512_resnet50_v1_voc', 0)
-        trt_sym = sym.get_backend_symbol('TensorRT')
-        arg_params, aux_params = mxnet.contrib.tensorrt.init_tensorrt_params(trt_sym, arg_params, aux_params)
-        self.executor = trt_sym.simple_bind(ctx=mxnet.gpu(), data=batch_shape, grad_req='null', force_rebind=True)
-        self.executor.copy_params_from(arg_params, aux_params)
         # Desired class
         self.classids = [14.]
         
@@ -57,10 +50,7 @@ class Application(panoramasdk.node):
         logger.debug(image_data.shape)
 
         # Run inference
-        y_gen = self.executor.forward(is_train=False, data=image_data)
-        for x in y_gen:
-            x.wait_to_read()
-        inference_results = [x.asnumpy() for x in y_gen]
+        inference_results = self.call({"data":image_data}, self.MODEL_NODE)
 
         # Process results (object deteciton)
         self.process_results(inference_results, stream)

@@ -1,0 +1,9 @@
+{
+    "runtimeDescriptor": {
+        "entry": {
+            "name": "/panorama/run_app.sh",
+            "path": "bash"
+        },
+        "envelopeVersion": "2021-01-01"
+    }
+}
