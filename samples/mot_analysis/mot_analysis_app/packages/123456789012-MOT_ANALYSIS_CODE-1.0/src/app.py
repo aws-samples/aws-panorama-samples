@@ -1,5 +1,3 @@
-import torch
-import torch_tensorrt
 
 import json
 import logging
@@ -16,6 +14,7 @@ os.environ["GST_DEBUG"] = "2"
 os.environ["GST_PLUGIN_PATH"] = "$GST_PLUGIN_PATH:/usr/local/lib/gstreamer-1.0/:/amazon-kinesis-video-streams-producer-sdk-cpp/build"
 
 from types import SimpleNamespace
+import torch
 from bytetracker.byte_tracker import BYTETracker
 from yolox_postprocess import demo_postprocess, multiclass_nms
 
@@ -31,28 +30,6 @@ class Application(panoramasdk.node):
         self.source_fnum = 0
         self.target_fnum = 0
         
-        converted_model_path = '/opt/aws/panorama/storage/converted_model.ts'
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        if not os.path.exists(converted_model_path):
-            logger.info('Converting model for use with TRT...')
-            yolovx = torch.jit.load('/panorama/yolox_m_neo.pth', map_location=torch.device(self.device))
-            model = yolovx.eval()
-            inputs = [
-                torch_tensorrt.Input(
-                    min_shape=[1, 3, 640, 640],
-                    opt_shape=[1, 3, 640, 640],
-                    max_shape=[1, 3, 640, 640],
-                    dtype=torch.float,
-                )
-            ]
-            enabled_precisions = {torch.float}
-            self.trt_model = torch_tensorrt.compile(model, inputs=inputs, enabled_precisions=enabled_precisions)
-            torch.jit.save(self.trt_model, converted_model_path)
-        else:
-            logger.info('Loading saved TRT-compatible model...')
-            self.trt_model = torch.jit.load(converted_model_path, map_location=torch.device(self.device))
-        logger.info('TRT-compatible model ready for use!')
-
         #for uploading still-shot each start day
         self.refresh = True
         self.lastday = datetime.now(timezone.utc).strftime('%Y-%m-%d')
@@ -171,8 +148,7 @@ class Application(panoramasdk.node):
         """Runs inference on a frame of video."""
         image_data, ratio = self.preproc(stream.image, self.MODEL_INPUT)
 
-        image_data_torch = torch.unsqueeze(torch.from_numpy(image_data).to(self.device), 0)
-        inference_results = self.trt_model(image_data_torch).cpu().detach().numpy()
+        inference_results = self.call({"input0":image_data}, self.MODEL_NODE)[0]
         
         # Process results (object deteciton)
         num_people = 0

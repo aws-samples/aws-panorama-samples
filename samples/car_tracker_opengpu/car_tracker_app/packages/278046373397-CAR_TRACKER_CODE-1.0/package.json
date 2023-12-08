@@ -1,0 +1,57 @@
+{
+    "nodePackage": {
+        "envelopeVersion": "2021-01-01",
+        "name": "CAR_TRACKER_CODE",
+        "version": "1.0",
+        "description": "Default description for package CAR_TRACKER_CODE",
+        "assets": [
+            {
+                "name": "code_asset",
+                "implementations": [
+                    {
+                        "type": "container",
+                        "assetUri": "dd25b9621904f0c1958dccacadde5812194c9a26a3160d67d3417a43b9dc582b.tar.gz",
+                        "descriptorUri": "577ccf8b6cff24dc1f90cc2af22644ee9d0c81b5a22e771287bf3630e1b7b8fb.json",
+                        "requirements" : [
+                            {
+                                "type" : "hardware_access",
+                                "nvAccelerators" : [
+                                    {
+                                        "deviceType" : "nvhost_gpu",
+                                        "sharedResourcePolicy" : {
+                                            "policy" : "allow_all"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "interfaces": [
+            {
+                "name": "interface",
+                "category": "business_logic",
+                "asset": "code_asset",
+                "inputs": [
+                    {
+                        "name": "video_in",
+                        "type": "media"
+                    },
+                    {
+                        "name": "threshold",
+                        "type": "float32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "description": "Video stream output",
+                        "name": "video_out",
+                        "type": "media"
+                    }
+                ]
+            }
+        ]
+    }
+}

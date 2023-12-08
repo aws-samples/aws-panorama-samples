@@ -1,4 +1,4 @@
-import tensorflow as tf
+
 import json
 import logging
 import time
@@ -22,9 +22,6 @@ class Application(panoramasdk.node):
         self.tracked_objects = []
         self.tracked_objects_start_time = dict()
         self.tracked_objects_duration = dict()
-
-        root = tf.saved_model.load("/panorama/ssd_mobilenet_v2_coco_tf_trt")
-        self.model = root.signatures['serving_default']
 
         try:
             # Parameters
@@ -57,7 +54,7 @@ class Application(panoramasdk.node):
         logger.debug(image_data.shape)
 
         # Run inference
-        inference_results = [x.numpy() for x in self.model(tf.convert_to_tensor(image_data)).values()]
+        inference_results = self.call({"image_tensor":image_data}, self.MODEL_NODE)
 
         # Process results (object deteciton)
         self.process_results(inference_results, stream)

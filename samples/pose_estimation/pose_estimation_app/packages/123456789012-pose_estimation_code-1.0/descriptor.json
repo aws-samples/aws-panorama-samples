@@ -1,8 +1,8 @@
 {
     "runtimeDescriptor": {
         "entry": {
-            "name": "/panorama/run_app.sh",
-            "path": "bash"
+            "name": "/panorama/app.py",
+            "path": "python3.7"
         },
         "envelopeVersion": "2021-01-01"
     }

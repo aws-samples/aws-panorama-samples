@@ -7,7 +7,11 @@
                 "version": "1.0"
             },
             {
-                "name": "panorama::abstract_rtsp_media_source",
+                "name": "278046373397::CAR_SSD_TF_MODEL",
+                "version": "1.0"
+            },
+            {
+                "name": "278046373397::RTSP_STREAM",
                 "version": "1.0"
             },
             {
@@ -23,10 +27,16 @@
                 "launch": "onAppStart"
             },
             {
+                "name": "model_node",
+                "interface": "278046373397::CAR_SSD_TF_MODEL.interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
                 "name": "camera_node",
-                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "interface": "278046373397::RTSP_STREAM.interface",
                 "overridable": true,
-                "overrideMandatory": true,
+                "launch": "onAppStart",
                 "decorator": {
                     "title": "IP camera",
                     "description": "Choose a camera stream."
