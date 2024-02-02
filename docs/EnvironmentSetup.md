@@ -14,9 +14,8 @@ Note: MacOS is currently not supported due to model compilation issues.
 **Pre-Requisites**
 1. You need to have an already created PEM key in your aws account and downloaded it to your local computer. [Instructions on how to create a PEM key](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair)
 
-2. You need to subscribe to the Ubuntu 18.04 LTS Bionic ARM AMI on AWS Marketplace. Please go to [this link](https://aws.amazon.com/marketplace/pp/prodview-5cjjlmwk54f2o?sr=0-1&ref_=beagle&applicationId=AWSMPContessa) and click "Continue to Subscribe". "Accept Terms" on the next page completes the Subscription
 
-3. An S3 bucket created in the region of your choice that you can use in the Test Utility
+2. An S3 bucket created in the region of your choice that you can use in the Test Utility
 
 
 **Launching the Samples**
