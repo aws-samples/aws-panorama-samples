@@ -8,6 +8,9 @@ In this guide, we show how to runtime build a tensorrt engine file in panorama a
 - Convert ONNX model to TensorRT engine **in runtime**.
 - Finally, inference using the engine file.
 
+> Note: In case one is not interested in building the engine in runtime. We have also provided the prebuilt engine.
+> By default this app will just use the prebuilt engine to save time. If one want to build engine in runtime, or want to replace the defalut yolov5s model with your own yolov5s model, just replace the onnx file and go to the init function inside `tensorrt_pytorch_panorama.py`. In the init fucntion, there are some comments about how to use your own model and build it in runtime. Please follow along.
+
 ## Why Convert to ONNX First?
 ONNX is an open format built to represent machine learning models. ONNX defines a common set of operators - the building blocks of machine learning and deep learning models - and a common file format to enable AI developers to use models with a variety of frameworks, tools, runtimes, and compilers.
 
@@ -35,7 +38,9 @@ And thus the most common way to build engine file is build it runtime on target 
 
 ## Model
 
-* We have already included the yolov5s.onnx model in the packages/<app_name>-1.0/src/ folder.
+* We have already included the `yolov5s.onnx` model in the packages/<app_name>-1.0/src/ folder.
+* We have also included the prebuilt TRT7 engine `yolov5s_dynamic_148.engine` based on the `yolov5s.onnx` file.
+    * This engine accepts dynamic batch size from 1 to 8.
 * If you would like to convert any other model from any other framework to ONNX, please see the [ONNX.ai](https://onnx.ai/) website.
 
 ```
