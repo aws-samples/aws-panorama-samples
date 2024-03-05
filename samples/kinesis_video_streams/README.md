@@ -55,6 +55,7 @@ After deploying Panorama application via execute all steps in notebook, users ca
 
 ![kvs-check](./doc/kvs_check.png)
 
+> Note that by default the app.py will resize the video resolution to 720p.
 
 ## Tips
 
