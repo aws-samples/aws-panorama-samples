@@ -61,7 +61,7 @@ def onnx2tensorrt(onnx_path, output_path, fp=16, dynamic_batch = [1, 4, 8], img_
 
             config.add_optimization_profile(profile)
 
-        print("Start compiling to engine file, it takes 8-12 mins ...", flush=True)
+        print("Start compiling to engine file, it takes about 20 mins ...", flush=True)
         engine = builder.build_engine(network, config)
         print("Engine built, start serializing ...", flush=True)
         with open(output_path, 'wb') as f:

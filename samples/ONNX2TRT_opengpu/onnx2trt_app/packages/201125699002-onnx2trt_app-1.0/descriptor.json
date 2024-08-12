@@ -4,7 +4,7 @@
         "envelopeVersion": "2021-01-01",
         "entry":
         {
-            "path": "python3.6",
+            "path": "python3.8",
             "name": "/panorama/tensorrt_pytorch_panorama.py"
         }
     }
