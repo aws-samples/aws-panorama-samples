@@ -42,12 +42,10 @@ The dependencies folder included with this application has
 
 ## Steps for setting this up
 
-* Step 1: Navigate to ./dependencies
-* Step 2 : ``` sudo docker build -t onnx38:latest . ```
-* Step 3 : Open onnx_example.ipynb and make sure you configure the following
+* Step 1 : Open onnx_example.ipynb and make sure you configure the following
     * The Device ID
     * The Camera node information
-* Step 4 : Follow the steps outlined in the notebook
+* Step 2 : Follow the steps outlined in the notebook
 
 ## Special flags in package.json
 
