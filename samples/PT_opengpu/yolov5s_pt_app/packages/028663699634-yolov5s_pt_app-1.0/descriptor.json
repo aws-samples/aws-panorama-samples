@@ -4,7 +4,7 @@
         "envelopeVersion": "2021-01-01",
         "entry":
         {
-            "path": "python3.7",
+            "path": "python3.8",
             "name": "/panorama/app/app_fp16.py"
         }
     }

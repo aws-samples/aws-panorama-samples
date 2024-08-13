@@ -8,7 +8,7 @@ In this guide, we show how to use a Yolov5s model with PyTorch GPU on the Panora
 We have yolov5_half.pt (FP16) model in
 
 ```
-aws-panorama-samples/samples/PT37_opengpu/yolov5s_37_app/packages/028663699634-yolov5s_37_app-1.0/src/yolov5s_model/
+aws-panorama-samples/samples/PT_opengpu/yolov5s_pt_app/packages/028663699634-yolov5s_pt_app-1.0/src/yolov5s_model/
 ```
 
 ## Download Pre-Built model (Optional)
@@ -26,25 +26,16 @@ If you have a custom model, please use that instead of the prebuilt yolov5s.pt
 Training Custom Model : [Refer to this link](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data)
 
 
-## Setup the application
-
-The dependencies folder included with this application has 
-
-* The Dockerfile
-* Cuda Enabled PyTorch for Jetson Xavier
-
 ## Steps for setting this up
 
-* Step 1: Navigate to ./dependencies/docker
-* Step 2 : ``` sudo docker build -t pt:37 . ```
-* Step 3 : Open pytorch_example.ipynb and make sure you configure the following
+* Step 1 : Open pytorch_example.ipynb and make sure you configure the following
     * The Device ID
     * The Camera node information
-* Step 4 : Follow the steps outlined in the notebook
+* Step 2 : Follow the steps outlined in the notebook
 
 ## Special flags in package.json
 
-* Step 1 : Before you deploy the application, open PT37_opengpu/yolov5s_37_app/packages/(account-id)-yolov5s_37_app-1.0/package.json
+* Step 1 : Before you deploy the application, open PT_opengpu/yolov5s_pt_app/packages/(account-id)-yolov5s_pt_app-1.0/package.json
 * Step 2 : Add the following flags to the package.json
 
 ```
@@ -67,7 +58,7 @@ The assets should look something like this
 ```
 "assets": [
     {
-        "name": "yolov5s_pt37_app_asset",
+        "name": "yolov5s_pt_app_asset",
         "implementations": [
             {
                 "type": "container",

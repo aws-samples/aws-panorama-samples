@@ -3,7 +3,7 @@
         "envelopeVersion": "2021-01-01",
         "packages": [
             {
-                "name": "028663699634::yolov5s_pt37_app",
+                "name": "028663699634::yolov5s_pt_app",
                 "version": "1.0"
             },
             {
@@ -27,8 +27,8 @@
                 }
             },
             {
-                "name": "yolov5s_pt37_app_node",
-                "interface": "028663699634::yolov5s_pt37_app.yolov5s_pt37_app_interface",
+                "name": "yolov5s_pt_app_node",
+                "interface": "028663699634::yolov5s_pt_app.yolov5s_pt_app_interface",
                 "overridable": false,
                 "launch": "onAppStart"
             },
@@ -52,15 +52,15 @@
         "edges": [
             {
                 "producer": "front_door_camera.video_out",
-                "consumer": "yolov5s_pt37_app_node.video_in"
+                "consumer": "yolov5s_pt_app_node.video_in"
             },
             {
-                "producer": "yolov5s_pt37_app_node.video_out",
+                "producer": "yolov5s_pt_app_node.video_out",
                 "consumer": "output_node.video_in"
             },
             {
                 "producer": "model_batch_size",
-                "consumer": "yolov5s_pt37_app_node.model_batch_size"
+                "consumer": "yolov5s_pt_app_node.model_batch_size"
             }
         ]
     }

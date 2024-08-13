@@ -1,8 +1,8 @@
 import os
 os.environ["PYTHON_EGG_CACHE"] = "/panorama/.cache"
 import site
-site.addsitedir('/usr/lib/python3.7/site-packages/')
-site.addsitedir('/usr/local/lib/python3.7/site-packages/')
+site.addsitedir('/usr/lib/python3.8/site-packages/')
+site.addsitedir('/usr/local/lib/python3.8/site-packages/')
 
 import panoramasdk as p
 import numpy as np
@@ -165,8 +165,8 @@ class ObjectDetectionApp(p.node):
 
                 # Reset Input Images
                 image_list = image_list[self.model_batch_size:]
-
-            self.outputs.video_out.put(input_frames)
+                
+                self.outputs.video_out.put(input_frames)
 
             app_inference_state = self.metrics_handler.get_metric('ApplicationStatus')
             app_inference_state.add_value(float("1"), "None", 1)

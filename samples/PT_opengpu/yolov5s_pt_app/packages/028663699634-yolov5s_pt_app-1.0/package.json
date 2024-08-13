@@ -1,12 +1,12 @@
 {
     "nodePackage": {
         "envelopeVersion": "2021-01-01",
-        "name": "yolov5s_pt37_app",
+        "name": "yolov5s_pt_app",
         "version": "1.0",
-        "description": "Default description for package yolov5s_pt37_app",
+        "description": "Default description for package yolov5s_pt_app",
         "assets": [
             {
-                "name": "yolov5s_pt37_app_asset",
+                "name": "yolov5s_pt_app_asset",
                 "implementations": [
                     {
                         "type": "container",
@@ -31,9 +31,9 @@
         ],
         "interfaces": [
             {
-                "name": "yolov5s_pt37_app_interface",
+                "name": "yolov5s_pt_app_interface",
                 "category": "business_logic",
-                "asset": "yolov5s_pt37_app_asset",
+                "asset": "yolov5s_pt_app_asset",
                 "inputs": [
                     {
                         "name": "video_in",
