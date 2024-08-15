@@ -63,8 +63,7 @@ class ObjectDetectionApp(p.node):
     def __init__(self):
         self.model_batch_size = self.inputs.batch_size.get()
         self.pre_processing_output_size = 640
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu' 
-        self.onnx = ort.InferenceSession('/panorama/onnx_model/yolov5s_fp16.onnx')
+        self.onnx = ort.InferenceSession('/panorama/onnx_model/yolov5s_fp16.onnx', providers=['CUDAExecutionProvider'])
         self.io_binding = self.onnx.io_binding()
         self.input_name = self.onnx.get_inputs()[0].name
         self.output_name = self.onnx.get_outputs()[0].name

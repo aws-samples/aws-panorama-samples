@@ -50,20 +50,13 @@ packages/<app_name>/src/onnx_model/yolov5s.onnx
 
 ## Setup the application
 
-This application requires a Docker base image. 
-- Please open a terminal, go to ./dependencies/docker
-- run: `sudo docker build -t  trtpt36:latest .`
-- This step takes a long time (approximately 5hrs.)
-
-
 **VERY IMPORTANT** : This example will build the engine file with dynamic batch size ranges from 1 to 8. If you decide to use batch size larger than 4, please use ATLEAST 2 CAMERAS for this example.
 
 **VERY IMPORTANT** : Batch size 8 is suitable for Jetson Xavier AGX. And for devices using Jetson Xavier NX module, please select at most batch size 4 instead of 8. please refer to this [link](https://aws.amazon.com/tw/panorama/appliance/) for more information about your device.
 
 ## Steps for setting this up
 
-* Step 1: Navigate to ./dependencies/docker and build the base docker image.
-* Step 2 : Open ONNX2TRT_opengpu.ipynb and follow along.
+* Step 1 : Open ONNX2TRT_opengpu.ipynb and follow along.
 
 ## Special flags in package.json
 

@@ -144,7 +144,7 @@ class ObjectDetectionApp(p.node):
                     self.metrics_handler.put_metric(postprocess_metric)
                     self.metrics_handler.put_metric(visualize_metric)
                     
-                self.outputs.video_out.put(input_frames)
+                    self.outputs.video_out.put(input_frames)
         
             except Exception as e:
                 self.yolov5_wrapper.destroy()

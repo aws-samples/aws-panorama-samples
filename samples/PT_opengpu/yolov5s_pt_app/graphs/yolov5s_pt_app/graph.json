@@ -1,0 +1,67 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "028663699634::yolov5s_pt_app",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "front_door_camera",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart",
+                "decorator": {
+                    "title": "Camera front_door_camera",
+                    "description": "Default description for camera front_door_camera"
+                }
+            },
+            {
+                "name": "yolov5s_pt_app_node",
+                "interface": "028663699634::yolov5s_pt_app.yolov5s_pt_app_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "output_node",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": true,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "model_batch_size",
+                "value": 1,
+                "interface": "int32",
+                "overridable": true,
+                "decorator": {
+                    "title": "Batch size",
+                    "description": "The batch size for model inference. Batch size 8 for Jetson Xavier AGX; batch size 2 for Jetson Xavier NX module."
+                }
+            }
+        ],
+        "edges": [
+            {
+                "producer": "front_door_camera.video_out",
+                "consumer": "yolov5s_pt_app_node.video_in"
+            },
+            {
+                "producer": "yolov5s_pt_app_node.video_out",
+                "consumer": "output_node.video_in"
+            },
+            {
+                "producer": "model_batch_size",
+                "consumer": "yolov5s_pt_app_node.model_batch_size"
+            }
+        ]
+    }
+}
