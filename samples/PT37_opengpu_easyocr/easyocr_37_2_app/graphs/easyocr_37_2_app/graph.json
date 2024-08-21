@@ -1,0 +1,53 @@
+{
+    "nodeGraph": {
+        "envelopeVersion": "2021-01-01",
+        "packages": [
+            {
+                "name": "028663699634::easyocr_37_2_app",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::hdmi_data_sink",
+                "version": "1.0"
+            },
+            {
+                "name": "panorama::abstract_rtsp_media_source",
+                "version": "1.0"
+            }
+        ],
+        "nodes": [
+            {
+                "name": "front_door_camera",
+                "interface": "panorama::abstract_rtsp_media_source.rtsp_v1_interface",
+                "overridable": true,
+                "launch": "onAppStart",
+                "decorator": {
+                    "title": "Camera front_door_camera",
+                    "description": "Default description for camera front_door_camera"
+                }
+            },
+            {
+                "name": "easyocr_37_2_app_node",
+                "interface": "028663699634::easyocr_37_2_app.easyocr_37_2_app_interface",
+                "overridable": false,
+                "launch": "onAppStart"
+            },
+            {
+                "name": "output_node",
+                "interface": "panorama::hdmi_data_sink.hdmi0",
+                "overridable": true,
+                "launch": "onAppStart"
+            }
+        ],
+        "edges": [
+            {
+                "producer": "front_door_camera.video_out",
+                "consumer": "easyocr_37_2_app_node.video_in"
+            },
+            {
+                "producer": "easyocr_37_2_app_node.video_out",
+                "consumer": "output_node.video_in"
+            }
+        ]
+    }
+}
