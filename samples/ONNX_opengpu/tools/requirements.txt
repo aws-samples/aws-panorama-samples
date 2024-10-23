@@ -1,4 +1,4 @@
-onnx==1.13.0
+onnx==1.17.0
 onnxmltools==1.11.1
 onnxruntime==1.11.1 
 # manually install converter-common to latest version to support op_block_list during conversion.
